@@ -133,6 +133,17 @@ int queueCount = 0;
 int queueLength = 7;                            //don't forget to change angleQueue to this number also
 float angleQueue[7];
 
+// ***New Variables****************************
+char error1[20] = "none";
+char error2[20] = "none";
+float checkSum = 0;
+float maxWaterLevel = 0;
+float minWaterLevel = 0;
+float batteryLevel = 0;	// Not sure if this is still being implemented, but it was on the requirements document
+
+//float avgVolume = 0;   // Again, not sure if this is calculated on the unit or in the server, but it was on the req.doc.
+
+
 // ****************************************************************************
 // *** Functions **************************************************************
 // ****************************************************************************
@@ -697,6 +708,19 @@ void __attribute__((__interrupt__,__auto_psv__)) _DefaultInterrupt(){ //Tested 0
         char volume2224String[20];
         volume2224String[0] = 0;
 
+		// the beginning of the 2015 edit :)
+		char maxWaterLevelString[20];
+		maxWaterLevelString[0] = 0;
+		
+		char minWaterLevelString[20];
+		minWaterLevelString[0] = 0;
+
+		// error1 & error2 are both already char arrays
+		
+		char batteryLevelString[20];
+		batteryLevelString[0] = 0;
+		
+		// check sum variable and string are created below, after the rest of the variables are made into strings
         floatToString(leakRateLong, leakRateLongString);
         floatToString(longestPrime, longestPrimeString);
         floatToString(volume02, volume02String);
@@ -712,7 +736,15 @@ void __attribute__((__interrupt__,__auto_psv__)) _DefaultInterrupt(){ //Tested 0
         floatToString(volume2022, volume2022String);
         floatToString(volume2224, volume2224String);
 
-        long checkSum = longestPrime + leakRateLong  + volume02 + volume24 + volume46 + volume68 + volume810 + volume1012 + volume1214  + volume1416 + volume1618 + volume1820 + volume2022 + volume2224;
+        floatToString(maxWaterLevel, maxWaterLevelString);
+		floatToString(minWaterLevel, minWaterLevelString);
+		// error1 and error2 are already "Strings"
+		floatToString(batteryLevel, batteryLevelString);
+
+		// error1 and error2 are not included in the checkSum.
+		// we may want to come up with a way to add the ASCII char values of the errors to the checkSum
+        long checkSum = longestPrime + leakRateLong  + volume02 + volume24 + volume46 + volume68 + volume810 + volume1012 + volume1214  + volume1416 + volume1618 + volume1820 + volume2022 + volume2224 + maxWaterLevel + minWaterLevel + batteryLevel;
+
 
         char stringCheckSum[20];
         floatToString(checkSum, stringCheckSum);
@@ -749,8 +781,22 @@ void __attribute__((__interrupt__,__auto_psv__)) _DefaultInterrupt(){ //Tested 0
         concat(dataMessage, volume2022String);
         concat(dataMessage, ",");
         concat(dataMessage, volume2224String);
-        concat(dataMessage, ">))");
-
+        concat(dataMessage, ">,");
+		concat(dataMessage, "\"max\":");				
+		concat(dataMessage, maxWaterLevelString);
+		concat(dataMessage, ",\"min\":");				
+		concat(dataMessage, minWaterLevelString);
+		concat(dataMessage, ",\"e1\":\"");				
+		concat(dataMessage, error1);
+		concat(dataMessage, "\",\"e2\":\"");				
+		concat(dataMessage, error2);
+		concat(dataMessage, "\",\"b\":");
+		concat(dataMessage, batteryLevelString);
+	// checkSum is not currently implemented in the database
+		//	concat(dataMessage, ",\"cs\":");
+	//	concat(dataMessage, stringCheckSum);
+        concat(dataMessage, "))");
+		
         // Try to establish network connection
         tryToConnectToNetwork();
 
