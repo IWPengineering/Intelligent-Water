@@ -1,3 +1,4 @@
+// Test comment for GitHub
 /*
 * File: InternalClock.c
 * Author: jy1189
