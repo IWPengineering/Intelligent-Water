@@ -1,4 +1,81 @@
 #include "IWPUtilities.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <xc.h>
+#include <string.h>
+
+const int xAxis = 11; // analog pin connected to x axis of accelerometer
+const int yAxis = 12; // analog pin connected to y axis of accelerometer
+const int batteryVoltage = 15;                  // analog pin connected to the battery
+const float MKII = 0.467; // 0.4074 L/Radian; transfer variable for mkII delta handle angle to outflow
+const float leakSensorVolume = 0.01781283; // This is in Liters; pipe dia. = 33mm; rod diam 12 mm; gage length 24mm
+const int alarmHour = 0x0000; // The weekday and hour (24 hour format) (in BCD) that the alarm will go off
+const int alarmStartingMinute = 1; // The minimum minute that the alarm will go off
+const int alarmMinuteMax = 5; // The max number of minutes to offset the alarm (the alarmStartingMinute + a random number between 0 and this number)
+const int adjustmentFactor = 511; // Used to ajust the values read from the accelerometer
+const int pulseWidthThreshold = 0x0800; // The value to check the pulse width against (2048)
+const int networkPulseWidthThreshold = 0x4E20; // The value to check the pulse width against (about 20000)
+const int upstrokeInterval = 10; // The number of milliseconds to delay before reading the upstroke
+int waterPrimeTimeOut = 7000; // Equivalent to 7 seconds (in 50 millisecond intervals); 50 = upstrokeInterval
+long leakRateTimeOut = 18000; // Equivalent to 18 seconds (in 50 millisecond intervals); 50 = upstrokeInterval
+long timeBetweenUpstrokes = 3000; // 3 seconds (based on upstrokeInterval)
+const int decimalAccuracy = 3; // Number of decimal places to use when converting floats to strings
+const int angleDeltaThreshold = 2; // The angle delta to check against
+const float upstrokeToMeters = 0.01287;
+const int minimumAngleDelta = 10;
+const float batteryLevelConstant = 0.476;       //This number is found by Vout = (R32 * Vin) / (R32 + R31), Yields Vin = Vout / 0.476
+int queueCount = 0;
+int queueLength = 7; //don't forget to change angleQueue to this number also
+float angleQueue[7];
+// ****************************************************************************
+// *** Global Variables *******************************************************
+// ****************************************************************************
+//static char phoneNumber[] = "+233247398396"; // Number for the Black Phone
+char phoneNumber[] = "+13018737202"; // Number for Upside Wireless
+float longestPrime = 0; // total upstroke fo the longest priming event of the day
+float leakRateLong = 0; // largest leak rate recorded for the day
+float volume02 = 0; // Total Volume extracted from 0:00-2:00
+float volume24 = 0;
+float volume46 = 0;
+float volume68 = 0;
+float volume810 = 0;
+float volume1012 = 0;
+float volume1214 = 0;
+float volume1416 = 0;
+float volume1618 = 0;
+float volume1820 = 0;
+float volume2022 = 0;
+float volume2224 = 0;
+//Pin assignments
+int mclrPin = 1;
+char Pin2 = 'unused';
+int simVioPin = 3;
+char Pin4 = 'unused';
+char Pin5 = 'unused';
+int rxPin = 6;
+char Pin7 = 'unused';
+int GND2Pin = 8;
+char Pin9 = 'unused';
+char Pin10 = 'unused';
+int batteryLevelPin = 11;
+char Pin12 = 'unused';
+int vccPin = 13;
+int waterPresenceSensorPin = 14;
+int pwrKeyPin = 15;
+int txPin = 16;
+int sclI2CPin = 17;
+int sdaI2CPin = 18;
+int statusPin = 19;
+int vCapPin = 20;
+int picKit4Pin = 21;
+int picKit5Pin = 22;
+int yAxisAccelerometerPin = 23;
+int xAxisAccelerometerPin = 24;
+int netLightPin = 25;
+int waterPresenceSensorOnOffPin = 26;
+int GNDPin = 27;
+int vcc2Pin = 28;
 
 /////////////////////////////////////////////////////////////////////
 ////                                                             ////
