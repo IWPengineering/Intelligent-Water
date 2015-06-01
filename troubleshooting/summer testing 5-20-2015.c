@@ -1,3 +1,4 @@
+// Test comment for GitHub
 /*
 * File: InternalClock.c
 * Author: jy1189
@@ -80,6 +81,7 @@ const float batteryLevelConstant = 0.476;       //This number is found by Vout =
 int queueCount = 0;
 int queueLength = 7; //don't forget to change angleQueue to this number also
 float angleQueue[7];
+int prevDay;
 // ****************************************************************************
 // *** Global Variables *******************************************************
 // ****************************************************************************
@@ -110,7 +112,7 @@ static char Pin7 = 'unused';
 int GND2Pin = 8;
 static char Pin9 = 'unused';
 static char Pin10 = 'unused';
-int batteryLevelPin = 11;
+int batteryLevelPin = 11; // if modified, change const batteryVoltage
 static char Pin12 = 'unused';
 int vccPin = 13;
 int waterPresenceSensorPin = 14;
@@ -122,8 +124,8 @@ int statusPin = 19;
 int vCapPin = 20;
 int picKit4Pin = 21;
 int picKit5Pin = 22;
-int yAxisAccelerometerPin = 23;
-int xAxisAccelerometerPin = 24;
+int yAxisAccelerometerPin = 23; // if modified, change const yAxis
+int xAxisAccelerometerPin = 24; // if modified, change const xAxis
 int netLightPin = 25;
 int waterPresenceSensorOnOffPin = 26;
 int GNDPin = 27;
@@ -828,27 +830,6 @@ int ones = (bcd >> 8) & 0b0000000000001111;
 //and adding the ones digit
 return (tens * 10) + ones;
 }
-//Returns the hour of day from the internal clock
-/*********************************************************************
-* Function: getTimeHour
-* Input: None
-* Output: hourDecimal
-* Overview: Returns the hour of day from the internal clock
-* Note: Pic Dependent
-* TestDate: 06-04-2014
-********************************************************************/
-//Tested 06-04-2014
-int getTimeHour(void) //to determine what volume variable to use;
-{
-//don't want to write, just want to read
-_RTCWREN = 0;
-//sets the pointer to 0b01 so that reading starts at Weekday/Hour
-_RTCPTR = 0b01;
-// Ask for the hour from the internal clock
-int myHour = RTCVAL;
-int hourDecimal = getLowerBCDAsDecimal(myHour);
-return hourDecimal;
-}
 /*********************************************************************
 * Function: sendMessage()
 * Input: String
@@ -894,27 +875,12 @@ Finally, piece together strings (16bytes) and write them to the RTCC */
 * Output: long timeStampValue
 * Overview: Returns the current time in seconds (the seconds passed so far in the day)
 * Note:
-* TestDate: 06-04-2014
+* TestDate: tbd
 ********************************************************************/
 long timeStamp(void)
 {
-long timeStampValue = 0;
-//Set the pointer to 0b01 so that reading starts at Weekday/Hour
-_RTCPTR = 0b01; // decrements with read or write
-_RTCWREN = 0; //don't want to write, just want to read
-long binaryWeekdayHour = RTCVAL; // write wkdy & hour to variable, dec. RTCPTR
-long binaryMinuteSecond = RTCVAL; // write min & sec to variable, dec. RTCPTR
-//For some reason, putting the multiplication for hours on one line like this:
-//
-// timeStampValue = getLowerBCDAsDecimal(binaryWeekdayHour) * 60 * 60;
-//
-//caused an error. We would get some unknown value for the timestamp, so
-//we had to break the code up across multiple lines. So don't try to
-//simplify this!
-timeStampValue = getLowerBCDAsDecimal(binaryWeekdayHour);
-timeStampValue = timeStampValue * 60 * 60;
-timeStampValue = timeStampValue + (getUpperBCDAsDecimal(binaryMinuteSecond) * 60);
-timeStampValue = timeStampValue + getLowerBCDAsDecimal(binaryMinuteSecond);
+long timeStampValue = getHourI2C() * 60 * 60 + getMinuteI2C() * 60 + getSecondI2C();
+
 return timeStampValue; //timeStampValue;
 }
 /*********************************************************************
@@ -968,21 +934,283 @@ volume2224 = 0;
 //getTime(); //Reset RTCC
 }
 /*********************************************************************
-* Function: DefaultInterrupt()
+* Function: translate()
+* Input: String
+* Output: int binaryNumber
+* Overview: The following integers are used for turning the corresponding time-value strings
+into binary numbers that are used to program the RTCC registers
+* Note: Library
+* TestDate: 06-02-2014
+********************************************************************/
+int translate(char digit)
+{
+int binaryNumber;
+if (digit == '0')
+{
+binaryNumber = 0b0000;
+}
+else if (digit == '1')
+{
+binaryNumber = 0b0001;
+}
+else if (digit == '2')
+{
+binaryNumber = 0b0010;
+}
+else if (digit == '3')
+{
+binaryNumber = 0b0011;
+}
+else if (digit == '4')
+{
+binaryNumber = 0b0100;
+}
+else if (digit == '5')
+{
+binaryNumber = 0b0101;
+}
+else if (digit == '6')
+{
+binaryNumber = 0b0110;
+}
+else if (digit == '7')
+{
+binaryNumber = 0b0111;
+}
+else if (digit == '8')
+{
+binaryNumber = 0b1000;
+}
+else if (digit == '9')
+{
+binaryNumber = 0b1001;
+}
+return binaryNumber;
+}
+/*********************************************************************
+* Function: RTCCSet()
 * Input: None
 * Output: None
-* Overview: This function will automatically call itself and run when it is around midnight
-* (when IFS3bits.RTCIF is true)
-* sends Text Message of all the data collected that day.
-* Note: if any other interrupts need to be added, they go in the "else" section
-* ALL INTERRUPTS LIVE HERE
-* Pic Dependent
-* TestDate: 06-05-2014
+* Overview: Get time string from SIM900
+* Note: Pic Dependent
+* TestDate: 06-02-2014
 ********************************************************************/
-void __attribute__((__interrupt__,__auto_psv__)) _DefaultInterrupt()
+void RTCCSet(void){
+// Write the time to the RTCC
+// The enclosed code was graciously donated by the KWHr project
+__builtin_write_RTCWEN(); //does unlock sequence to enable write to RTCC, sets RTCWEN
+RCFGCAL = 0b0010001100000000;
+RTCPWC = 0b0000010100000000;
+_RTCPTR = 0b11;// decrements with read or write
+// Thanks KWHr!!!
+RTCVAL = getYearI2C();
+RTCVAL = getDateI2C() + (getMonthI2C()<< 8);
+RTCVAL = getHourI2C() + (getWkdayI2C()<<8);
+RTCVAL = getSecondI2C() + (getMinuteI2C() << 8); // = binaryMinuteSecond;
+_RTCEN = 1; // = 1; //RTCC module is enabled
+_RTCWREN = 0; // = 0; // disable writing
+}
+/*********************************************************************
+* Function: initAdc()
+* Input: None
+* Output: None
+* Overview: Initializes Analog to Digital Converter
+* Note: Pic Dependent This is an initialization for the accelerometer
+ *      The battery needs to have a different reference votages than
+ *      what the accelerometer currently uses
+* TestDate: 06-02-2014
+********************************************************************/
+void initAdc(void)
 {
-if (IFS3bits.RTCIF)
-{ //If Alarm "is ringing", do this ....
+// 10bit conversion
+AD1CON1 = 0; // Default to all 0s
+AD1CON1bits.ADON = 0; // Ensure the ADC is turned off before configuration
+AD1CON1bits.FORM = 0; // absolute decimal result, unsigned, right-justified
+AD1CON1bits.SSRC = 0; // The SAMP bit must be cleared by software
+AD1CON1bits.SSRC = 0x7; // The SAMP bit is cleared after SAMC number (see
+// AD3CON) of TAD clocks after SAMP bit being set
+AD1CON1bits.ASAM = 0; // Sampling begins when the SAMP bit is manually set
+AD1CON1bits.SAMP = 0; // Don't Sample yet
+// Leave AD1CON2 at defaults
+// Vref High = Vcc Vref Low = Vss
+// Use AD1CHS (see below) to select which channel to convert, don't
+// scan based upon AD1CSSL
+AD1CON2 = 0;
+// AD3CON
+// This device needs a minimum of Tad = 600ns.
+// If Tcy is actually 1/8Mhz = 125ns, so we are using 3Tcy
+//AD1CON3 = 0x1F02; // Sample time = 31 Tad, Tad = 3Tcy
+AD1CON3bits.SAMC = 0x1F; // Sample time = 31 Tad (11.6us charge time)
+AD1CON3bits.ADCS = 0x2; // Tad = 3Tcy
+AD1CON5bits.BGREQ = 1; // The band gap is enabled and active
+// Conversions are routed through MuxA by default in AD1CON2
+AD1CHSbits.CH0NA = 0; // Use Vss as the conversion reference
+AD1CSSL = 0; // No inputs specified since we are not in SCAN mode
+// AD1CON2
+}
+//Returns the minutes and seconds (in BCD) to set the alarm to.
+//Generates a random number of seconds between 1 and the alarmMinuteMax
+//global variable to use for the minutes and seconds.
+/*********************************************************************
+* Function: getMinuteOffset()
+* Input: None
+* Output: int time in BCD
+* Overview: Randomizes sending of text messages a couple minutes after midnight.
+* Note: Library
+* TestDate: 06-13-2014
+********************************************************************/
+int getMinuteOffset()
+{
+//Get the number of seconds possible in alarmMinuteMax minuites plus 10 seconds
+//Plus 10 seconds is so that we aren't calling the alarm right at midnight
+int minutesInSeconds = (alarmMinuteMax * 60) + 10;
+//Sets the seed randomly based on the time of day
+long time = timeStamp(); // Gets the time of day in seconds (long)
+int timeConverted = (int) (time / 3); // Convert the time into an int to be supported by srand()
+srand(timeConverted);
+//Get a random time (in seconds)
+int randomTime = rand() % minutesInSeconds;
+//Get the minute part (plus the starting offset minute)
+int minutes = (randomTime / 60) + alarmStartingMinute;
+//Get the remaining seconds after minutes are taken out
+int seconds = randomTime % 60;
+//Get the tens and ones place for the minute
+int minuteTens = minutes / 10;
+int minuteOnes = minutes % 10;
+//Get the tens and ones place for the second
+int secondsTens = seconds / 10;
+int secondsOnes = seconds % 10;
+// Five minutes and one second (for an example reference)
+// 0x0501
+// 0b0000 0101 0000 0001
+//Get the time in BCD by shifting the minutes tens place
+int timeInBCD = minuteTens << 12;
+//Add the shifted minutes ones place
+timeInBCD = timeInBCD + (minuteOnes << 8);
+//Add the shifted seconds tens place
+timeInBCD = timeInBCD + (secondsTens << 4);
+//Add the seconds ones place
+timeInBCD = timeInBCD + secondsOnes;
+return timeInBCD;
+}
+//problem: is in radADC
+/*********************************************************************
+* Function: readAdc()
+* Input: channel
+* Output: adcValue
+* Overview: check with accelerometer
+* Note: Pic Dependent
+* TestDate:
+********************************************************************/
+int readAdc(int channel) //check with accelerometer
+{
+switch (channel)
+{
+case 12:
+AD1CON2bits.PVCFG = 0; // This gives us a high ref of Vcc
+specifyAnalogPin(yAxisAccelerometerPin, 1);
+analogIOandSHinput(yAxisAccelerometerPin, 1);
+//PORTBbits.RB12 = 1; // AN12 is analog ***I changed this to ANSBbits.ANSBxx 03-31-2015
+//TRISBbits.TRISB12 = 1; // AN12 is an input
+//AD1CHSbits.CH0SA = 12; // Connect AN12 as the S/H input
+break;
+case 11:
+AD1CON2bits.PVCFG = 0; // This gives us a high ref of Vcc
+specifyAnalogPin(xAxisAccelerometerPin, 1);
+analogIOandSHinput(xAxisAccelerometerPin, 1);
+//ANSBbits.ANSB13 = 1; // AN11 is analog
+//TRISBbits.TRISB13 = 1; // AN11 is an input
+//AD1CHSbits.CH0SA = 11; //Connect AN11 as the S/H input (sample and hold)
+break;
+case 4:
+AD1CON2bits.PVCFG = 0; // This gives us a high ref of Vcc
+specifyAnalogPin(rxPin, 1);
+analogIOandSHinput(rxPin, 1);
+//ANSBbits.ANSB2 = 1; // AN4 is analog
+//TRISBbits.TRISB2 = 1; // AN4 is an input
+//AD1CHSbits.CH0SA = 4; // Connect AN4 as the S/H input
+break;
+case 2:
+AD1CON2bits.PVCFG = 0; // This gives us 2 * Band Gap Voltage
+specifyAnalogPin(Pin4, 1); //Currently unused, may be used in the future.
+analogIOandSHinput(Pin4, 1);
+//ANSBbits.ANSB0 = 1; // AN2 is analog
+//TRISBbits.TRISB0 = 1; // AN2 is an input
+//AD1CHSbits.CH0SA = 2; // Connect AN2 as the S/H input
+break;
+case 15:
+    AD1CON2bits.PVCFG = 10; // This gives us 2 * Band Gap Voltage
+    specifyAnalogPin(batteryLevelPin, 1);
+    analogIOandSHinput(batteryLevelPin, 1);
+}
+AD1CON1bits.ADON = 1; // Turn on ADC
+AD1CON1bits.SAMP = 1;
+while (!AD1CON1bits.DONE)
+{
+}
+unsigned int adcValue = ADC1BUF0;
+return adcValue;
+}
+/*********************************************************************
+* Function: batteryLevel()
+* Input: None
+* Output: char
+* Overview: returns an output of a string containing the voltageAvgFloat of three different voltages
+* Note:
+* TestDate: TBD
+********************************************************************/
+
+// Vin = Actual battery level. Vout = what we are recieving.
+//Vin = (21/10)*Vout;
+//Vin = Vout/(0.4761908)
+float batteryLevel(void){ //this has not been tested
+    char voltageAvgFloatString[20];
+    voltageAvgFloatString[0] = 0;
+    float voltageOut1;
+    float voltageIn1;
+    float voltageOut2;
+    float voltageIn2;
+    float voltageOut3;
+    float voltageIn3;
+    float voltageAvg;
+
+
+    voltageOut1 = readAdc(batteryVoltage); // - adjustmentFactor;
+    voltageIn1 = voltageOut1 / (batteryLevelConstant);
+
+    delayMs(50);
+
+    voltageOut2 = readAdc(batteryVoltage); // - adjustmentFactor;
+    voltageIn2 = voltageOut2 / (batteryLevelConstant);
+
+    delayMs(50);
+
+    voltageOut3 = readAdc(batteryVoltage); // - adjustmentFactor;
+    voltageIn3 = voltageOut3 / (batteryLevelConstant);
+
+
+    voltageAvg = (voltageIn1 + voltageIn2 + voltageIn3)/3 * 0.002;
+
+
+    floatToString(voltageAvg, voltageAvgFloatString);
+
+    //return voltageAvgFloatString;
+
+    return voltageAvg;
+}
+
+/*********************************************************************
+* Function: midNightMessage()
+* Input: None
+* Output: None
+* Overview: This function will run when the pump handle is not moving and it is a new day
+* sends Text Message of all the data collected that day.
+* external RTCC Dependent
+* TestDate: TBD
+********************************************************************/
+void midNightMessage()
+{
+
 /////////////////////////////////////////////
 // Should we wake the SIM up here?
 /////////////////////////////////////////////
@@ -1094,232 +1322,27 @@ concat(dataMessage, volume2022String);
 concat(dataMessage, ",");
 concat(dataMessage, volume2224String);
 concat(dataMessage, ">))");
+/* Not working:
+//concat(dataMessage, "bat: ");
+//concat(dataMessage, batteryLevel());
+*/
+
 // Try to establish network connection
 tryToConnectToNetwork();
 delayMs(2000);
 // Send off the data
 sendTextMessage(dataMessage);
 
+
 pressReset();
-IFS3bits.RTCIF = 0; //turns off the alarm interrupt flag
+
 ////////////////////////////////////////////////
 // Should we put the SIM back to sleep here?
 ////////////////////////////////////////////////
 RTCCSet(); // updates the internal time from the external RTCC if the internal RTCC got off any through out the day
+prevDay = getDateI2C();
 }
-else
-{
-// Other interrupts sent here
-}
-// Do we need: The ?Return from Interrupt? instruction, RETFIE, exits an interrupt or trap routine.
-}
-/*********************************************************************
-* Function: translate()
-* Input: String
-* Output: int binaryNumber
-* Overview: The following integers are used for turning the corresponding time-value strings
-into binary numbers that are used to program the RTCC registers
-* Note: Library
-* TestDate: 06-02-2014
-********************************************************************/
-int translate(char digit)
-{
-int binaryNumber;
-if (digit == '0')
-{
-binaryNumber = 0b0000;
-}
-else if (digit == '1')
-{
-binaryNumber = 0b0001;
-}
-else if (digit == '2')
-{
-binaryNumber = 0b0010;
-}
-else if (digit == '3')
-{
-binaryNumber = 0b0011;
-}
-else if (digit == '4')
-{
-binaryNumber = 0b0100;
-}
-else if (digit == '5')
-{
-binaryNumber = 0b0101;
-}
-else if (digit == '6')
-{
-binaryNumber = 0b0110;
-}
-else if (digit == '7')
-{
-binaryNumber = 0b0111;
-}
-else if (digit == '8')
-{
-binaryNumber = 0b1000;
-}
-else if (digit == '9')
-{
-binaryNumber = 0b1001;
-}
-return binaryNumber;
-}
-/*********************************************************************
-* Function: RTCCSet()
-* Input: None
-* Output: None
-* Overview: Get time string from SIM900
-* Note: Pic Dependent
-* TestDate: 06-02-2014
-********************************************************************/
-void RTCCSet(void){
-// Write the time to the RTCC
-// The enclosed code was graciously donated by the KWHr project
-__builtin_write_RTCWEN(); //does unlock sequence to enable write to RTCC, sets RTCWEN
-RCFGCAL = 0b0010001100000000;
-RTCPWC = 0b0000010100000000;
-_RTCPTR = 0b11;// decrements with read or write
-// Thanks KWHr!!!
-RTCVAL = getYearI2C();
-RTCVAL = getDateI2C() + (getMonthI2C()<< 8);
-RTCVAL = getHourI2C() + (getWkdayI2C()<<8);
-RTCVAL = getSecondI2C() + (getMinuteI2C() << 8); // = binaryMinuteSecond;
-_RTCEN = 1; // = 1; //RTCC module is enabled
-_RTCWREN = 0; // = 0; // disable writing
-}
-/*********************************************************************
-* Function: initAdc()
-* Input: None
-* Output: None
-* Overview: Initializes Analog to Digital Converter
-* Note: Pic Dependent
-* TestDate: 06-02-2014
-********************************************************************/
-void initAdc(void)
-{
-// 10bit conversion
-AD1CON1 = 0; // Default to all 0s
-AD1CON1bits.ADON = 0; // Ensure the ADC is turned off before configuration
-AD1CON1bits.FORM = 0; // absolute decimal result, unsigned, right-justified
-AD1CON1bits.SSRC = 0; // The SAMP bit must be cleared by software
-AD1CON1bits.SSRC = 0x7; // The SAMP bit is cleared after SAMC number (see
-// AD3CON) of TAD clocks after SAMP bit being set
-AD1CON1bits.ASAM = 0; // Sampling begins when the SAMP bit is manually set
-AD1CON1bits.SAMP = 0; // Don't Sample yet
-// Leave AD1CON2 at defaults
-// Vref High = Vcc Vref Low = Vss
-// Use AD1CHS (see below) to select which channel to convert, don't
-// scan based upon AD1CSSL
-AD1CON2 = 0;
-// AD3CON
-// This device needs a minimum of Tad = 600ns.
-// If Tcy is actually 1/8Mhz = 125ns, so we are using 3Tcy
-//AD1CON3 = 0x1F02; // Sample time = 31 Tad, Tad = 3Tcy
-AD1CON3bits.SAMC = 0x1F; // Sample time = 31 Tad (11.6us charge time)
-AD1CON3bits.ADCS = 0x2; // Tad = 3Tcy
-// Conversions are routed through MuxA by default in AD1CON2
-AD1CHSbits.CH0NA = 0; // Use Vss as the conversion reference
-AD1CSSL = 0; // No inputs specified since we are not in SCAN mode
-// AD1CON2
-}
-//Returns the minutes and seconds (in BCD) to set the alarm to.
-//Generates a random number of seconds between 1 and the alarmMinuteMax
-//global variable to use for the minutes and seconds.
-/*********************************************************************
-* Function: getMinuteOffset()
-* Input: None
-* Output: int time in BCD
-* Overview: Randomizes sending of text messages a couple minutes after midnight.
-* Note: Library
-* TestDate: 06-13-2014
-********************************************************************/
-int getMinuteOffset()
-{
-//Get the number of seconds possible in alarmMinuteMax minuites plus 10 seconds
-//Plus 10 seconds is so that we aren't calling the alarm right at midnight
-int minutesInSeconds = (alarmMinuteMax * 60) + 10;
-//Sets the seed randomly based on the time of day
-long time = timeStamp(); // Gets the time of day in seconds (long)
-int timeConverted = (int) (time / 3); // Convert the time into an int to be supported by srand()
-srand(timeConverted);
-//Get a random time (in seconds)
-int randomTime = rand() % minutesInSeconds;
-//Get the minute part (plus the starting offset minute)
-int minutes = (randomTime / 60) + alarmStartingMinute;
-//Get the remaining seconds after minutes are taken out
-int seconds = randomTime % 60;
-//Get the tens and ones place for the minute
-int minuteTens = minutes / 10;
-int minuteOnes = minutes % 10;
-//Get the tens and ones place for the second
-int secondsTens = seconds / 10;
-int secondsOnes = seconds % 10;
-// Five minutes and one second (for an example reference)
-// 0x0501
-// 0b0000 0101 0000 0001
-//Get the time in BCD by shifting the minutes tens place
-int timeInBCD = minuteTens << 12;
-//Add the shifted minutes ones place
-timeInBCD = timeInBCD + (minuteOnes << 8);
-//Add the shifted seconds tens place
-timeInBCD = timeInBCD + (secondsTens << 4);
-//Add the seconds ones place
-timeInBCD = timeInBCD + secondsOnes;
-return timeInBCD;
-}
-//problem: is in radADC
-/*********************************************************************
-* Function: readAdc()
-* Input: channel
-* Output: adcValue
-* Overview: check with accelerometer
-* Note: Pic Dependent
-* TestDate:
-********************************************************************/
-int readAdc(int channel) //check with accelerometer
-{
-switch (channel)
-{
-case 12:
-specifyAnalogPin(yAxisAccelerometerPin, 1);
-analogIOandSHinput(yAxisAccelerometerPin, 1);
-//PORTBbits.RB12 = 1; // AN12 is analog ***I changed this to ANSBbits.ANSBxx 03-31-2015
-//TRISBbits.TRISB12 = 1; // AN12 is an input
-//AD1CHSbits.CH0SA = 12; // Connect AN12 as the S/H input
-break;
-case 11:
-specifyAnalogPin(xAxisAccelerometerPin, 1);
-analogIOandSHinput(xAxisAccelerometerPin, 1);
-//ANSBbits.ANSB13 = 1; // AN11 is analog
-//TRISBbits.TRISB13 = 1; // AN11 is an input
-//AD1CHSbits.CH0SA = 11; //Connect AN11 as the S/H input (sample and hold)
-break;
-case 4:
-specifyAnalogPin(rxPin, 1);
-analogIOandSHinput(rxPin, 1);
-//ANSBbits.ANSB2 = 1; // AN4 is analog
-//TRISBbits.TRISB2 = 1; // AN4 is an input
-//AD1CHSbits.CH0SA = 4; // Connect AN4 as the S/H input
-break;
-case 2:
-specifyAnalogPin(Pin4, 1); //Currently unused, may be used in the future.
-analogIOandSHinput(Pin4, 1);
-//ANSBbits.ANSB0 = 1; // AN2 is analog
-//TRISBbits.TRISB0 = 1; // AN2 is an input
-//AD1CHSbits.CH0SA = 2; // Connect AN2 as the S/H input
-break;
-}
-AD1CON1bits.ADON = 1; // Turn on ADC
-AD1CON1bits.SAMP = 1;
-while (!AD1CON1bits.DONE)
-{
-}
-unsigned int adcValue = ADC1BUF0;
-return adcValue;
-}
+
 /*********************************************************************
 * Function: parseJSON()
 * Input: String
@@ -1513,7 +1536,7 @@ void configI2c(void)
 I2C1CONbits.A10M = 0; //Use 7-bit slave addresses
 I2C1CONbits.DISSLW = 1; // Disable Slew rate
 I2C1CONbits.IPMIEN = 0; //should be set to 0 when master
-//IFS1bits.MI2C1IF = 0; // Disable Interupt
+//IFS1bits.MI2C1IF = 0; // Disable Interrupt
 //^From Jake's
 I2C1BRG = 0x4E; // If Fcy = 8 Mhz this will set the baud to 100 khz
 I2C1CONbits.I2CEN = 1; // Configures I2C pins as I2C (on pins 17 an 18)
@@ -1789,39 +1812,37 @@ IdleI2C();
 StopI2C();
 }
 
-// Vin = Actual battery level. Vout = what we are recieving.
-//Vin = (21/10)*Vout;
-//Vin = Vout/(0.4761908)
-char batteryLevel(void){ //this has not been tested
-    float voltageOut1;
-    float voltageIn1;
-    float voltageOut2;
-    float voltageIn2;
-    float voltageOut3;
-    float voltageIn3;
-    float voltageAvg;
+int batteryI2CTest (void)
+{
+float bat; // temp var to hold float battery voltage
+bat = batteryLevel() * 60; // allows us to see the float more percisely so it's not truncated when type casted as a char
+unsigned char charBat = (unsigned char) bat;
+configI2c(); // sets up I2C
+StartI2C();
+WriteI2C(0xDE); //Device Address (RTCC) + Write Command
+IdleI2C();
+WriteI2C(0x20); // First SRAM address
+IdleI2C();
+WriteI2C(charBat); //Load the char of the float of voltage * 60, what we shoud see on the logic analyzer
+IdleI2C();
+StopI2C();
 
-    char voltageAvgFloat[10];
+//min = BcdToDec(min); // converts min to a decimal number
+return charBat; // returns the time in min as a demimal number
+}
 
-    voltageOut1 = readAdc(batteryVoltage) - adjustmentFactor;
-    voltageIn1 = voltageOut1 / (batteryLevelConstant);
+void __attribute__((__interrupt__,__auto_psv__)) _DefaultInterrupt()
+{
+if (IFS3bits.RTCIF)
+{ //If Alarm "is ringing", do this ....
 
-    delayMs(50);
-
-    voltageOut2 = readAdc(batteryVoltage)- adjustmentFactor;
-    voltageIn2 = voltageOut2 / (batteryLevelConstant);
-
-    delayMs(50);
-
-    voltageOut3 = readAdc(batteryVoltage)- adjustmentFactor;
-    voltageIn3 = voltageOut3 / (batteryLevelConstant);
-
-    voltageAvg = (voltageIn1 + voltageIn2 + voltageIn3)/3;
-
-    floatToString(voltageAvg, voltageAvgFloat);
-
-    return voltageAvgFloat;
-
+IFS3bits.RTCIF = 0; //turns off the alarm interrupt flag
+}
+else
+{
+// Other interrupts sent here
+}
+// Do we need: The ?Return from Interrupt? instruction, RETFIE, exits an interrupt or trap routine.
 }
 
 /*********************************************************************
@@ -1881,14 +1902,15 @@ ALCFGRPTbits.ALRMPTR = 0b0010; //sets pointer
 //The following two lines may not work
 ALRMVAL = 0x0000; //set day and month to 0 and decrements pointer
 ALRMVAL = alarmHour; //sets hour to 0 (12am), sets weekday to 0, and decrements pointer
-ALRMVAL = 0x0000;//getMinuteOffset(); //set 5 min after midnight and set 1 second after midnight-
+ALRMVAL = getMinuteOffset(); //set 5 min after midnight and set 1 second after midnight-
 //*********************************************
 // Make random number between 12:01-12:06
 // Assigned 05-30-2014; completed 06-09-2014
 //*********************************************
 ALCFGRPTbits.ALRMEN = 1; //enables the alarm
 _RTCWREN = 0; //no longer able to write to registers
-IEC3bits.RTCIE = 1; //RTCC Interupt is enabled
+IEC3bits.RTCIE = 1; //RTCC Interrupt is enabled
+prevDay = getDateI2C();
 sendTextMessage("(\"t\":\"initialize\")");
 //------------Sets up the Internal Clock------------
 //T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
@@ -1907,6 +1929,21 @@ sendTextMessage("(\"t\":\"initialize\")");
 void main (void)
 {
 initialization();
+
+//delayMs(10000);
+//char batLevelMessage[160];
+//batLevelMessage[0] = 0;
+//char StringBat[20];
+//StringBat[0] = 0;
+//floatToString(batteryLevel(), StringBat);
+//concat(batLevelMessage, StringBat);
+//concat(batLevelMessage, " V");
+//sendTextMessage(batLevelMessage); //test
+////sendTextMessage("init");
+
+
+
+
 waterPrimeTimeOut /= upstrokeInterval;
 leakRateTimeOut /= upstrokeInterval;
 timeBetweenUpstrokes /= upstrokeInterval;
@@ -1946,6 +1983,9 @@ handleMovement = 0;
 // Loop until the handle starts moving
 while (handleMovement == 0)
 {
+    if (prevDay != getDateI2C()){// it's a new day so send midNightMessage();
+        midNightMessage();
+    }
 // Delay for a short time
 delayMs(upstrokeInterval);
 // Get the current angle of the pump handle
@@ -2148,7 +2188,7 @@ if (leakRate > leakRateLong)
 leakRateLong = leakRate;
 }
 volumeEvent = (MKII * upStrokeExtract) - (leakRate * extractionDuration);
-hour = getTimeHour();
+hour = getHourI2C();
 switch (hour / 2)
 { //organize extaction into 2 hours bins
 //does this work? what happens if odd hour?
