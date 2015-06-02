@@ -5,6 +5,90 @@
 #include <xc.h>
 #include <string.h>
 
+/*********************************
+        Table of Contents
+ 1) Constants & Global Variables
+
+ 2) Pin Management Functions
+
+int digitalPinSet(int pin, int io);
+void specifyAnalogPin(int pin, int analogOrDigital);
+void analogIOandSHinput(int pin, int IO);
+int digitalPinStatus(int pin);
+
+ 3) Initialization
+
+void initialization(void);
+
+ 4) String Functions
+
+int longLength(long num);
+void longToString(long num, char *numString);
+int stringLength(char *string);
+void concat(char *dest, const char *src);
+void floatToString(float myValue, char *myString);
+
+ 5) SIM Functions
+
+void turnOffSIM();
+void turnOnSIM();
+void tryToConnectToNetwork();
+int connectedToNetwork(void);
+void sendMessage (char message[160]);
+void sendTextMessage(char message[160]);
+
+ 6) Sensor Functions
+
+int readWaterSensor(void);
+void initAdc(void);
+int readAdc(int channel);
+float getHandleAngle();
+void initializeQueue(float value);
+void pushToQueue(float value);
+float queueAverage();
+float queueDifference();
+
+ 7) I2C Functions
+
+unsigned int IdleI2C(void);
+unsigned int StartI2C(void);
+unsigned int StopI2C(void);
+void RestartI2C(void);
+void NackI2C(void);
+void AckI2C(void);
+void configI2c(void);
+void WriteI2C(unsigned char byte);
+unsigned int ReadI2C (void);
+
+ 8) RTCC Functions
+
+void turnOffClockOscilator (void);
+int getSecondI2C (void);
+int getMinuteI2C (void);
+int getHourI2C (void);
+int getYearI2C (void);
+int getMonthI2C (void);
+int getWkdayI2C (void);
+int getDateI2C (void);
+void setTime(char sec, char min, char hr, char wkday, char date, char month, char year);
+
+ 9) Misc Functions
+
+float degToRad(float degrees);
+void delayMs(int ms);
+int getLowerBCDAsDecimal(int bcd);
+int getUpperBCDAsDecimal(int bcd);
+int getTimeHour(void);
+long timeStamp(void);
+void pressReset();
+int translate(char digit);
+void RTCCSet(void);
+int getMinuteOffset();
+char BcdToDec(char val);
+char DecToBcd(char val);
+
+ **********************************/
+
 const int xAxis = 11; // analog pin connected to x axis of accelerometer
 const int yAxis = 12; // analog pin connected to y axis of accelerometer
 const int batteryVoltage = 15;                  // analog pin connected to the battery
