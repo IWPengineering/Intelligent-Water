@@ -491,7 +491,7 @@ if (leakRate > leakRateLong)
 leakRateLong = leakRate;
 }
 volumeEvent = (MKII * upStrokeExtract) - (leakRate * extractionDuration);
-hour = getTimeHour();
+hour = getHourI2C();
 switch (hour / 2)
 { //organize extaction into 2 hours bins
 //does this work? what happens if odd hour?
