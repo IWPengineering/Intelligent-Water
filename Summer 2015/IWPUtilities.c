@@ -1011,7 +1011,6 @@ AD1CON2 = 0;
 //AD1CON3 = 0x1F02; // Sample time = 31 Tad, Tad = 3Tcy
 AD1CON3bits.SAMC = 0x1F; // Sample time = 31 Tad (11.6us charge time)
 AD1CON3bits.ADCS = 0x2; // Tad = 3Tcy
-AD1CON5bits.BGREQ = 1; // The band gap is enabled and active
 // Conversions are routed through MuxA by default in AD1CON2
 AD1CHSbits.CH0NA = 0; // Use Vss as the conversion reference
 AD1CSSL = 0; // No inputs specified since we are not in SCAN mode
@@ -1596,6 +1595,27 @@ int ones = (bcd >> 8) & 0b0000000000001111;
 //and adding the ones digit
 return (tens * 10) + ones;
 }
+//Returns the hour of day from the internal clock
+/*********************************************************************
+* Function: getTimeHour
+* Input: None
+* Output: hourDecimal
+* Overview: Returns the hour of day from the internal clock
+* Note: Pic Dependent
+* TestDate: 06-04-2014
+********************************************************************/
+//Tested 06-04-2014
+int getTimeHour(void) //to determine what volume variable to use;
+{
+//don't want to write, just want to read
+_RTCWREN = 0;
+//sets the pointer to 0b01 so that reading starts at Weekday/Hour
+_RTCPTR = 0b01;
+// Ask for the hour from the internal clock
+int myHour = RTCVAL;
+int hourDecimal = getLowerBCDAsDecimal(myHour);
+return hourDecimal;
+}
 
 /* First, retrieve time string from the SIM 900
 Then, parse the string into separate strings for each time partition
@@ -1608,12 +1628,16 @@ Finally, piece together strings (16bytes) and write them to the RTCC */
 * Output: long timeStampValue
 * Overview: Returns the current time in seconds (the seconds passed so far in the day)
 * Note:
-* TestDate: TBD
+* TestDate: 06-04-2014
 ********************************************************************/
 long timeStamp(void)
 {
 long timeStampValue = 0;
-
+//Set the pointer to 0b01 so that reading starts at Weekday/Hour
+_RTCPTR = 0b01; // decrements with read or write
+_RTCWREN = 0; //don't want to write, just want to read
+long binaryWeekdayHour = RTCVAL; // write wkdy & hour to variable, dec. RTCPTR
+long binaryMinuteSecond = RTCVAL; // write min & sec to variable, dec. RTCPTR
 //For some reason, putting the multiplication for hours on one line like this:
 //
 // timeStampValue = getLowerBCDAsDecimal(binaryWeekdayHour) * 60 * 60;
@@ -1621,10 +1645,10 @@ long timeStampValue = 0;
 //caused an error. We would get some unknown value for the timestamp, so
 //we had to break the code up across multiple lines. So don't try to
 //simplify this!
-// Note: Haven't tested since we switched to the internal clock, but The note above may not still hold.
-timeStampValue = getHourI2C() * 60 * 60;
-timeStampValue = timeStampValue + getMinuteI2C() * 60;
-timeStampValue = timeStampValue + getSecondI2C();
+timeStampValue = getLowerBCDAsDecimal(binaryWeekdayHour);
+timeStampValue = timeStampValue * 60 * 60;
+timeStampValue = timeStampValue + (getUpperBCDAsDecimal(binaryMinuteSecond) * 60);
+timeStampValue = timeStampValue + getLowerBCDAsDecimal(binaryMinuteSecond);
 return timeStampValue; //timeStampValue;
 }
 

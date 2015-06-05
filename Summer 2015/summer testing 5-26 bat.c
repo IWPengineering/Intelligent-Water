@@ -1166,7 +1166,7 @@ analogIOandSHinput(rxPin, 1);
 //AD1CHSbits.CH0SA = 4; // Connect AN4 as the S/H input
 break;
 case 2:
-AD1CON2bits.PVCFG = 0; // This gives us 2 * Band Gap Voltage
+AD1CON2bits.PVCFG = 10; // This gives us 2 * Band Gap Voltage
 specifyAnalogPin(Pin4, 1); //Currently unused, may be used in the future.
 analogIOandSHinput(Pin4, 1);
 //ANSBbits.ANSB0 = 1; // AN2 is analog
