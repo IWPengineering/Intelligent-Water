@@ -116,7 +116,7 @@ float angleQueue[7];
 // *** Global Variables *******************************************************
 // ****************************************************************************
 //static char phoneNumber[] = "+233247398396"; // Number for the Black Phone
-char phoneNumber[] = "+13018737202"; // Number for Upside Wireless
+char phoneNumber[] = "+19783840645"; // Number for Upside Wireless
 float longestPrime = 0; // total upstroke fo the longest priming event of the day
 float leakRateLong = 0; // largest leak rate recorded for the day
 float volume02 = 0; // Total Volume extracted from 0:00-2:00

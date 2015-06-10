@@ -116,7 +116,7 @@ float angleQueue[7];
 // *** Global Variables *******************************************************
 // ****************************************************************************
 //static char phoneNumber[] = "+233247398396"; // Number for the Black Phone
-char phoneNumber[] = "+13018737202"; // Number for Upside Wireless
+char phoneNumber[] = "+19783840645"; // Number for Upside Wireless
 float longestPrime = 0; // total upstroke fo the longest priming event of the day
 float leakRateLong = 0; // largest leak rate recorded for the day
 float volume02 = 0; // Total Volume extracted from 0:00-2:00
@@ -517,7 +517,7 @@ delayMs(3000);
 delayMs(2000);
 // Moved the RRTCCSet function up since we do not rely on network anymore
 configI2c();
-setTime(58, 58, 23, 05, 26, 03, 15); // SS MM HH WW DD MM YY Set external time
+setTime(58, 58, 01, 05, 26, 03, 15); // SS MM HH WW DD MM YY Set external time
 //I2CtoInternalRTCC();
 //setInternalTimeBCD(getYearI2C(), getMonthI2C(), getWkdayI2C(), getHourI2C(), getMinuteI2C(), getSecondI2C());
 RTCCSet(); // Sets time; Pic asks Sim which asks cell tower to get current time
