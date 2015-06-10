@@ -1031,6 +1031,10 @@ int readAdc(int channel) //check with accelerometer
 {
 switch (channel)
 {
+case 15:
+specifyAnalogPin(batteryLevelPin, 1);
+analogIOandSHinput(batteryLevelPin, 1);
+break;
 case 12:
 specifyAnalogPin(yAxisAccelerometerPin, 1);
 analogIOandSHinput(yAxisAccelerometerPin, 1);
