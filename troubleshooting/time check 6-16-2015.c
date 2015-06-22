@@ -406,15 +406,15 @@ void setTime(char sec, char min, char hr, char wkday, char date, char month, cha
 void main (void){
 
     initialization();
-    configI2c();
-    char seconds = 30;
-    char minutes = 53;
-    char hours = 9;
-    char weekday = 6;
-    char days = 3;
-    char months = 6;
-    char years = 15;
-setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
+//    configI2c();
+//    char seconds = 30;
+//    char minutes = 53;
+//    char hours = 9;
+//    char weekday = 6;
+//    char days = 3;
+//    char months = 6;
+//    char years = 15;
+//setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
 
 
 
