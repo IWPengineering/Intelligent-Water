@@ -169,7 +169,7 @@ int vcc2Pin = 28;
 ////                                                             ////
 /////////////////////////////////////////////////////////////////////
 
-int digitalPinSet(int pin, int io) // 1 for analog
+int digitalPinSet(int pin, int io)
 {
 	if (pin == 1)
 	{
@@ -507,14 +507,14 @@ void initialization(void)
 	//no parity, 1 stop bit
 	U1STAbits.UTXEN = 1; //enable transmit
 	initAdc(); //Call the initialize ADC function
-	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
+	digitalPinSet(pwrKeyPin, 1); // Let go of PWRKEY
 	delayMs(3000);
 	// Turn on SIM900
 	while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
 	{
-		digitalPinSet(sclI2CPin, 1); // Hold in PWRKEY button
+		digitalPinSet(pwrKeyPin, 0); // Hold in PWRKEY button
 	}
-	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
+	digitalPinSet(pwrKeyPin, 1); // Let go of PWRKEY
 	delayMs(3000);
 	delayMs(2000);
 	// Moved the RRTCCSet function up since we do not rely on network anymore
@@ -539,7 +539,7 @@ void initialization(void)
 	ALCFGRPTbits.ALRMEN = 1; //enables the alarm
 	_RTCWREN = 0; //no longer able to write to registers
 	IEC3bits.RTCIE = 1; //RTCC Interupt is enabled
-	sendTextMessage("(\"t\":\"sentinitialize\")");
+	sendTextMessage("(\"t\":\"PinTest7initialize\")");
 	//------------Sets up the Internal Clock------------
 	//T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
 	//T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
@@ -767,13 +767,14 @@ void floatToString(float myValue, char *myString) //tested 06-20-2014
 ********************************************************************/
 void turnOffSIM()
 {
-	digitalPinSet(sclI2CPin, 0);
-	// Turn off SIM900
+    digitalPinSet(pwrKeyPin, 0); // push PWRKEY
+	delayMs(3000);
+	// Turn on SIM900
 	while (digitalPinStatus(statusPin) == 1) // While STATUS light is on (SIM900 is on)
 	{
-		digitalPinSet(sclI2CPin, 1); // Hold in PWRKEY button
+		digitalPinSet(pwrKeyPin, 1); // let go of PWRKEY button
 	}
-	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
+	digitalPinSet(pwrKeyPin, 0); // push PWRKEY
 }
 /*********************************************************************
 * Function: turnOnSIM
@@ -785,12 +786,14 @@ void turnOffSIM()
 ********************************************************************/
 void turnOnSIM()
 {
-	digitalPinSet(sclI2CPin, 0);// Turn on SIM900
+    digitalPinSet(pwrKeyPin, 1); // Let go of PWRKEY
+	delayMs(3000);
+	// Turn on SIM900
 	while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
 	{
-		digitalPinSet(sclI2CPin, 1); // Hold in PWRKEY button
+		digitalPinSet(pwrKeyPin, 0); // Hold in PWRKEY button
 	}
-	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
+	digitalPinSet(pwrKeyPin, 1); // Let go of PWRKEY
 }
 /*********************************************************************
 * Function: tryToConnectToNetwork
@@ -1169,6 +1172,7 @@ float queueDifference()
 ////                    I2C FUNCTIONS                            ////
 ////                                                             ////
 /////////////////////////////////////////////////////////////////////
+ //The break in the while loops which call a stop bit don't appear to work
 
 /*********************************************************************
 * Function: IdleI2C()
@@ -1393,6 +1397,42 @@ unsigned int ReadI2C(void)
 
 	}
 	return I2C1RCV; // Returns data
+}
+void delaySCL(void){
+    int myIndex = 0;
+        //delay of 10.44us
+        while (myIndex < 7)
+		{
+			myIndex++;
+		}
+}
+/*********************************************************************
+* Function: hangUpI2C()
+* Input: None.
+* Output: None.
+* Overview: If I2C is locked up, call this function to hang it up
+********************************************************************/
+void hangUpI2C(void){
+
+    // cycle clock
+    specifyAnalogPin(sclI2CPin, 0); // sclI2CPin is now digital
+    digitalPinSet(sclI2CPin, 1); // the digital sclI2CPin is now
+    while(1){
+    delaySCL();
+    //digitalPinSet(sclI2CPin, 0); // the digital sclI2CPin is now low
+    PORTBbits.RB8 = 1;
+    specifyAnalogPin(sclI2CPin, 1); // sclI2CPin is now analog
+    specifyAnalogPin(sclI2CPin, 0); // sclI2CPin is now digital
+    delaySCL();
+    //digitalPinSet(sclI2CPin, 0); // the digital sclI2CPin is now
+    PORTBbits.RB8 = 0;
+    specifyAnalogPin(sclI2CPin, 1); // sclI2CPin is now analog
+    specifyAnalogPin(sclI2CPin, 0); // sclI2CPin is now digital
+    }
+
+
+
+     
 }
 
 /////////////////////////////////////////////////////////////////////

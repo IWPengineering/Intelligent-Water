@@ -130,6 +130,9 @@ char batteryLevel(void){ //this has not been tested
 void main(void)
 {
 	initialization();
+        while(1){
+            hangUpI2C();
+        }
 	waterPrimeTimeOut /= upstrokeInterval;
 	leakRateTimeOut /= upstrokeInterval;
 	timeBetweenUpstrokes /= upstrokeInterval;
