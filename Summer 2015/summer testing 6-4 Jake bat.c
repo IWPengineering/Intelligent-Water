@@ -54,53 +54,7 @@
 #pragma config DSBOREN = ON // Deep Sleep Zero-Power BOR Enable bit (Deep Sleep BOR enabled in Deep Sleep)
 #pragma config DSWDTEN = ON // Deep Sleep Watchdog Timer Enable bit (DSWDT enabled)
 
-/*********************************************************************
-* Function: batteryLevel()
-* Input: None
-* Output: char
-* Overview: returns an output of a string containing the voltageAvgFloat of three different voltages
-* Note:
-* TestDate: TBD
-********************************************************************/
 
-// Vin = Actual battery level. Vout = what we are recieving.
-//Vin = (21/10)*Vout;
-//Vin = Vout/(0.4761908)
-float batteryLevel(void){ //this has not been tested
-    char voltageAvgFloatString[20];
-    voltageAvgFloatString[0] = 0;
-    float voltageOut1;
-    float voltageIn1;
-    float voltageOut2;
-    float voltageIn2;
-    float voltageOut3;
-    float voltageIn3;
-    float voltageAvg;
-
-
-    voltageOut1 = readAdc(batteryVoltage); // - adjustmentFactor;
-    voltageIn1 = voltageOut1 / (batteryLevelConstant);
-
-    delayMs(50);
-
-    voltageOut2 = readAdc(batteryVoltage); // - adjustmentFactor;
-    voltageIn2 = voltageOut2 / (batteryLevelConstant);
-
-    delayMs(50);
-
-    voltageOut3 = readAdc(batteryVoltage); // - adjustmentFactor;
-    voltageIn3 = voltageOut3 / (batteryLevelConstant);
-
-    
-    voltageAvg = (voltageIn1 + voltageIn2 + voltageIn3)/3 * 0.002;
-
-
-    floatToString(voltageAvg, voltageAvgFloatString);
-
-    //return voltageAvgFloatString;
-
-    return voltageAvg;
-}
 
 /*********************************************************************
 * Function: DefaultInterrupt()

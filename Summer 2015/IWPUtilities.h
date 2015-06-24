@@ -118,6 +118,7 @@ void initializeQueue(float value);
 void pushToQueue(float value);
 float queueAverage();
 float queueDifference();
+float batteryLevel(void);
 unsigned int IdleI2C(void);
 unsigned int StartI2C(void);
 unsigned int StopI2C(void);

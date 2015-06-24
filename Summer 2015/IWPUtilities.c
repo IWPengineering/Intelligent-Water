@@ -1164,6 +1164,50 @@ return angleQueue[queueLength - 1] - angleQueue[0];
 }
 
 
+/*********************************************************************
+* Function: batteryLevel()
+* Input: None
+* Output: float
+* Overview: returns an output of a float with a value of the battery voltage compared to an
+ * expected VCC of 3.6V
+* Note:
+* TestDate: 6/24/2015
+********************************************************************/
+
+
+float batteryLevel(void){ //this has not been tested
+    char voltageAvgFloatString[20];
+    voltageAvgFloatString[0] = 0;
+    float adcVal1;
+    float adcVal2;
+    float adcVal3;
+    float adcAvg;
+
+
+    adcVal1 = readAdc(batteryVoltage); // - adjustmentFactor;
+
+    delayMs(50);
+
+    adcVal2 = readAdc(batteryVoltage); // - adjustmentFactor;
+
+    delayMs(50);
+
+    adcVal3 = readAdc(batteryVoltage); // - adjustmentFactor;
+
+
+    adcAvg = (adcVal1 + adcVal2 + adcVal3)/3 ;
+
+    // V = adcVal / maxAdcVal * 1 / (voltage divider values) * VCC
+    float realVoltage = adcAvg / 1024 * 1 / (100/243) * 3.6;
+
+    //floatToString(battVoltage, voltageAvgFloatString);
+
+    //return voltageAvgFloatString;
+
+    return realVoltage;
+}
+
+
 /////////////////////////////////////////////////////////////////////
 ////                                                             ////
 ////                    I2C FUNCTIONS                            ////
