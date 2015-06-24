@@ -136,7 +136,7 @@ float volume2022 = 0;
 float volume2224 = 0;
 //Pin assignments
 int mclrPin = 1;
-char Pin2 = 'unused';
+int depthSensorPin = 2;
 int simVioPin = 3;
 char Pin4 = 'unused';
 char Pin5 = 'unused';
@@ -1034,6 +1034,10 @@ int readAdc(int channel) //check with accelerometer
 {
 switch (channel)
 {
+    case 0:
+        specifyAnalogPin(depthSensorPin, 1);
+        analogIOandSHinput(depthSensorPin, 1);
+    break;
 case 15:
 specifyAnalogPin(batteryLevelPin, 1);
 analogIOandSHinput(batteryLevelPin, 1);
@@ -1185,7 +1189,7 @@ float batteryLevel(void){ //this has not been tested
     float adcVal2;
     float adcVal3;
     float adcAvg;
-
+    float realVoltage;
 
     adcVal1 = readAdc(batteryVoltage); // - adjustmentFactor;
 
@@ -1201,7 +1205,7 @@ float batteryLevel(void){ //this has not been tested
     adcAvg = (adcVal1 + adcVal2 + adcVal3)/3 ;
 
     // V = adcVal / maxAdcVal * 1 / (voltage divider values) * VCC
-    float realVoltage = adcAvg / 1024 * 1 / (100/243) * 3.6;
+    realVoltage = adcAvg / 1024 * 1 / (100/243) * 3.6;
 
     //floatToString(battVoltage, voltageAvgFloatString);
 
@@ -1209,7 +1213,43 @@ float batteryLevel(void){ //this has not been tested
 
     return realVoltage;
 }
+/*********************************************************************
+* Function: readDepthSensor()
+* Input: None
+* Output: float
+* Overview: returns the depth of the probe in meters
+* Note: Library
+* TestDate: TBD
+********************************************************************/
+float readDepthSensor(void)
+    {
+    float adcVal1;
+    float adcVal2;
+    float adcVal3;
+    float adcAvg;
+    float depthInMeters;
+    float realVoltage;
+    adcVal1 = readAdc(batteryVoltage);
 
+    delayMs(50);
+
+    adcVal2 = readAdc(batteryVoltage);
+
+    delayMs(50);
+
+    adcVal3 = readAdc(batteryVoltage);
+
+
+    adcAvg = (adcVal1 + adcVal2 + adcVal3)/3 ;
+
+    // V = adcVal / maxAdcVal * 1 / (voltage divider values) * VCC
+    realVoltage = adcAvg / 1024 * 3.6;
+
+    depthInMeters = 2.2629 * realVoltage * realVoltage - 5.7605 * realVoltage + 3.4137;
+
+    return depthInMeters
+
+    }
 
 /////////////////////////////////////////////////////////////////////
 ////                                                             ////
