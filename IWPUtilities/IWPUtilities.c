@@ -168,7 +168,104 @@ int vcc2Pin = 28;
 ////                PIN MANAGEMENT FUNCTIONS                     ////
 ////                                                             ////
 /////////////////////////////////////////////////////////////////////
+int inputOrOuput(int pin, int io) // io = 1 (in), io = 0 (out)
+{       // pin 1 is MCLR
 
+	if (pin == 2)
+	{
+		TRISAbits.TRISA0 = io;
+	}
+	else if (pin == 3)
+	{
+		TRISAbits.TRISA1 = io;
+	}
+	else if (pin == 4)
+	{
+		TRISBbits.TRISB0 = io;
+	}
+	else if (pin == 5)
+	{
+		TRISBbits.TRISB1 = io;
+	}
+	else if (pin == 6)
+	{
+		TRISBbits.TRISB2 = io;
+	}
+	else if (pin == 7)
+	{
+		TRISBbits.TRISB3 = io;
+	}
+	// Pin8 - Always VSS for PIC24FV32KA302 - Do nothing
+	else if (pin == 9)
+	{
+		TRISAbits.TRISA2 = io;
+	}
+	else if (pin == 10)
+	{
+		TRISAbits.TRISA3 = io;
+	}
+	else if (pin == 11)
+	{
+		TRISBbits.TRISB4 = io;
+	}
+	else if (pin == 12)
+	{
+		TRISAbits.TRISA4 = io;
+	}
+	//Pin 13 - Always VDD for PIC24FV32KA302 - Do nothing
+	else if (pin == 14)
+	{
+		TRISBbits.TRISB5 = io;
+	}
+	else if (pin == 15)
+	{
+		TRISBbits.TRISB6 = io;
+	}
+	else if (pin == 16)
+	{
+		TRISBbits.TRISB7 = io;
+	} //Usually reserved for TX
+	else if (pin == 17)
+	{
+		TRISBbits.TRISB8 = io;
+	}//Usually reserved for I2C
+	else if (pin == 18)
+	{
+		TRISBbits.TRISB9 = io;
+	}//Usually Reserved for I2C
+	else if (pin == 19)
+	{
+		TRISAbits.TRISA7 = io;
+	}
+	// Pin 20 - Always vCap for PIC24FV32KA302 - Do nothing
+	else if (pin == 21)
+	{
+		TRISBbits.TRISB10 = io;
+	}
+	else if (pin == 22)
+	{
+		TRISBbits.TRISB11 = io;
+	}
+	else if (pin == 23)
+	{
+		TRISBbits.TRISB12 = io;
+	}
+	else if (pin == 24)
+	{
+		TRISBbits.TRISB13 = io;
+	}
+	else if (pin == 25)
+	{
+		TRISBbits.TRISB14 = io;
+	}
+	else if (pin == 26)
+	{
+		TRISBbits.TRISB15 = io;
+	}
+        // Pin 27 - Always VSS for PIC24FV32KA302 - Do nothing
+	// Pin 28 - Always VDD for PIC24FV32KA302 - Do nothing
+}
+        
 int digitalPinSet(int pin, int io)
 {
 	if (pin == 1)
@@ -510,10 +607,10 @@ void initialization(void)
 	digitalPinSet(pwrKeyPin, 1); // Let go of PWRKEY
 	delayMs(3000);
 	// Turn on SIM900
-	while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
-	{
-		digitalPinSet(pwrKeyPin, 0); // Hold in PWRKEY button
-	}
+//	while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
+//	{
+//		digitalPinSet(pwrKeyPin, 0); // Hold in PWRKEY button
+//	}
 	digitalPinSet(pwrKeyPin, 1); // Let go of PWRKEY
 	delayMs(3000);
 	delayMs(2000);
@@ -1399,13 +1496,14 @@ unsigned int ReadI2C(void)
 	return I2C1RCV; // Returns data
 }
 void delaySCL(void){
+    int timeKiller = 0; //don't delete
     int myIndex = 0;
-        //delay of 10.44us
-        while (myIndex < 7)
+        while (myIndex < 5)
 		{
 			myIndex++;
 		}
 }
+
 /*********************************************************************
 * Function: hangUpI2C()
 * Input: None.
@@ -1413,26 +1511,31 @@ void delaySCL(void){
 * Overview: If I2C is locked up, call this function to hang it up
 ********************************************************************/
 void hangUpI2C(void){
+    int endBit = 0;
+    int pulsesCreated = 0; // could be a total of 9 bits it still needs
+    while((pulsesCreated < 9) && !endBit){
+    TRISBbits.TRISB9 = 0; //Make RB8 an outputs
+    PORTBbits.RB9 = 0; //Clear rb8
 
-    // cycle clock
-    specifyAnalogPin(sclI2CPin, 0); // sclI2CPin is now digital
-    digitalPinSet(sclI2CPin, 1); // the digital sclI2CPin is now
-    while(1){
-    delaySCL();
-    //digitalPinSet(sclI2CPin, 0); // the digital sclI2CPin is now low
-    PORTBbits.RB8 = 1;
-    specifyAnalogPin(sclI2CPin, 1); // sclI2CPin is now analog
-    specifyAnalogPin(sclI2CPin, 0); // sclI2CPin is now digital
-    delaySCL();
-    //digitalPinSet(sclI2CPin, 0); // the digital sclI2CPin is now
-    PORTBbits.RB8 = 0;
-    specifyAnalogPin(sclI2CPin, 1); // sclI2CPin is now analog
-    specifyAnalogPin(sclI2CPin, 0); // sclI2CPin is now digital
+    //toggle
+        delaySCL();
+        PORTBbits.RB9 = 1; // SDA
+        delaySCL();
+        PORTBbits.RB9 = 0; // SDA
+
+        TRISBbits.TRISB9 = 0; //Make RB8 an outputs
+        pulsesCreated++;
+        //check to see if it's still hung up
+        int timeOut = 0;
+        while(PORTB.RB9 == 1 && timeOut < 4){ // SDA is high for
+            delaySCL();
+            timeOut++;
+        }
+        if (timeOut < 4){ // must have pulsed on it's own before timeOut
+            endBit = 1;
+        }
     }
 
-
-
-     
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1624,7 +1727,8 @@ void setTime(char sec, char min, char hr, char wkday, char date, char month, cha
 	BCDsec = BCDsec | 0x80; // add turn on oscilator bit
 	BCDhr = BCDhr & 0b10111111; // makes 24 hr time
 	BCDwkday = BCDwkday & 0b11110111; // the 0 says the external battery backup supply is disabled.
-	// To enable: Flip bits and OR it to turn on (NOT CURRENTLY ENABLED).
+	BCDwkday = BCDwkday | 0b00000100; // enable external battery VBATEN
+        // To enable: Flip bits and OR it to turn on (NOT CURRENTLY ENABLED).
 	if (leapYear == 0)
 	{
 		BCDmonth = BCDmonth & 0b11011111; //Not a leap year
