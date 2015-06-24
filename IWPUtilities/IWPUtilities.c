@@ -1491,7 +1491,7 @@ void hangUpI2C(void)
         pulsesCreated++;
         //check to see if it's still hung up
         int timeOut = 0;
-        while(PORTB.RB9 == 1 && timeOut < 4){ // SDA is high for
+        while(PORTBbits.RB9 == 1 && timeOut < 4){ // SDA is high for
             delaySCL();
             timeOut++;
         }
@@ -2044,7 +2044,8 @@ char DecToBcd(char val)
 {
 return ( (val/10*16) + (val%10) );
 }
-void midnightMessage(void){
+void midnightMessage(void)
+{
 	/* message type,
 	* version # (no version number, we should just be able to check for new values in JSON),
 	* date? (no date, the sms should have that within it),
@@ -2165,3 +2166,4 @@ void midnightMessage(void){
 	////////////////////////////////////////////////
 	RTCCSet(); // updates the internal time from the external RTCC if the internal RTCC got off any through out the day
 	prevDay = getDateI2C();
+}
