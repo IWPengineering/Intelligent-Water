@@ -152,7 +152,6 @@ float adcFloat;
 TRISAbits.TRISA4 = 0;
 while(1)
 {
-    sendMessage("TEST");
     for(i=0;i<5;i++)
     {
         adcVal = readAdc(15);
@@ -165,7 +164,7 @@ while(1)
         }
     }
     
-    sendMessage(batLevelMessage);
+    sendTextMessage(batLevelMessage);
     for(i=0;i<160;i++)
     {
         batLevelMessage[i] = 0;
