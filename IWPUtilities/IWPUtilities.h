@@ -150,7 +150,7 @@ void RTCCSet(void);
 int getMinuteOffset();
 char BcdToDec(char val);
 char DecToBcd(char val);
-
+void midnightMessage(void);
 
 #endif	/* IWPUTILITIES_H */
 
