@@ -85,53 +85,19 @@ void __attribute__((__interrupt__, __auto_psv__)) _DefaultInterrupt()
 	}
 }
 
-
-
-// Vin = Actual battery level. Vout = what we are recieving.
-//Vin = (21/10)*Vout;
-//Vin = Vout/(0.4761908)
-char batteryLevel(void){ //this has not been tested
-	float voltageOut1;
-	float voltageIn1;
-	float voltageOut2;
-	float voltageIn2;
-	float voltageOut3;
-	float voltageIn3;
-	float voltageAvg;
-
-	char voltageAvgFloat[10];
-
-	voltageOut1 = readAdc(batteryVoltage) - adjustmentFactor;
-	voltageIn1 = voltageOut1 / (batteryLevelConstant);
-
-	delayMs(50);
-
-	voltageOut2 = readAdc(batteryVoltage) - adjustmentFactor;
-	voltageIn2 = voltageOut2 / (batteryLevelConstant);
-
-	delayMs(50);
-
-	voltageOut3 = readAdc(batteryVoltage) - adjustmentFactor;
-	voltageIn3 = voltageOut3 / (batteryLevelConstant);
-
-	voltageAvg = (voltageIn1 + voltageIn2 + voltageIn3) / 3;
-
-	floatToString(voltageAvg, voltageAvgFloat);
-
-	return voltageAvgFloat;
-
-}
-
-
-
 // ****************************************************************************
 // *** Main Function **********************************************************
 // ****************************************************************************
 void main(void)
 {
 	initialization();
+        sendTextMessage("got");
+
         while(1){
+            delayMs(5000);
+
             hangUpI2C();
+            delayMs(1000);
         }
 	waterPrimeTimeOut /= upstrokeInterval;
 	leakRateTimeOut /= upstrokeInterval;

@@ -1247,7 +1247,7 @@ float readDepthSensor(void)
 
     depthInMeters = 2.2629 * realVoltage * realVoltage - 5.7605 * realVoltage + 3.4137;
 
-    return depthInMeters
+    return depthInMeters;
 
     }
 
@@ -1514,24 +1514,25 @@ void delaySCL(void)
 
 void hangUpI2C(void)
 {
+    int pulsesCreated = 0;
     int endBit = 0;
-    int pulsesCreated = 0; // could be a total of 9 bits it still needs
-    while((pulsesCreated < 9) && !endBit)
+ while((pulsesCreated < 9) && (endBit != 1))
     {
-    TRISBbits.TRISB9 = 0; //Make RB8 an outputs
-    PORTBbits.RB9 = 0; //Clear rb8
+    TRISBbits.TRISB8 = 0; //Make SCL an outputs
+    PORTBbits.RB8 = 0; //Clear SCL
 
     //toggle
         delaySCL();
-        PORTBbits.RB9 = 1; // SDA
+        PORTBbits.RB8 = 1; // SCL
         delaySCL();
-        PORTBbits.RB9 = 0; // SDA
+        PORTBbits.RB8 = 0; // SCL
+        delaySCL();
 
-        TRISBbits.TRISB9 = 0; //Make RB8 an outputs
         pulsesCreated++;
+
         //check to see if it's still hung up
         int timeOut = 0;
-        while(PORTBbits.RB9 == 1 && timeOut < 4){ // SDA is high for
+        while((PORTBbits.RB9 == 0) && (timeOut < 4)){ // SDA is high for
             delaySCL();
             timeOut++;
         }
