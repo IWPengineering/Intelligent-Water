@@ -76,27 +76,87 @@ void delaySCL(void){
 		}
 }
 void main (void) {
-    int i;
-    //ANSA = 0; //Make PORTA digital I/O    // only digital possible
-    TRISBbits.TRISB8 = 0; //Make RB8 an outputs
-    PORTBbits.RB8 = 0; //Clear rb8
-
-
-
-    while (1)
+//    int i;
+//    //ANSA = 0; //Make PORTA digital I/O    // only digital possible
+//    TRISBbits.TRISB8 = 0; //Make RB8 an outputs
+//    PORTBbits.RB8 = 0; //Clear rb8
+//    TRISBbits.TRISB9 = 0; //Make RB8 an outputs
+//    PORTBbits.RB9 = 0; //Clear rb8
+//
+//
+//
+//    while (1)
+//    {
+//            /*      int value = ReadADC(12);
+//        if (value > 512){
+//        PORTA=0xFFFF;}
+//        else
+//        {PORTA= 0;} */
+//        delayMs(1000);
+//        PORTBbits.RB8 = 0;
+//        PORTBbits.RB9 = 1;
+//        delaySCL();
+//        PORTBbits.RB8 = 1;
+//        PORTBbits.RB9 = 0;
+//
+//    }
+//    delayMs(20000);
+//    int pulsesCreated = 0;
+//    int endBit = 0;
+// while((pulsesCreated < 9) && (endBit != 1))
+//    {
+//    TRISBbits.TRISB9 = 0; //Make RB9 an outputs
+//    PORTBbits.RB9 = 0; //Clear rb9
+//
+//    //toggle
+//        delaySCL();
+//        PORTBbits.RB9 = 1; // SDA
+//        delaySCL();
+//        PORTBbits.RB9 = 0; // SDA
+//        delaySCL();
+//
+//        pulsesCreated++;
+//
+//        //check to see if it's still hung up
+//        int timeOut = 0;
+//        while((PORTBbits.RB9 == 0) && (timeOut < 4)){ // SDA is high for
+//            delaySCL();
+//            timeOut++;
+//        }
+//        if (timeOut < 4){ // must have pulsed on it's own before timeOut
+//            endBit = 1;
+//        }
+//    }
+        int pulsesCreated = 0;
+    int endBit = 0;
+ while((pulsesCreated < 9) && (endBit != 1))
     {
-            /*      int value = ReadADC(12);
-        if (value > 512){
-        PORTA=0xFFFF;}
-        else
-        {PORTA= 0;} */
-        delayMs(1000);
-        PORTBbits.RB8 = 0;
+    TRISBbits.TRISB8 = 0; //Make SCL an outputs
+    PORTBbits.RB8 = 0; //Clear SCL
+
+    //toggle
         delaySCL();
-        PORTBbits.RB8 = 1;
+        PORTBbits.RB8 = 1; // SCL
+        delaySCL();
+        PORTBbits.RB8 = 0; // SCL
+        delaySCL();
+
+        pulsesCreated++;
+
+        //check to see if it's still hung up
+        int timeOut = 0;
+        while((PORTBbits.RB9 == 0) && (timeOut < 4)){ // SDA is high for
+            delaySCL();
+            timeOut++;
+        }
+        if (timeOut < 4){ // must have pulsed on it's own before timeOut
+            endBit = 1;
+        }
     }
+    while(1){
+        PORTBbits.RB9 = 1; // SDA
+        delayMs(90);
 
-
-
+    }
 }
 

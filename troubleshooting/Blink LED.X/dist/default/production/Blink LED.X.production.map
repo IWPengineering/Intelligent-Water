@@ -56,10 +56,10 @@ Program Memory  [Origin = 0x200, Length = 0x5600]
 section                    address   length (PC units)   length (bytes) (dec)
 -------                    -------   -----------------   --------------------
 .text                        0x200                0x9e            0xed  (237)
-.text                        0x29e                0x50            0x78  (120)
-.dinit                       0x2ee                 0x2             0x3  (3)
+.text                        0x29e                0x96            0xe1  (225)
+.dinit                       0x334                 0x2             0x3  (3)
 
-                     Total program memory used (bytes):          0x168  (360) 1%
+                     Total program memory used (bytes):          0x1d1  (465) 1%
 
 
 Data Memory  [Origin = 0x800, Length = 0x800]
@@ -199,18 +199,18 @@ __FDS
 .comment
  *(.comment)
 
-.debug_info       0x000000        0x4c6
+.debug_info       0x000000        0x502
  *(.debug_info)
- .debug_info      0x000000        0x4c6 build/default/production/Bink_LED.o
+ .debug_info      0x000000        0x502 build/default/production/Bink_LED.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev     0x000000         0xaa
+.debug_abbrev     0x000000         0xa6
  *(.debug_abbrev)
- .debug_abbrev    0x000000         0xaa build/default/production/Bink_LED.o
+ .debug_abbrev    0x000000         0xa6 build/default/production/Bink_LED.o
 
-.debug_line       0x000000        0x167
+.debug_line       0x000000        0x1e1
  *(.debug_line)
- .debug_line      0x000000        0x167 build/default/production/Bink_LED.o
+ .debug_line      0x000000        0x1e1 build/default/production/Bink_LED.o
 
 .debug_frame      0x000000         0x44
  *(.debug_frame)
@@ -1154,11 +1154,11 @@ __c30_signature
 .config_BSS       0xf80000          0x2
  .config_BSS      0xf80000          0x2 build/default/production/Bink_LED.o
 
-.text             0x00029e         0x50
- .text            0x00029e         0x50 build/default/production/Bink_LED.o
+.text             0x00029e         0x96
+ .text            0x00029e         0x96 build/default/production/Bink_LED.o
                   0x00029e                  _delayMs
                   0x0002c4                  _delaySCL
                   0x0002dc                  _main
 
-.dinit            0x0002ee          0x2
- .dinit           0x0002ee          0x2 data_init
+.dinit            0x000334          0x2
+ .dinit           0x000334          0x2 data_init
