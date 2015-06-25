@@ -1267,13 +1267,10 @@ float readDepthSensor(void)
 unsigned int IdleI2C(void)
 {
 int timeOut = 0;
-        int trueTimeOut = 1;
-	while (I2C1STATbits.TRSTAT && trueTimeOut){//Wait for bus Idle
+	while (I2C1STATbits.TRSTAT){//Wait for bus Idle
 		if (timeOut == 1300){ // time out loop incase I2C gets stuck
-			I2C1CON = I2C1CON & 0b01111111; // disables I2C
-			delayMs(1);
-			I2C1CON = I2C1CON | 0b10000000; // enables I2C
-                        trueTimeOut = 0;
+                    hangUpI2C();
+                    IdleI2C();
 		}
 		timeOut++;
 	}
@@ -1290,18 +1287,14 @@ unsigned int StartI2C(void)
 //This function generates an I2C start condition and returns status
 	//of the Start.
 	int timeOut = 0;
-        int trueTimeOut = 1;
 	I2C1CONbits.SEN = 1; //Generate Start COndition
-	while (I2C1CONbits.SEN && trueTimeOut) //Wait for Start COndition
+	while (I2C1CONbits.SEN) //Wait for Start COndition
 	{
 		if (timeOut == 1300){ // time out loop incase I2C gets stuck
-			I2C1CON = I2C1CON & 0b01111111; // disables I2C
-			delayMs(1);
-			I2C1CON = I2C1CON | 0b10000000; // enables I2C
-                        trueTimeOut = 0;
+                   hangUpI2C();
+                   StartI2C();
 		}
 		timeOut++;
-
 	}
 	//return(I2C1STATbits.S); //Optionally return status
 }
@@ -1317,19 +1310,15 @@ unsigned int StopI2C(void)
 //This function generates an I2C stop condition and returns status
 	//of the Stop.
 	int timeOut = 0;
-        int trueTimeOut = 1;
 
 	I2C1CONbits.PEN = 1; //Generate Stop Condition
-	while (I2C1CONbits.PEN && trueTimeOut) //Wait for Stop
+	while (I2C1CONbits.PEN) //Wait for Stop
 	{
 		if (timeOut == 1300){ // time out loop incase I2C gets stuck
-			I2C1CON = I2C1CON & 0b01111111; // disables I2C
-			delayMs(1);
-			I2C1CON = I2C1CON | 0b10000000; // enables I2C
-                        trueTimeOut = 0;
+	           hangUpI2C();
+                   StopI2C();
                 }
 		timeOut++;
-
 	}
 	//return(I2C1STATbits.P); //Optional - return status
 }
@@ -1345,57 +1334,45 @@ void RestartI2C(void)
 //This function generates an I2C Restart condition and returns status
 	//of the Restart.
 	int timeOut = 0;
-        int trueTimeOut = 1;
 	I2C1CONbits.RSEN = 1; //Generate Restart
 	while (I2C1CONbits.RSEN) //Wait for restart
 	{
-		if (timeOut == 1300 && trueTimeOut){ // time out loop incase I2C gets stuck
-			I2C1CON = I2C1CON & 0b01111111; // disables I2C
-			delayMs(1);
-			I2C1CON = I2C1CON | 0b10000000; // enables I2C
-                        trueTimeOut = 0;
+		if (timeOut == 1300){ // time out loop incase I2C gets stuck
+                    hangUpI2C();
+                    RestartI2C();
                 }
 		timeOut++;
-
 	}
 	//return(I2C1STATbits.S); //Optional - return status
 }
 void NackI2C(void)
 {
  	int timeOut = 0;
-        int trueTimeOut = 1;
 	I2C1CONbits.ACKDT = 1;
 	I2C1CONbits.ACKEN = 1;
-	while (I2C1CONbits.ACKEN && trueTimeOut)
+	while (I2C1CONbits.ACKEN)
 	{
 		if (timeOut == 1300)
 		{ // time out loop incase I2C gets stuck
-			I2C1CON = I2C1CON & 0b01111111; // disables I2C
-			delayMs(1);
-			I2C1CON = I2C1CON | 0b10000000; // enables I2C
-                        trueTimeOut = 0;
+                    hangUpI2C();
+                    NackI2C();
                 }
 		timeOut++;
-
 	}
 }
 void AckI2C(void)
 {
 int timeOut = 0;
-        int trueTimeOut = 1;
 	I2C1CONbits.ACKDT = 0;
 	I2C1CONbits.ACKEN = 1;
-	while (I2C1CONbits.ACKEN && trueTimeOut)
+	while (I2C1CONbits.ACKEN)
 	{
 		if (timeOut == 1300)
 		{ // time out loop incase I2C gets stuck
-			I2C1CON = I2C1CON & 0b01111111; // disables I2C
-			delayMs(1);
-			I2C1CON = I2C1CON | 0b10000000; // enables I2C
-                        trueTimeOut = 0;
+                   hangUpI2C();
+                   AckI2C();
                 }
 		timeOut++;
-
 	}
 }
 void configI2c(void)

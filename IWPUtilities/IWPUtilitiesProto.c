@@ -91,14 +91,7 @@ void __attribute__((__interrupt__, __auto_psv__)) _DefaultInterrupt()
 void main(void)
 {
 	initialization();
-        sendTextMessage("got");
 
-        while(1){
-            delayMs(5000);
-
-            hangUpI2C();
-            delayMs(1000);
-        }
 	waterPrimeTimeOut /= upstrokeInterval;
 	leakRateTimeOut /= upstrokeInterval;
 	timeBetweenUpstrokes /= upstrokeInterval;
