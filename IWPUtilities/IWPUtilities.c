@@ -519,8 +519,16 @@ digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
 delayMs(3000);
 delayMs(2000);
 // Moved the RRTCCSet function up since we do not rely on network anymore
-configI2c();
-setTime(58, 58, 01, 05, 26, 03, 15); // SS MM HH WW DD MM YY Set external time
+    configI2c();
+    char seconds = 58;
+    char minutes = 58;
+    char hours = 23;
+    char weekday = 6;
+    char days = 19;
+    char months = 6;
+    char years = 15;
+    setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
+
 //I2CtoInternalRTCC();
 //setInternalTimeBCD(getYearI2C(), getMonthI2C(), getWkdayI2C(), getHourI2C(), getMinuteI2C(), getSecondI2C());
 RTCCSet(); // Sets time; Pic asks Sim which asks cell tower to get current time
@@ -540,6 +548,7 @@ ALCFGRPTbits.ALRMEN = 1; //enables the alarm
 _RTCWREN = 0; //no longer able to write to registers
 IEC3bits.RTCIE = 1; //RTCC Interupt is enabled
 sendTextMessage("(\"t\":\"initialize\")");
+prevDay = getDateI2C();
 //------------Sets up the Internal Clock------------
 //T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
 //T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
