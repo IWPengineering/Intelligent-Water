@@ -1,9 +1,9 @@
-/* 
- * File:   IWPUtilities.h
- * Author: js1715
- *
- * Created on May 29, 2015, 4:41 PM
- */
+/*
+* File:   IWPUtilities.h
+* Author: js1715
+*
+* Created on May 29, 2015, 4:41 PM
+*/
 
 #ifndef IWPUTILITIES_H
 #define	IWPUTILITIES_H
@@ -109,7 +109,7 @@ void turnOffSIM();
 void turnOnSIM();
 void tryToConnectToNetwork();
 int connectedToNetwork(void);
-void sendMessage (char message[160]);
+void sendMessage(char message[160]);
 void sendTextMessage(char message[160]);
 int readWaterSensor(void);
 void initAdc(void);
@@ -128,15 +128,15 @@ void NackI2C(void);
 void AckI2C(void);
 void configI2c(void);
 void WriteI2C(unsigned char byte);
-unsigned int ReadI2C (void);
-void turnOffClockOscilator (void);
-int getSecondI2C (void);
-int getMinuteI2C (void);
-int getHourI2C (void);
-int getYearI2C (void);
-int getMonthI2C (void);
-int getWkdayI2C (void);
-int getDateI2C (void);
+unsigned int ReadI2C(void);
+void turnOffClockOscilator(void);
+int getSecondI2C(void);
+int getMinuteI2C(void);
+int getHourI2C(void);
+int getYearI2C(void);
+int getMonthI2C(void);
+int getWkdayI2C(void);
+int getDateI2C(void);
 void setTime(char sec, char min, char hr, char wkday, char date, char month, char year);
 float degToRad(float degrees);
 void delayMs(int ms);
@@ -151,6 +151,7 @@ int getMinuteOffset();
 char BcdToDec(char val);
 char DecToBcd(char val);
 void midnightMessage(void);
+void hangUpI2C(void);
 
 #endif	/* IWPUTILITIES_H */
 

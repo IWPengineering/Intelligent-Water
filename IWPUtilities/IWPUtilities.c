@@ -6,21 +6,21 @@
 #include <string.h>
 
 /*********************************
-        Table of Contents
- 1) Constants & Global Variables
+Table of Contents
+1) Constants & Global Variables
 
- 2) Pin Management Functions
+2) Pin Management Functions
 
 int digitalPinSet(int pin, int io);
 void specifyAnalogPin(int pin, int analogOrDigital);
 void analogIOandSHinput(int pin, int IO);
 int digitalPinStatus(int pin);
 
- 3) Initialization
+3) Initialization
 
 void initialization(void);
 
- 4) String Functions
+4) String Functions
 
 int longLength(long num);
 void longToString(long num, char *numString);
@@ -28,7 +28,7 @@ int stringLength(char *string);
 void concat(char *dest, const char *src);
 void floatToString(float myValue, char *myString);
 
- 5) SIM Functions
+5) SIM Functions
 
 void turnOffSIM();
 void turnOnSIM();
@@ -37,7 +37,7 @@ int connectedToNetwork(void);
 void sendMessage (char message[160]);
 void sendTextMessage(char message[160]);
 
- 6) Sensor Functions
+6) Sensor Functions
 
 int readWaterSensor(void);
 void initAdc(void);
@@ -48,7 +48,7 @@ void pushToQueue(float value);
 float queueAverage();
 float queueDifference();
 
- 7) I2C Functions
+7) I2C Functions
 
 unsigned int IdleI2C(void);
 unsigned int StartI2C(void);
@@ -60,7 +60,7 @@ void configI2c(void);
 void WriteI2C(unsigned char byte);
 unsigned int ReadI2C (void);
 
- 8) RTCC Functions
+8) RTCC Functions
 
 void turnOffClockOscilator (void);
 int getSecondI2C (void);
@@ -72,7 +72,7 @@ int getWkdayI2C (void);
 int getDateI2C (void);
 void setTime(char sec, char min, char hr, char wkday, char date, char month, char year);
 
- 9) Misc Functions
+9) Misc Functions
 
 float degToRad(float degrees);
 void delayMs(int ms);
@@ -87,7 +87,7 @@ int getMinuteOffset();
 char BcdToDec(char val);
 char DecToBcd(char val);
 
- **********************************/
+**********************************/
 
 const int xAxis = 11; // analog pin connected to x axis of accelerometer
 const int yAxis = 12; // analog pin connected to y axis of accelerometer
@@ -172,299 +172,299 @@ int vcc2Pin = 28;
 
 int digitalPinSet(int pin, int io) // 1 for analog
 {
-if (pin == 1)
-{
-PORTAbits.RA5 = io;
-}
-else if (pin==2)
-{
-PORTAbits.RA0 = io;
-}
-else if (pin==3)
-{
-PORTAbits.RA1 = io;
-}
-else if (pin==4)
-{
-PORTBbits.RB0 = io;
-}
-else if (pin==5)
-{
-PORTBbits.RB1 = io;
-}
-else if (pin==6)
-{
-PORTBbits.RB2 = io;
-}
-else if (pin==7)
-{
-PORTBbits.RB3 = io;
-}
-// Pin8 - Always VSS for PIC24FV32KA302 - Do nothing
-else if (pin==9)
-{
-PORTAbits.RA2 = io;
-}
-else if (pin==10)
-{
-PORTAbits.RA3 = io;
-}
-else if (pin==11)
-{
-PORTBbits.RB4 = io;
-}
-else if (pin==12)
-{
-PORTAbits.RA4 = io;
-}
-//Pin 13 - Always VDD for PIC24FV32KA302 - Do nothing
-else if (pin==14)
-{
-PORTBbits.RB5 = io;
-}
-else if (pin==15)
-{
-PORTBbits.RB6 = io;
-}
-else if (pin==16)
-{
-PORTBbits.RB7 = io;
-} //Usually reserved for TX
-else if (pin==17)
-{
-PORTBbits.RB8 = io;
-}//Usually reserved for I2C
-else if (pin==18)
-{
-PORTBbits.RB9 = io;
-}//Usually Reserved for I2C
-else if (pin==19)
-{
-PORTAbits.RA7 = io;
-}
-// Pin 20 - Always vCap for PIC24FV32KA302 - Do nothing
-else if (pin==21)
-{
-PORTBbits.RB10 = io;
-}
-else if (pin==22)
-{
-PORTBbits.RB11 = io;
-}
-else if (pin==23)
-{
-PORTBbits.RB12 = io;
-}
-else if (pin==24)
-{
-PORTBbits.RB13 = io;
-}
-else if (pin==25)
-{
-PORTBbits.RB14 = io;
-}
-else if (pin==26)
-{
-PORTBbits.RB15 = io;
-}
-// Pin 27 - Always VSS for PIC24FV32KA302 - Do nothing
-// Pin 28 - Always VDD for PIC24FV32KA302 - Do nothing
+	if (pin == 1)
+	{
+		PORTAbits.RA5 = io;
+	}
+	else if (pin == 2)
+	{
+		PORTAbits.RA0 = io;
+	}
+	else if (pin == 3)
+	{
+		PORTAbits.RA1 = io;
+	}
+	else if (pin == 4)
+	{
+		PORTBbits.RB0 = io;
+	}
+	else if (pin == 5)
+	{
+		PORTBbits.RB1 = io;
+	}
+	else if (pin == 6)
+	{
+		PORTBbits.RB2 = io;
+	}
+	else if (pin == 7)
+	{
+		PORTBbits.RB3 = io;
+	}
+	// Pin8 - Always VSS for PIC24FV32KA302 - Do nothing
+	else if (pin == 9)
+	{
+		PORTAbits.RA2 = io;
+	}
+	else if (pin == 10)
+	{
+		PORTAbits.RA3 = io;
+	}
+	else if (pin == 11)
+	{
+		PORTBbits.RB4 = io;
+	}
+	else if (pin == 12)
+	{
+		PORTAbits.RA4 = io;
+	}
+	//Pin 13 - Always VDD for PIC24FV32KA302 - Do nothing
+	else if (pin == 14)
+	{
+		PORTBbits.RB5 = io;
+	}
+	else if (pin == 15)
+	{
+		PORTBbits.RB6 = io;
+	}
+	else if (pin == 16)
+	{
+		PORTBbits.RB7 = io;
+	} //Usually reserved for TX
+	else if (pin == 17)
+	{
+		PORTBbits.RB8 = io;
+	}//Usually reserved for I2C
+	else if (pin == 18)
+	{
+		PORTBbits.RB9 = io;
+	}//Usually Reserved for I2C
+	else if (pin == 19)
+	{
+		PORTAbits.RA7 = io;
+	}
+	// Pin 20 - Always vCap for PIC24FV32KA302 - Do nothing
+	else if (pin == 21)
+	{
+		PORTBbits.RB10 = io;
+	}
+	else if (pin == 22)
+	{
+		PORTBbits.RB11 = io;
+	}
+	else if (pin == 23)
+	{
+		PORTBbits.RB12 = io;
+	}
+	else if (pin == 24)
+	{
+		PORTBbits.RB13 = io;
+	}
+	else if (pin == 25)
+	{
+		PORTBbits.RB14 = io;
+	}
+	else if (pin == 26)
+	{
+		PORTBbits.RB15 = io;
+	}
+	// Pin 27 - Always VSS for PIC24FV32KA302 - Do nothing
+	// Pin 28 - Always VDD for PIC24FV32KA302 - Do nothing
 }
 //TODO: Should be based off of the RB values, not the AN
 void specifyAnalogPin(int pin, int analogOrDigital) // analogOrDigital = 1 if analog
 {
-if (pin == 4)
-{
-ANSBbits.ANSB0 = analogOrDigital;
-}
-else if (pin == 5)
-{
-ANSBbits.ANSB1 = analogOrDigital;
-}
-else if (pin == 6)
-{
-ANSBbits.ANSB2 = analogOrDigital;
-}
-else if (pin == 7)
-{
-ANSBbits.ANSB3 = analogOrDigital;
-//TODO: Jacqui needs to find out why pin 7 isn't in the library
-}
-else if (pin == 11)
-{
-ANSBbits.ANSB4 = analogOrDigital;
-}
-else if (pin == 23)
-{
-ANSBbits.ANSB12 = analogOrDigital;
-}
-else if (pin == 24)
-{
-ANSBbits.ANSB13 = analogOrDigital;
-}
-else if (pin == 25)
-{
-ANSBbits.ANSB14 = analogOrDigital;
-}
-else if (pin == 26)
-{
-ANSBbits.ANSB15 = analogOrDigital;
-}
+	if (pin == 4)
+	{
+		ANSBbits.ANSB0 = analogOrDigital;
+	}
+	else if (pin == 5)
+	{
+		ANSBbits.ANSB1 = analogOrDigital;
+	}
+	else if (pin == 6)
+	{
+		ANSBbits.ANSB2 = analogOrDigital;
+	}
+	else if (pin == 7)
+	{
+		ANSBbits.ANSB3 = analogOrDigital;
+		//TODO: Jacqui needs to find out why pin 7 isn't in the library
+	}
+	else if (pin == 11)
+	{
+		ANSBbits.ANSB4 = analogOrDigital;
+	}
+	else if (pin == 23)
+	{
+		ANSBbits.ANSB12 = analogOrDigital;
+	}
+	else if (pin == 24)
+	{
+		ANSBbits.ANSB13 = analogOrDigital;
+	}
+	else if (pin == 25)
+	{
+		ANSBbits.ANSB14 = analogOrDigital;
+	}
+	else if (pin == 26)
+	{
+		ANSBbits.ANSB15 = analogOrDigital;
+	}
 }
 
 void analogIOandSHinput(int pin, int IO) // specify pin and set 1 for input or 0 for output (analog).
 {
-// ANSBbits.ANSB13 = 1; // AN11 is analog
-// TRISBbits.TRISB13 = 1; // AN11 is an input
-// AD1CHSbits.CH0SA = 11; //Connect AN11 as the S/H input (sample and hold)
-if (pin == 4)
-{
-TRISBbits.TRISB0 = IO;
-AD1CHSbits.CH0SA = 2; //AN2
-}
-else if (pin == 5)
-{
-TRISBbits.TRISB1 = IO;
-AD1CHSbits.CH0SA = 3; //AN3
-}
-else if (pin == 6)
-{
-TRISBbits.TRISB2 = IO;
-AD1CHSbits.CH0SA = 4;
-}
-else if (pin == 7)
-{
-TRISBbits.TRISB3 = IO;
-AD1CHSbits.CH0SA = 5;
-}
-else if (pin == 11)
-{
-TRISBbits.TRISB4 = IO;
-AD1CHSbits.CH0SA = 15;
-}
-else if (pin == 23)
-{
-TRISBbits.TRISB12 = IO;
-AD1CHSbits.CH0SA = 12;
-}
-else if (pin == 24)
-{
-TRISBbits.TRISB13 = IO;
-AD1CHSbits.CH0SA = 11;
-}
-else if (pin == 25)
-{
-TRISBbits.TRISB14 = IO;
-AD1CHSbits.CH0SA = 10;
-}
-else if (pin == 26)
-{
-TRISBbits.TRISB15 = IO;
-AD1CHSbits.CH0SA = 9;
-}
+	// ANSBbits.ANSB13 = 1; // AN11 is analog
+	// TRISBbits.TRISB13 = 1; // AN11 is an input
+	// AD1CHSbits.CH0SA = 11; //Connect AN11 as the S/H input (sample and hold)
+	if (pin == 4)
+	{
+		TRISBbits.TRISB0 = IO;
+		AD1CHSbits.CH0SA = 2; //AN2
+	}
+	else if (pin == 5)
+	{
+		TRISBbits.TRISB1 = IO;
+		AD1CHSbits.CH0SA = 3; //AN3
+	}
+	else if (pin == 6)
+	{
+		TRISBbits.TRISB2 = IO;
+		AD1CHSbits.CH0SA = 4;
+	}
+	else if (pin == 7)
+	{
+		TRISBbits.TRISB3 = IO;
+		AD1CHSbits.CH0SA = 5;
+	}
+	else if (pin == 11)
+	{
+		TRISBbits.TRISB4 = IO;
+		AD1CHSbits.CH0SA = 15;
+	}
+	else if (pin == 23)
+	{
+		TRISBbits.TRISB12 = IO;
+		AD1CHSbits.CH0SA = 12;
+	}
+	else if (pin == 24)
+	{
+		TRISBbits.TRISB13 = IO;
+		AD1CHSbits.CH0SA = 11;
+	}
+	else if (pin == 25)
+	{
+		TRISBbits.TRISB14 = IO;
+		AD1CHSbits.CH0SA = 10;
+	}
+	else if (pin == 26)
+	{
+		TRISBbits.TRISB15 = IO;
+		AD1CHSbits.CH0SA = 9;
+	}
 }
 
 int digitalPinStatus(int pin)
 {
-int pinValue;
-if (pin == 1)
-{
-pinValue = PORTAbits.RA5;
-}
-else if (pin==2)
-{
-pinValue = PORTAbits.RA0;
-}
-else if (pin==3)
-{
-pinValue = PORTAbits.RA1;
-}
-else if (pin==4)
-{
-pinValue = PORTBbits.RB0;
-}
-else if (pin==5)
-{
-pinValue = PORTBbits.RB1;
-}
-else if (pin==6)
-{
-pinValue = PORTBbits.RB2;
-}
-else if (pin==7)
-{
-pinValue = PORTBbits.RB3;
-}
-// Pin8 - Always VSS for PIC24FV32KA302 - Do nothing
-else if (pin==9)
-{
-pinValue = PORTAbits.RA2;
-}
-else if (pin==10)
-{
-pinValue = PORTAbits.RA3;
-}
-else if (pin==11)
-{
-pinValue = PORTBbits.RB4;
-}
-else if (pin==12)
-{
-pinValue = PORTAbits.RA4;
-}
-//Pin 13 - Always VDD for PIC24FV32KA302 - Do nothing
-else if (pin==14)
-{
-pinValue = PORTBbits.RB5;
-}
-else if (pin==15)
-{
-pinValue = PORTBbits.RB6;
-}
-else if (pin==16)
-{
-pinValue = PORTBbits.RB7;
-} //Usually reserved for TX
-else if (pin==17)
-{
-pinValue = PORTBbits.RB8;
-}//Usually reserved for I2C
-else if (pin==18)
-{
-pinValue = PORTBbits.RB9;
-}//Usually Reserved for I2C
-else if (pin==19)
-{
-pinValue = PORTAbits.RA7;
-}
-// Pin 20 - Always vCap for PIC24FV32KA302 - Do nothing
-else if (pin==21)
-{
-pinValue = PORTBbits.RB10;
-}
-else if (pin==22)
-{
-pinValue = PORTBbits.RB11;
-}
-else if (pin==23)
-{
-pinValue = PORTBbits.RB12;
-}
-else if (pin==24)
-{
-pinValue = PORTBbits.RB13;
-}
-else if (pin==25)
-{
-pinValue = PORTBbits.RB14;
-}
-else if (pin==26)
-{
-pinValue = PORTBbits.RB15;
-}
-return pinValue;
-// Pin 27 - Always VSS for PIC24FV32KA302 - Do nothing
-// Pin 28 - Always VDD for PIC24FV32KA302 - Do nothing
+	int pinValue;
+	if (pin == 1)
+	{
+		pinValue = PORTAbits.RA5;
+	}
+	else if (pin == 2)
+	{
+		pinValue = PORTAbits.RA0;
+	}
+	else if (pin == 3)
+	{
+		pinValue = PORTAbits.RA1;
+	}
+	else if (pin == 4)
+	{
+		pinValue = PORTBbits.RB0;
+	}
+	else if (pin == 5)
+	{
+		pinValue = PORTBbits.RB1;
+	}
+	else if (pin == 6)
+	{
+		pinValue = PORTBbits.RB2;
+	}
+	else if (pin == 7)
+	{
+		pinValue = PORTBbits.RB3;
+	}
+	// Pin8 - Always VSS for PIC24FV32KA302 - Do nothing
+	else if (pin == 9)
+	{
+		pinValue = PORTAbits.RA2;
+	}
+	else if (pin == 10)
+	{
+		pinValue = PORTAbits.RA3;
+	}
+	else if (pin == 11)
+	{
+		pinValue = PORTBbits.RB4;
+	}
+	else if (pin == 12)
+	{
+		pinValue = PORTAbits.RA4;
+	}
+	//Pin 13 - Always VDD for PIC24FV32KA302 - Do nothing
+	else if (pin == 14)
+	{
+		pinValue = PORTBbits.RB5;
+	}
+	else if (pin == 15)
+	{
+		pinValue = PORTBbits.RB6;
+	}
+	else if (pin == 16)
+	{
+		pinValue = PORTBbits.RB7;
+	} //Usually reserved for TX
+	else if (pin == 17)
+	{
+		pinValue = PORTBbits.RB8;
+	}//Usually reserved for I2C
+	else if (pin == 18)
+	{
+		pinValue = PORTBbits.RB9;
+	}//Usually Reserved for I2C
+	else if (pin == 19)
+	{
+		pinValue = PORTAbits.RA7;
+	}
+	// Pin 20 - Always vCap for PIC24FV32KA302 - Do nothing
+	else if (pin == 21)
+	{
+		pinValue = PORTBbits.RB10;
+	}
+	else if (pin == 22)
+	{
+		pinValue = PORTBbits.RB11;
+	}
+	else if (pin == 23)
+	{
+		pinValue = PORTBbits.RB12;
+	}
+	else if (pin == 24)
+	{
+		pinValue = PORTBbits.RB13;
+	}
+	else if (pin == 25)
+	{
+		pinValue = PORTBbits.RB14;
+	}
+	else if (pin == 26)
+	{
+		pinValue = PORTBbits.RB15;
+	}
+	return pinValue;
+	// Pin 27 - Always VSS for PIC24FV32KA302 - Do nothing
+	// Pin 28 - Always VDD for PIC24FV32KA302 - Do nothing
 }
 
 
@@ -484,80 +484,80 @@ return pinValue;
 ********************************************************************/
 void initialization(void)
 {
-//finished
-ANSA = 0; // Make PORTA digital I/O
-TRISA = 0xFFFF; // Make PORTA all inputs
-ANSB = 0; // All port B pins are digital. Individual ADC are set in the readADC function
-TRISB = 0xFFFF; // Sets all of port B to input
-TRISBbits.TRISB8 = 0; // RB8 is an output
-// From fona code
-TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
-TRISAbits.TRISA1=0; //sets Vio as an output (pin 3)
-PORTAbits.RA1=1; //Tells Fona what logic level to use for UART
-if (PORTAbits.RA7 == 0){ //Checks see if the Fona is off pin
-PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
-}
-while (PORTAbits.RA7 == 0) {} // Wait for Fona to power up
-PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
-T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
-T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
-T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
-U1BRG = 51; // Set baud to 9600, FCY = 8MHz (#pragma config FNOSC = FRC)
-U1STA = 0;
-U1MODE = 0x8000; //enable UART for 8 bit data
-//no parity, 1 stop bit
-U1STAbits.UTXEN=1; //enable transmit
-initAdc(); //Call the initialize ADC function
-digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
-delayMs(3000);
-// Turn on SIM900
-while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
-{
-digitalPinSet(sclI2CPin, 1); // Hold in PWRKEY button
-}
-digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
-delayMs(3000);
-delayMs(2000);
-// Moved the RRTCCSet function up since we do not rely on network anymore
-    configI2c();
-    char seconds = 58;
-    char minutes = 58;
-    char hours = 23;
-    char weekday = 6;
-    char days = 19;
-    char months = 6;
-    char years = 15;
-    setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
+	//finished
+	ANSA = 0; // Make PORTA digital I/O
+	TRISA = 0xFFFF; // Make PORTA all inputs
+	ANSB = 0; // All port B pins are digital. Individual ADC are set in the readADC function
+	TRISB = 0xFFFF; // Sets all of port B to input
+	TRISBbits.TRISB8 = 0; // RB8 is an output
+	// From fona code
+	TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
+	TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
+	PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
+	if (PORTAbits.RA7 == 0){ //Checks see if the Fona is off pin
+		PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
+	}
+	while (PORTAbits.RA7 == 0) {} // Wait for Fona to power up
+	PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
+	T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
+	T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
+	T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
+	U1BRG = 51; // Set baud to 9600, FCY = 8MHz (#pragma config FNOSC = FRC)
+	U1STA = 0;
+	U1MODE = 0x8000; //enable UART for 8 bit data
+	//no parity, 1 stop bit
+	U1STAbits.UTXEN = 1; //enable transmit
+	initAdc(); //Call the initialize ADC function
+	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
+	delayMs(3000);
+	// Turn on SIM900
+	while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
+	{
+		digitalPinSet(sclI2CPin, 1); // Hold in PWRKEY button
+	}
+	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
+	delayMs(3000);
+	delayMs(2000);
+	// Moved the RRTCCSet function up since we do not rely on network anymore
+	configI2c();
+	char seconds = 58;
+	char minutes = 58;
+	char hours = 23;
+	char weekday = 6;
+	char days = 19;
+	char months = 6;
+	char years = 15;
+	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
 
-//I2CtoInternalRTCC();
-//setInternalTimeBCD(getYearI2C(), getMonthI2C(), getWkdayI2C(), getHourI2C(), getMinuteI2C(), getSecondI2C());
-RTCCSet(); // Sets time; Pic asks Sim which asks cell tower to get current time
-_RTCWREN = 1; // allowing us to write to registers; Set Alarm for sending message
-ALCFGRPTbits.CHIME = 1; //don't need to reset alarm?
-ALCFGRPTbits.AMASK = 0b0110; //once a day
-ALCFGRPTbits.ALRMPTR = 0b0010; //sets pointer
-//The following two lines may not work
-ALRMVAL = 0x0000; //set day and month to 0 and decrements pointer
-ALRMVAL = alarmHour; //sets hour to 0 (12am), sets weekday to 0, and decrements pointer
-ALRMVAL = 0x0000;//getMinuteOffset(); //set 5 min after midnight and set 1 second after midnight-
-//*********************************************
-// Make random number between 12:01-12:06
-// Assigned 05-30-2014; completed 06-09-2014
-//*********************************************
-ALCFGRPTbits.ALRMEN = 1; //enables the alarm
-_RTCWREN = 0; //no longer able to write to registers
-IEC3bits.RTCIE = 1; //RTCC Interupt is enabled
-sendTextMessage("(\"t\":\"initialize\")");
-prevDay = getDateI2C();
-//------------Sets up the Internal Clock------------
-//T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
-//T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
-//T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
-////------------Sets up all ports as digial inputs-----------------------
-//ANSA = 0; // Make PORTA digital I/O
-//TRISA = 0xFFFF; // Make PORTA all inputs
-//ANSB = 0; // All port B pins are digital. Individual ADC are set in the readADC function
-//TRISB = 0xFFFF; // Sets all of port B to input
+	//I2CtoInternalRTCC();
+	//setInternalTimeBCD(getYearI2C(), getMonthI2C(), getWkdayI2C(), getHourI2C(), getMinuteI2C(), getSecondI2C());
+	RTCCSet(); // Sets time; Pic asks Sim which asks cell tower to get current time
+	_RTCWREN = 1; // allowing us to write to registers; Set Alarm for sending message
+	ALCFGRPTbits.CHIME = 1; //don't need to reset alarm?
+	ALCFGRPTbits.AMASK = 0b0110; //once a day
+	ALCFGRPTbits.ALRMPTR = 0b0010; //sets pointer
+	//The following two lines may not work
+	ALRMVAL = 0x0000; //set day and month to 0 and decrements pointer
+	ALRMVAL = alarmHour; //sets hour to 0 (12am), sets weekday to 0, and decrements pointer
+	ALRMVAL = 0x0000;//getMinuteOffset(); //set 5 min after midnight and set 1 second after midnight-
+	//*********************************************
+	// Make random number between 12:01-12:06
+	// Assigned 05-30-2014; completed 06-09-2014
+	//*********************************************
+	ALCFGRPTbits.ALRMEN = 1; //enables the alarm
+	_RTCWREN = 0; //no longer able to write to registers
+	IEC3bits.RTCIE = 1; //RTCC Interupt is enabled
+	sendTextMessage("(\"t\":\"initialize\")");
+	prevDay = getDateI2C();
+	//------------Sets up the Internal Clock------------
+	//T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
+	//T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
+	//T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
+	////------------Sets up all ports as digial inputs-----------------------
+	//ANSA = 0; // Make PORTA digital I/O
+	//TRISA = 0xFFFF; // Make PORTA all inputs
+	//ANSB = 0; // All port B pins are digital. Individual ADC are set in the readADC function
+	//TRISB = 0xFFFF; // Sets all of port B to input
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -578,13 +578,13 @@ prevDay = getDateI2C();
 ********************************************************************/
 int longLength(long num)
 {
-int length = 0;
-do
-{
-length++; //Increment length
-num /= 10; //Get rid of the one's place
-}while(num != 0);
-return length;
+	int length = 0;
+	do
+	{
+		length++; //Increment length
+		num /= 10; //Get rid of the one's place
+	} while (num != 0);
+	return length;
 }
 
 /*********************************************************************
@@ -597,32 +597,32 @@ return length;
 ********************************************************************/
 void longToString(long num, char *numString)
 {
-//Declares an array of digits to refer to
-char const digits[] = "0123456789";
-//Gets the number of digits in the given number
-int length = longLength(num);
-//Creates a char array with the appropriate size (plus 1 for the \0 terminating character)
-char *result = numString;
-// Add 1 to the length to make room for the '-' and inserts the '-' if the number is negative
-if(num < 0)
-{
-length++;
-result[0] = '-';
-num *= -1; // Make the number positive
-}
-//Sets i to be the end of the string
-int i = length - 1;
-//Loops through the char array and inserts digits
-do
-{
-//Set the current index of the array to the corresponding digit
-result[i] = digits[num % 10];
-//Divide num by 10 to lose the one's place
-num /= 10;
-i--;
-}while(num != 0);
-//Insert a terminating \0 character
-result[length] = '\0';
+	//Declares an array of digits to refer to
+	char const digits[] = "0123456789";
+	//Gets the number of digits in the given number
+	int length = longLength(num);
+	//Creates a char array with the appropriate size (plus 1 for the \0 terminating character)
+	char *result = numString;
+	// Add 1 to the length to make room for the '-' and inserts the '-' if the number is negative
+	if (num < 0)
+	{
+		length++;
+		result[0] = '-';
+		num *= -1; // Make the number positive
+	}
+	//Sets i to be the end of the string
+	int i = length - 1;
+	//Loops through the char array and inserts digits
+	do
+	{
+		//Set the current index of the array to the corresponding digit
+		result[i] = digits[num % 10];
+		//Divide num by 10 to lose the one's place
+		num /= 10;
+		i--;
+	} while (num != 0);
+	//Insert a terminating \0 character
+	result[length] = '\0';
 }
 
 /*********************************************************************
@@ -635,13 +635,13 @@ result[length] = '\0';
 ********************************************************************/
 int stringLength(char *string)
 {
-int i = 0;
-//Checks for the terminating character
-while(string[i] != '\0')
-{
-i++;
-}
-return i;
+	int i = 0;
+	//Checks for the terminating character
+	while (string[i] != '\0')
+	{
+		i++;
+	}
+	return i;
 }
 
 /*********************************************************************
@@ -654,13 +654,13 @@ return i;
 ********************************************************************/
 void concat(char *dest, const char *src)
 {
-//Increments the pointer to the end of the string
-while (*dest)
-{
-dest++;
-}
-//Assigns the rest of string two to the incrementing pointer
-while ((*dest++ = *src++) != '\0');
+	//Increments the pointer to the end of the string
+	while (*dest)
+	{
+		dest++;
+	}
+	//Assigns the rest of string two to the incrementing pointer
+	while ((*dest++ = *src++) != '\0');
 }
 
 /*********************************************************************
@@ -674,88 +674,88 @@ while ((*dest++ = *src++) != '\0');
 //Fills the char array with the digits in the given float
 void floatToString(float myValue, char *myString) //tested 06-20-2014
 {
-int padLength = 0; // Stores the number of 0's needed for padding (2 if the fractional part was .003)
-long digit; // Stores a digit from the mantissa
-char digitString[5]; // Stores the string version of digit
-char mString[20]; // Stores the mantissa as a string
-char eString[20]; // Stores the exponent as a string
-int decimalShift; // Keeps track of how many decimal places we counted
-long exponent = (long)myValue; // Stores the exponent value of myValue
-float mantissa = myValue - (float)exponent; //Stores the fractional part
-int sLength = 0; // The length of the final string
-// Make the mantissa and exponent positive if they were negative
-if(myValue < 0)
-{
-mantissa *= -1;
-exponent *= -1;
-}
-// Counts the padding needed
-while(mantissa < 1 && mantissa != 0)
-{
-mantissa = mantissa * 10.0; // Stores the mantissa with the given decimal accuracy
-padLength++; // Increment the number of 0's needed
-}
-padLength--; // Subtract one because we don't want to count the last place shift
-mString[0] = '\0';
-eString[0] = '\0';
-digitString[0] = '\0';
-myString[0] = '\0';
-//Gets the string for the exponent
-longToString(exponent, eString);
-// Get the mantissa digits only if needed
-// (if padLength is -1, the number was a whole number. If it is above the decimal accuracy,
-// we had all 0's and do not need a mantissa
-if(padLength > -1 && padLength < decimalAccuracy)
-{
-// Updates the decimal place
-decimalShift = padLength;
-// Extracts the next one's place from the mantissa until we reached our decimal accuracy
-while(decimalShift < decimalAccuracy)
-{
-digit = (long)mantissa; // Get the next digit
-longToString(digit, digitString); // Convert the digit to a string
-concat(mString, digitString); // Add the digit string to the mantissa string
-mantissa = mantissa - (float)digit;
-mantissa = mantissa * 10; // Shift the decimal places to prepare for the next digit
-decimalShift++; // Update the decimal shift count
-}
-if(myValue < 0)
-{
-concat(myString, "-"); // Adds the '-' character
-sLength++; // Add one to the length for the '-' character
-}
-// Concatenates the exponent, decimal point, and mantissa together
-concat(myString, eString);
-concat(myString, ".");
-// Adds 0's to the mantissa string for each 0 needed for padding
-int i;
-for(i = 0; i < padLength; i++)
-{
-concat(myString, "0");
-}
-concat(myString, mString);
-//The length of the final string (lengths of the parts plus 1 for decimal point, 1 for \0 character, and the number of 0's)
-sLength += stringLength(eString) + stringLength(mString) + 2 + padLength;
-// Removes any trailing 0's
-while(myString[sLength - 2] == '0')
-{
-myString[sLength - 2] = '\0';
-sLength--;
-}
-}
-else
-{
-if(myValue < 0)
-{
-concat(myString, "-"); // Adds the '-' character
-sLength++; // Add one to the length for the '-' character
-}
-// Concatenates the exponent, decimal point, and mantissa together
-concat(myString, eString);
-//The length of the final string (lengths of the parts plus 1 for \0 character)
-sLength += stringLength(eString) + 1;
-}
-myString[sLength - 1] = '\0'; // Add terminating character
+	int padLength = 0; // Stores the number of 0's needed for padding (2 if the fractional part was .003)
+	long digit; // Stores a digit from the mantissa
+	char digitString[5]; // Stores the string version of digit
+	char mString[20]; // Stores the mantissa as a string
+	char eString[20]; // Stores the exponent as a string
+	int decimalShift; // Keeps track of how many decimal places we counted
+	long exponent = (long)myValue; // Stores the exponent value of myValue
+	float mantissa = myValue - (float)exponent; //Stores the fractional part
+	int sLength = 0; // The length of the final string
+	// Make the mantissa and exponent positive if they were negative
+	if (myValue < 0)
+	{
+		mantissa *= -1;
+		exponent *= -1;
+	}
+	// Counts the padding needed
+	while (mantissa < 1 && mantissa != 0)
+	{
+		mantissa = mantissa * 10.0; // Stores the mantissa with the given decimal accuracy
+		padLength++; // Increment the number of 0's needed
+	}
+	padLength--; // Subtract one because we don't want to count the last place shift
+	mString[0] = '\0';
+	eString[0] = '\0';
+	digitString[0] = '\0';
+	myString[0] = '\0';
+	//Gets the string for the exponent
+	longToString(exponent, eString);
+	// Get the mantissa digits only if needed
+	// (if padLength is -1, the number was a whole number. If it is above the decimal accuracy,
+	// we had all 0's and do not need a mantissa
+	if (padLength > -1 && padLength < decimalAccuracy)
+	{
+		// Updates the decimal place
+		decimalShift = padLength;
+		// Extracts the next one's place from the mantissa until we reached our decimal accuracy
+		while (decimalShift < decimalAccuracy)
+		{
+			digit = (long)mantissa; // Get the next digit
+			longToString(digit, digitString); // Convert the digit to a string
+			concat(mString, digitString); // Add the digit string to the mantissa string
+			mantissa = mantissa - (float)digit;
+			mantissa = mantissa * 10; // Shift the decimal places to prepare for the next digit
+			decimalShift++; // Update the decimal shift count
+		}
+		if (myValue < 0)
+		{
+			concat(myString, "-"); // Adds the '-' character
+			sLength++; // Add one to the length for the '-' character
+		}
+		// Concatenates the exponent, decimal point, and mantissa together
+		concat(myString, eString);
+		concat(myString, ".");
+		// Adds 0's to the mantissa string for each 0 needed for padding
+		int i;
+		for (i = 0; i < padLength; i++)
+		{
+			concat(myString, "0");
+		}
+		concat(myString, mString);
+		//The length of the final string (lengths of the parts plus 1 for decimal point, 1 for \0 character, and the number of 0's)
+		sLength += stringLength(eString) + stringLength(mString) + 2 + padLength;
+		// Removes any trailing 0's
+		while (myString[sLength - 2] == '0')
+		{
+			myString[sLength - 2] = '\0';
+			sLength--;
+		}
+	}
+	else
+	{
+		if (myValue < 0)
+		{
+			concat(myString, "-"); // Adds the '-' character
+			sLength++; // Add one to the length for the '-' character
+		}
+		// Concatenates the exponent, decimal point, and mantissa together
+		concat(myString, eString);
+		//The length of the final string (lengths of the parts plus 1 for \0 character)
+		sLength += stringLength(eString) + 1;
+	}
+	myString[sLength - 1] = '\0'; // Add terminating character
 }
 
 
@@ -776,13 +776,13 @@ myString[sLength - 1] = '\0'; // Add terminating character
 ********************************************************************/
 void turnOffSIM()
 {
-digitalPinSet(sclI2CPin, 0);
-// Turn off SIM900
-while (digitalPinStatus(statusPin) == 1) // While STATUS light is on (SIM900 is on)
-{
-digitalPinSet(sclI2CPin, 1); // Hold in PWRKEY button
-}
-digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
+	digitalPinSet(sclI2CPin, 0);
+	// Turn off SIM900
+	while (digitalPinStatus(statusPin) == 1) // While STATUS light is on (SIM900 is on)
+	{
+		digitalPinSet(sclI2CPin, 1); // Hold in PWRKEY button
+	}
+	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
 }
 /*********************************************************************
 * Function: turnOnSIM
@@ -794,12 +794,12 @@ digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
 ********************************************************************/
 void turnOnSIM()
 {
-digitalPinSet(sclI2CPin, 0);// Turn on SIM900
-while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
-{
-digitalPinSet(sclI2CPin, 1); // Hold in PWRKEY button
-}
-digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
+	digitalPinSet(sclI2CPin, 0);// Turn on SIM900
+	while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
+	{
+		digitalPinSet(sclI2CPin, 1); // Hold in PWRKEY button
+	}
+	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
 }
 /*********************************************************************
 * Function: tryToConnectToNetwork
@@ -813,47 +813,47 @@ digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
 ********************************************************************/
 void tryToConnectToNetwork()
 {
-int networkTimeoutCount = 0; // Stores the number of times we reset the SIM
-int networkTimeout = 0; // Stores the number of times we did not have connection
-int networkConnectionCount = 0; // Stores the number of times we have detected a connection
-int keepTrying = 1; // A flag used to keep trying to connect to the network
-while(keepTrying) // Wait until connected to the network, or we tried for 20 seconds
-{
-delayMs(1000); // Delay for 1 second
-// Check for network take the appropriate action
-if(connectedToNetwork())
-{
-networkConnectionCount++;
-// 4 consecutive connections means we can exit the loop
-if(networkConnectionCount == 4)
-{
-keepTrying = 0;
-}
-}
-else
-{
-// If we have no network, reset the counter
-networkConnectionCount = 0;
-// Increase the network timeout
-networkTimeout++;
-// We tried to connect for 1 minute, so restart the SIM900
-if(networkTimeout > 60)
-{
-turnOffSIM();
-delayMs(3000);
-turnOnSIM();
-delayMs(3000);
-// Reset the network timeout
-networkTimeout = 0;
-networkTimeoutCount++;
-// If we have tried to reset 5 times, we give up and exit
-if(networkTimeoutCount == 5)
-{
-keepTrying = 0;
-}
-}
-}
-}
+	int networkTimeoutCount = 0; // Stores the number of times we reset the SIM
+	int networkTimeout = 0; // Stores the number of times we did not have connection
+	int networkConnectionCount = 0; // Stores the number of times we have detected a connection
+	int keepTrying = 1; // A flag used to keep trying to connect to the network
+	while (keepTrying) // Wait until connected to the network, or we tried for 20 seconds
+	{
+		delayMs(1000); // Delay for 1 second
+		// Check for network take the appropriate action
+		if (connectedToNetwork())
+		{
+			networkConnectionCount++;
+			// 4 consecutive connections means we can exit the loop
+			if (networkConnectionCount == 4)
+			{
+				keepTrying = 0;
+			}
+		}
+		else
+		{
+			// If we have no network, reset the counter
+			networkConnectionCount = 0;
+			// Increase the network timeout
+			networkTimeout++;
+			// We tried to connect for 1 minute, so restart the SIM900
+			if (networkTimeout > 60)
+			{
+				turnOffSIM();
+				delayMs(3000);
+				turnOnSIM();
+				delayMs(3000);
+				// Reset the network timeout
+				networkTimeout = 0;
+				networkTimeoutCount++;
+				// If we have tried to reset 5 times, we give up and exit
+				if (networkTimeoutCount == 5)
+				{
+					keepTrying = 0;
+				}
+			}
+		}
+	}
 }
 /*********************************************************************
 * Function: connectedToNetwork
@@ -865,34 +865,34 @@ keepTrying = 0;
 ********************************************************************/
 int connectedToNetwork(void) //True when there is a network connection
 {
-// Make sure you start at the beginning of the positive pulse
-if (PORTBbits.RB14 == 1)
-{
-while (PORTBbits.RB14) { }; // TODO: Isn't this a great way to get stuck in a while loop?
-}
-// Wait for rising edge
-while (PORTBbits.RB14 == 0) { }; // TODO: Isn't this a great way to get stuck in a while loop?
-// Reset the timer
-TMR1 = 0;
-// Get time at start of positive pulse
-int prevICTime = TMR1;
-// Wait for the pulse to go low
-while (PORTBbits.RB14) { }; // TODO: Same as above
-// Wait for the pulse to go high again
-while (PORTBbits.RB14 == 0) { }; // TODO: Same as above
-// Get time at end of second positive pulse
-int currentICTime = TMR1;
-long pulseDistance = 0;
-if (currentICTime >= prevICTime)
-{
-pulseDistance = (currentICTime - prevICTime);
-}
-else
-{
-pulseDistance = (currentICTime - prevICTime + 0x10000);
-}
-//Check if this value is right
-return (pulseDistance >= networkPulseWidthThreshold); // True, when there is a network connection.
+	// Make sure you start at the beginning of the positive pulse
+	if (PORTBbits.RB14 == 1)
+	{
+		while (PORTBbits.RB14) {}; // TODO: Isn't this a great way to get stuck in a while loop?
+	}
+	// Wait for rising edge
+	while (PORTBbits.RB14 == 0) {}; // TODO: Isn't this a great way to get stuck in a while loop?
+	// Reset the timer
+	TMR1 = 0;
+	// Get time at start of positive pulse
+	int prevICTime = TMR1;
+	// Wait for the pulse to go low
+	while (PORTBbits.RB14) {}; // TODO: Same as above
+	// Wait for the pulse to go high again
+	while (PORTBbits.RB14 == 0) {}; // TODO: Same as above
+	// Get time at end of second positive pulse
+	int currentICTime = TMR1;
+	long pulseDistance = 0;
+	if (currentICTime >= prevICTime)
+	{
+		pulseDistance = (currentICTime - prevICTime);
+	}
+	else
+	{
+		pulseDistance = (currentICTime - prevICTime + 0x10000);
+	}
+	//Check if this value is right
+	return (pulseDistance >= networkPulseWidthThreshold); // True, when there is a network connection.
 }
 
 /*********************************************************************
@@ -903,31 +903,31 @@ return (pulseDistance >= networkPulseWidthThreshold); // True, when there is a n
 * Note: Library, Pic Dependent, sendTextMessage() uses this
 * TestDate: 06-02-2014
 ********************************************************************/
-void sendMessage (char message[160])
+void sendMessage(char message[160])
 {
-int stringIndex = 0;
-int delayIndex;
-U1BRG=25; //set baud to 9600, assumes FCY=4Mhz/19200
-U1STA=0;
-U1MODE=0x8000; //enable UART for 8 bit data
-//no parity, 1 stop bit
-U1STAbits.UTXEN=1; //enable transmit
-while (stringIndex < stringLength(message))
-{
-if(U1STAbits.UTXBF == 0)
-{
-U1TXREG= message[stringIndex];
-stringIndex++;
-for (delayIndex = 0; delayIndex < 1000; delayIndex++){ }
-}
-else
-{
-for (delayIndex = 0; delayIndex < 30000; delayIndex++){ }
-}
-}
+	int stringIndex = 0;
+	int delayIndex;
+	U1BRG = 25; //set baud to 9600, assumes FCY=4Mhz/19200
+	U1STA = 0;
+	U1MODE = 0x8000; //enable UART for 8 bit data
+	//no parity, 1 stop bit
+	U1STAbits.UTXEN = 1; //enable transmit
+	while (stringIndex < stringLength(message))
+	{
+		if (U1STAbits.UTXBF == 0)
+		{
+			U1TXREG = message[stringIndex];
+			stringIndex++;
+			for (delayIndex = 0; delayIndex < 1000; delayIndex++){}
+		}
+		else
+		{
+			for (delayIndex = 0; delayIndex < 30000; delayIndex++){}
+		}
+	}
 }
 char intToAscii(unsigned int integer){
-return (char) (integer + 48);
+	return (char)(integer + 48);
 }
 
 /*********************************************************************
@@ -940,18 +940,18 @@ return (char) (integer + 48);
 ********************************************************************/
 void sendTextMessage(char message[160]) // Tested 06-02-2014
 {
-sendMessage("AT+CMGF=1\r\n");//sets to text mode
-delayMs(250);
-sendMessage("AT+CMGS=\""); //beginning of allowing us to send SMS message
-sendMessage(phoneNumber);
-sendMessage("\"\r\n"); //middle of allowing us to send SMS message
-delayMs(250);
-sendMessage(message);
-delayMs(250);
-sendMessage("\x1A"); // method 2: sending hexidecimal representation
-// of 26 to sendMessage function (line 62)
-// & the end of allowing us to send SMS message
-delayMs(5000); // Give it some time to send the message
+	sendMessage("AT+CMGF=1\r\n");//sets to text mode
+	delayMs(250);
+	sendMessage("AT+CMGS=\""); //beginning of allowing us to send SMS message
+	sendMessage(phoneNumber);
+	sendMessage("\"\r\n"); //middle of allowing us to send SMS message
+	delayMs(250);
+	sendMessage(message);
+	delayMs(250);
+	sendMessage("\x1A"); // method 2: sending hexidecimal representation
+	// of 26 to sendMessage function (line 62)
+	// & the end of allowing us to send SMS message
+	delayMs(5000); // Give it some time to send the message
 }
 
 
@@ -972,25 +972,25 @@ delayMs(5000); // Give it some time to send the message
 ********************************************************************/
 int readWaterSensor(void) // RB5 is one water sensor
 {
-if (digitalPinStatus(waterPresenceSensorPin) == 1)
-{
-while (digitalPinStatus(waterPresenceSensorPin)) { }; //make sure you start at the beginning of the positive pulse
-}
-while (digitalPinStatus(waterPresenceSensorPin) == 0) { }; //wait for rising edge
-int prevICTime = TMR1; //get time at start of positive pulse
-while (digitalPinStatus(waterPresenceSensorPin)) { };
-int currentICTime = TMR1; //get time at end of positive pulse
-long pulseWidth = 0;
-if (currentICTime >= prevICTime)
-{
-pulseWidth = (currentICTime - prevICTime);
-}
-else
-{
-pulseWidth = (currentICTime - prevICTime + 0x100000000);
-}
-//Check if this value is right
-return (pulseWidth <= pulseWidthThreshold);
+	if (digitalPinStatus(waterPresenceSensorPin) == 1)
+	{
+		while (digitalPinStatus(waterPresenceSensorPin)) {}; //make sure you start at the beginning of the positive pulse
+	}
+	while (digitalPinStatus(waterPresenceSensorPin) == 0) {}; //wait for rising edge
+	int prevICTime = TMR1; //get time at start of positive pulse
+	while (digitalPinStatus(waterPresenceSensorPin)) {};
+	int currentICTime = TMR1; //get time at end of positive pulse
+	long pulseWidth = 0;
+	if (currentICTime >= prevICTime)
+	{
+		pulseWidth = (currentICTime - prevICTime);
+	}
+	else
+	{
+		pulseWidth = (currentICTime - prevICTime + 0x100000000);
+	}
+	//Check if this value is right
+	return (pulseWidth <= pulseWidthThreshold);
 }
 
 /*********************************************************************
@@ -1003,30 +1003,30 @@ return (pulseWidth <= pulseWidthThreshold);
 ********************************************************************/
 void initAdc(void)
 {
-// 10bit conversion
-AD1CON1 = 0; // Default to all 0s
-AD1CON1bits.ADON = 0; // Ensure the ADC is turned off before configuration
-AD1CON1bits.FORM = 0; // absolute decimal result, unsigned, right-justified
-AD1CON1bits.SSRC = 0; // The SAMP bit must be cleared by software
-AD1CON1bits.SSRC = 0x7; // The SAMP bit is cleared after SAMC number (see
-// AD3CON) of TAD clocks after SAMP bit being set
-AD1CON1bits.ASAM = 0; // Sampling begins when the SAMP bit is manually set
-AD1CON1bits.SAMP = 0; // Don't Sample yet
-// Leave AD1CON2 at defaults
-// Vref High = Vcc Vref Low = Vss
-// Use AD1CHS (see below) to select which channel to convert, don't
-// scan based upon AD1CSSL
-AD1CON2 = 0;
-// AD3CON
-// This device needs a minimum of Tad = 600ns.
-// If Tcy is actually 1/8Mhz = 125ns, so we are using 3Tcy
-//AD1CON3 = 0x1F02; // Sample time = 31 Tad, Tad = 3Tcy
-AD1CON3bits.SAMC = 0x1F; // Sample time = 31 Tad (11.6us charge time)
-AD1CON3bits.ADCS = 0x2; // Tad = 3Tcy
-// Conversions are routed through MuxA by default in AD1CON2
-AD1CHSbits.CH0NA = 0; // Use Vss as the conversion reference
-AD1CSSL = 0; // No inputs specified since we are not in SCAN mode
-// AD1CON2
+	// 10bit conversion
+	AD1CON1 = 0; // Default to all 0s
+	AD1CON1bits.ADON = 0; // Ensure the ADC is turned off before configuration
+	AD1CON1bits.FORM = 0; // absolute decimal result, unsigned, right-justified
+	AD1CON1bits.SSRC = 0; // The SAMP bit must be cleared by software
+	AD1CON1bits.SSRC = 0x7; // The SAMP bit is cleared after SAMC number (see
+	// AD3CON) of TAD clocks after SAMP bit being set
+	AD1CON1bits.ASAM = 0; // Sampling begins when the SAMP bit is manually set
+	AD1CON1bits.SAMP = 0; // Don't Sample yet
+	// Leave AD1CON2 at defaults
+	// Vref High = Vcc Vref Low = Vss
+	// Use AD1CHS (see below) to select which channel to convert, don't
+	// scan based upon AD1CSSL
+	AD1CON2 = 0;
+	// AD3CON
+	// This device needs a minimum of Tad = 600ns.
+	// If Tcy is actually 1/8Mhz = 125ns, so we are using 3Tcy
+	//AD1CON3 = 0x1F02; // Sample time = 31 Tad, Tad = 3Tcy
+	AD1CON3bits.SAMC = 0x1F; // Sample time = 31 Tad (11.6us charge time)
+	AD1CON3bits.ADCS = 0x2; // Tad = 3Tcy
+	// Conversions are routed through MuxA by default in AD1CON2
+	AD1CHSbits.CH0NA = 0; // Use Vss as the conversion reference
+	AD1CSSL = 0; // No inputs specified since we are not in SCAN mode
+	// AD1CON2
 }
 
 
@@ -1041,52 +1041,52 @@ AD1CSSL = 0; // No inputs specified since we are not in SCAN mode
 ********************************************************************/
 int readAdc(int channel) //check with accelerometer
 {
-switch (channel)
-{
-    case 0:
-        specifyAnalogPin(depthSensorPin, 1);
-        analogIOandSHinput(depthSensorPin, 1);
-    break;
-case 15:
-specifyAnalogPin(batteryLevelPin, 1);
-analogIOandSHinput(batteryLevelPin, 1);
-break;
-case 12:
-specifyAnalogPin(yAxisAccelerometerPin, 1);
-analogIOandSHinput(yAxisAccelerometerPin, 1);
-//PORTBbits.RB12 = 1; // AN12 is analog ***I changed this to ANSBbits.ANSBxx 03-31-2015
-//TRISBbits.TRISB12 = 1; // AN12 is an input
-//AD1CHSbits.CH0SA = 12; // Connect AN12 as the S/H input
-break;
-case 11:
-specifyAnalogPin(xAxisAccelerometerPin, 1);
-analogIOandSHinput(xAxisAccelerometerPin, 1);
-//ANSBbits.ANSB13 = 1; // AN11 is analog
-//TRISBbits.TRISB13 = 1; // AN11 is an input
-//AD1CHSbits.CH0SA = 11; //Connect AN11 as the S/H input (sample and hold)
-break;
-case 4:
-specifyAnalogPin(rxPin, 1);
-analogIOandSHinput(rxPin, 1);
-//ANSBbits.ANSB2 = 1; // AN4 is analog
-//TRISBbits.TRISB2 = 1; // AN4 is an input
-//AD1CHSbits.CH0SA = 4; // Connect AN4 as the S/H input
-break;
-case 2:
-specifyAnalogPin(Pin4, 1); //Currently unused, may be used in the future.
-analogIOandSHinput(Pin4, 1);
-//ANSBbits.ANSB0 = 1; // AN2 is analog
-//TRISBbits.TRISB0 = 1; // AN2 is an input
-//AD1CHSbits.CH0SA = 2; // Connect AN2 as the S/H input
-break;
-}
-AD1CON1bits.ADON = 1; // Turn on ADC
-AD1CON1bits.SAMP = 1;
-while (!AD1CON1bits.DONE)
-{
-}
-unsigned int adcValue = ADC1BUF0;
-return adcValue;
+	switch (channel)
+	{
+	case 0:
+		specifyAnalogPin(depthSensorPin, 1);
+		analogIOandSHinput(depthSensorPin, 1);
+		break;
+	case 15:
+		specifyAnalogPin(batteryLevelPin, 1);
+		analogIOandSHinput(batteryLevelPin, 1);
+		break;
+	case 12:
+		specifyAnalogPin(yAxisAccelerometerPin, 1);
+		analogIOandSHinput(yAxisAccelerometerPin, 1);
+		//PORTBbits.RB12 = 1; // AN12 is analog ***I changed this to ANSBbits.ANSBxx 03-31-2015
+		//TRISBbits.TRISB12 = 1; // AN12 is an input
+		//AD1CHSbits.CH0SA = 12; // Connect AN12 as the S/H input
+		break;
+	case 11:
+		specifyAnalogPin(xAxisAccelerometerPin, 1);
+		analogIOandSHinput(xAxisAccelerometerPin, 1);
+		//ANSBbits.ANSB13 = 1; // AN11 is analog
+		//TRISBbits.TRISB13 = 1; // AN11 is an input
+		//AD1CHSbits.CH0SA = 11; //Connect AN11 as the S/H input (sample and hold)
+		break;
+	case 4:
+		specifyAnalogPin(rxPin, 1);
+		analogIOandSHinput(rxPin, 1);
+		//ANSBbits.ANSB2 = 1; // AN4 is analog
+		//TRISBbits.TRISB2 = 1; // AN4 is an input
+		//AD1CHSbits.CH0SA = 4; // Connect AN4 as the S/H input
+		break;
+	case 2:
+		specifyAnalogPin(Pin4, 1); //Currently unused, may be used in the future.
+		analogIOandSHinput(Pin4, 1);
+		//ANSBbits.ANSB0 = 1; // AN2 is analog
+		//TRISBbits.TRISB0 = 1; // AN2 is an input
+		//AD1CHSbits.CH0SA = 2; // Connect AN2 as the S/H input
+		break;
+	}
+	AD1CON1bits.ADON = 1; // Turn on ADC
+	AD1CON1bits.SAMP = 1;
+	while (!AD1CON1bits.DONE)
+	{
+	}
+	unsigned int adcValue = ADC1BUF0;
+	return adcValue;
 }
 
 /*********************************************************************
@@ -1104,11 +1104,11 @@ the angle is negative.Gets a snapshot of the current sensor values.
 ********************************************************************/
 float getHandleAngle()
 {
-signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
-signed int yValue = readAdc(yAxis) - adjustmentFactor; //added abs() 06-20-2014
-float angle = atan2(yValue, xValue) * (180 / 3.141592); //returns angle in degrees 06-20-2014
-// Calculate and return the angle of the pump handle // TODO: 3.141592=PI, make that a constant
-return angle;
+	signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
+	signed int yValue = readAdc(yAxis) - adjustmentFactor; //added abs() 06-20-2014
+	float angle = atan2(yValue, xValue) * (180 / 3.141592); //returns angle in degrees 06-20-2014
+	// Calculate and return the angle of the pump handle // TODO: 3.141592=PI, make that a constant
+	return angle;
 }
 
 /*********************************************************************
@@ -1121,11 +1121,11 @@ return angle;
 ********************************************************************/
 void initializeQueue(float value)
 {
-int i = 0;
-for(i = 0; i < queueLength; i++)
-{
-angleQueue[i] = value;
-}
+	int i = 0;
+	for (i = 0; i < queueLength; i++)
+	{
+		angleQueue[i] = value;
+	}
 }
 /*********************************************************************
 * Function: pushToQueue()
@@ -1137,13 +1137,13 @@ angleQueue[i] = value;
 ********************************************************************/
 void pushToQueue(float value)
 {
-int i = 0;
-for(i = 0; i < queueLength - 1; i++)
-{
-angleQueue[i] = angleQueue[i + i];
-}
-// Insert the value at the end of the queue
-angleQueue[queueLength - 1] = value;
+	int i = 0;
+	for (i = 0; i < queueLength - 1; i++)
+	{
+		angleQueue[i] = angleQueue[i + i];
+	}
+	// Insert the value at the end of the queue
+	angleQueue[queueLength - 1] = value;
 }
 /*********************************************************************
 * Function: queueAverage()
@@ -1155,15 +1155,15 @@ angleQueue[queueLength - 1] = value;
 ********************************************************************/
 float queueAverage()
 {
-float sum = 0;
-int i = 0;
-// Sum up all the values in the queue
-for(i = 0; i < queueLength; i++)
-{
-sum += angleQueue[i];
-}
-// Returns the average after converting queueLength to a float
-return sum / (queueLength * 1.0);
+	float sum = 0;
+	int i = 0;
+	// Sum up all the values in the queue
+	for (i = 0; i < queueLength; i++)
+	{
+		sum += angleQueue[i];
+	}
+	// Returns the average after converting queueLength to a float
+	return sum / (queueLength * 1.0);
 }
 //
 /*********************************************************************
@@ -1176,7 +1176,7 @@ return sum / (queueLength * 1.0);
 ********************************************************************/
 float queueDifference()
 {
-return angleQueue[queueLength - 1] - angleQueue[0];
+	return angleQueue[queueLength - 1] - angleQueue[0];
 }
 
 
@@ -1185,42 +1185,42 @@ return angleQueue[queueLength - 1] - angleQueue[0];
 * Input: None
 * Output: float
 * Overview: returns an output of a float with a value of the battery voltage compared to an
- * expected VCC of 3.6V
+* expected VCC of 3.6V
 * Note:
 * TestDate: 6/24/2015
 ********************************************************************/
 
 
 float batteryLevel(void){ //this has not been tested
-    char voltageAvgFloatString[20];
-    voltageAvgFloatString[0] = 0;
-    float adcVal1;
-    float adcVal2;
-    float adcVal3;
-    float adcAvg;
-    float realVoltage;
+	char voltageAvgFloatString[20];
+	voltageAvgFloatString[0] = 0;
+	float adcVal1;
+	float adcVal2;
+	float adcVal3;
+	float adcAvg;
+	float realVoltage;
 
-    adcVal1 = readAdc(batteryVoltage); // - adjustmentFactor;
+	adcVal1 = readAdc(batteryVoltage); // - adjustmentFactor;
 
-    delayMs(50);
+	delayMs(50);
 
-    adcVal2 = readAdc(batteryVoltage); // - adjustmentFactor;
+	adcVal2 = readAdc(batteryVoltage); // - adjustmentFactor;
 
-    delayMs(50);
+	delayMs(50);
 
-    adcVal3 = readAdc(batteryVoltage); // - adjustmentFactor;
+	adcVal3 = readAdc(batteryVoltage); // - adjustmentFactor;
 
 
-    adcAvg = (adcVal1 + adcVal2 + adcVal3)/3 ;
+	adcAvg = (adcVal1 + adcVal2 + adcVal3) / 3;
 
-    // V = adcVal / maxAdcVal * 1 / (voltage divider values) * VCC
-    realVoltage = adcAvg / 1024 * 1 / (100/243) * 3.6;
+	// V = adcVal / maxAdcVal * 1 / (voltage divider values) * VCC
+	realVoltage = adcAvg / 1024 * 1 / (100 / 243) * 3.6;
 
-    //floatToString(battVoltage, voltageAvgFloatString);
+	//floatToString(battVoltage, voltageAvgFloatString);
 
-    //return voltageAvgFloatString;
+	//return voltageAvgFloatString;
 
-    return realVoltage;
+	return realVoltage;
 }
 /*********************************************************************
 * Function: readDepthSensor()
@@ -1231,34 +1231,34 @@ float batteryLevel(void){ //this has not been tested
 * TestDate: TBD
 ********************************************************************/
 float readDepthSensor(void)
-    {
-    float adcVal1;
-    float adcVal2;
-    float adcVal3;
-    float adcAvg;
-    float depthInMeters;
-    float realVoltage;
-    adcVal1 = readAdc(batteryVoltage);
+{
+	float adcVal1;
+	float adcVal2;
+	float adcVal3;
+	float adcAvg;
+	float depthInMeters;
+	float realVoltage;
+	adcVal1 = readAdc(batteryVoltage);
 
-    delayMs(50);
+	delayMs(50);
 
-    adcVal2 = readAdc(batteryVoltage);
+	adcVal2 = readAdc(batteryVoltage);
 
-    delayMs(50);
+	delayMs(50);
 
-    adcVal3 = readAdc(batteryVoltage);
+	adcVal3 = readAdc(batteryVoltage);
 
 
-    adcAvg = (adcVal1 + adcVal2 + adcVal3)/3 ;
+	adcAvg = (adcVal1 + adcVal2 + adcVal3) / 3;
 
-    // V = adcVal / maxAdcVal * 1 / (voltage divider values) * VCC
-    realVoltage = adcAvg / 1024 * 3.6;
+	// V = adcVal / maxAdcVal * 1 / (voltage divider values) * VCC
+	realVoltage = adcAvg / 1024 * 3.6;
 
-    depthInMeters = 2.2629 * realVoltage * realVoltage - 5.7605 * realVoltage + 3.4137;
+	depthInMeters = 2.2629 * realVoltage * realVoltage - 5.7605 * realVoltage + 3.4137;
 
-    return depthInMeters;
+	return depthInMeters;
 
-    }
+}
 
 /////////////////////////////////////////////////////////////////////
 ////                                                             ////
@@ -1275,11 +1275,11 @@ float readDepthSensor(void)
 ********************************************************************/
 unsigned int IdleI2C(void)
 {
-int timeOut = 0;
+	int timeOut = 0;
 	while (I2C1STATbits.TRSTAT){//Wait for bus Idle
 		if (timeOut == 1300){ // time out loop incase I2C gets stuck
-                    hangUpI2C();
-                    IdleI2C();
+			hangUpI2C();
+			IdleI2C();
 		}
 		timeOut++;
 	}
@@ -1293,15 +1293,15 @@ int timeOut = 0;
 ********************************************************************/
 unsigned int StartI2C(void)
 {
-//This function generates an I2C start condition and returns status
+	//This function generates an I2C start condition and returns status
 	//of the Start.
 	int timeOut = 0;
 	I2C1CONbits.SEN = 1; //Generate Start COndition
 	while (I2C1CONbits.SEN) //Wait for Start COndition
 	{
 		if (timeOut == 1300){ // time out loop incase I2C gets stuck
-                   hangUpI2C();
-                   StartI2C();
+			hangUpI2C();
+			StartI2C();
 		}
 		timeOut++;
 	}
@@ -1316,7 +1316,7 @@ unsigned int StartI2C(void)
 ********************************************************************/
 unsigned int StopI2C(void)
 {
-//This function generates an I2C stop condition and returns status
+	//This function generates an I2C stop condition and returns status
 	//of the Stop.
 	int timeOut = 0;
 
@@ -1324,9 +1324,9 @@ unsigned int StopI2C(void)
 	while (I2C1CONbits.PEN) //Wait for Stop
 	{
 		if (timeOut == 1300){ // time out loop incase I2C gets stuck
-	           hangUpI2C();
-                   StopI2C();
-                }
+			hangUpI2C();
+			StopI2C();
+		}
 		timeOut++;
 	}
 	//return(I2C1STATbits.P); //Optional - return status
@@ -1340,60 +1340,60 @@ unsigned int StopI2C(void)
 ********************************************************************/
 void RestartI2C(void)
 {
-//This function generates an I2C Restart condition and returns status
+	//This function generates an I2C Restart condition and returns status
 	//of the Restart.
 	int timeOut = 0;
 	I2C1CONbits.RSEN = 1; //Generate Restart
 	while (I2C1CONbits.RSEN) //Wait for restart
 	{
 		if (timeOut == 1300){ // time out loop incase I2C gets stuck
-                    hangUpI2C();
-                    RestartI2C();
-                }
+			hangUpI2C();
+			RestartI2C();
+		}
 		timeOut++;
 	}
 	//return(I2C1STATbits.S); //Optional - return status
 }
 void NackI2C(void)
 {
- 	int timeOut = 0;
+	int timeOut = 0;
 	I2C1CONbits.ACKDT = 1;
 	I2C1CONbits.ACKEN = 1;
 	while (I2C1CONbits.ACKEN)
 	{
 		if (timeOut == 1300)
 		{ // time out loop incase I2C gets stuck
-                    hangUpI2C();
-                    NackI2C();
-                }
+			hangUpI2C();
+			NackI2C();
+		}
 		timeOut++;
 	}
 }
 void AckI2C(void)
 {
-int timeOut = 0;
+	int timeOut = 0;
 	I2C1CONbits.ACKDT = 0;
 	I2C1CONbits.ACKEN = 1;
 	while (I2C1CONbits.ACKEN)
 	{
 		if (timeOut == 1300)
 		{ // time out loop incase I2C gets stuck
-                   hangUpI2C();
-                   AckI2C();
-                }
+			hangUpI2C();
+			AckI2C();
+		}
 		timeOut++;
 	}
 }
 void configI2c(void)
 {
-//From Jake's
-I2C1CONbits.A10M = 0; //Use 7-bit slave addresses
-I2C1CONbits.DISSLW = 1; // Disable Slew rate
-I2C1CONbits.IPMIEN = 0; //should be set to 0 when master
-//IFS1bits.MI2C1IF = 0; // Disable Interupt
-//^From Jake's
-I2C1BRG = 0x4E; // If Fcy = 8 Mhz this will set the baud to 100 khz
-I2C1CONbits.I2CEN = 1; // Configures I2C pins as I2C (on pins 17 an 18)
+	//From Jake's
+	I2C1CONbits.A10M = 0; //Use 7-bit slave addresses
+	I2C1CONbits.DISSLW = 1; // Disable Slew rate
+	I2C1CONbits.IPMIEN = 0; //should be set to 0 when master
+	//IFS1bits.MI2C1IF = 0; // Disable Interupt
+	//^From Jake's
+	I2C1BRG = 0x4E; // If Fcy = 8 Mhz this will set the baud to 100 khz
+	I2C1CONbits.I2CEN = 1; // Configures I2C pins as I2C (on pins 17 an 18)
 }
 /*********************************************************************
 * Function: WriteI2C()
@@ -1406,7 +1406,7 @@ void WriteI2C(unsigned char byte)
 {
 	//This function transmits the byte passed to the function
 	int timeOut1 = 0;
-        int trueTimeOut = 1;
+	int trueTimeOut = 1;
 	while (I2C1STATbits.TRSTAT && trueTimeOut)//Wait for bus to be idle
 	{
 		if (timeOut1 == 1300)
@@ -1414,8 +1414,8 @@ void WriteI2C(unsigned char byte)
 			I2C1CON = I2C1CON & 0b01111111; // disables I2C
 			delayMs(1);
 			I2C1CON = I2C1CON | 0b10000000; // enables I2C
-                        trueTimeOut = 0;
-                }
+			trueTimeOut = 0;
+		}
 		timeOut1++;
 
 	}
@@ -1440,11 +1440,11 @@ void WriteI2C(unsigned char byte)
 * Overview: Receives Byte & Writes a Nack out to the bus
 * Note: None
 ********************************************************************/
-unsigned int ReadI2C (void)
+unsigned int ReadI2C(void)
 {
 	int timeOut1 = 0;
 	int timeOut2 = 0;
-        int trueTimeOut = 1;
+	int trueTimeOut = 1;
 	I2C1CONbits.ACKDT = 1; // Prepares to send NACK
 	I2C1CONbits.RCEN = 1; // Gives control of clock to Slave device
 	while (!I2C1STATbits.RBF && trueTimeOut) // Waits for register to fill up
@@ -1453,8 +1453,8 @@ unsigned int ReadI2C (void)
 			I2C1CON = I2C1CON & 0b01111111; // disables I2C
 			delayMs(1);
 			I2C1CON = I2C1CON | 0b10000000; // enables I2C
-                        trueTimeOut = 0;
-                }
+			trueTimeOut = 0;
+		}
 		timeOut1++;
 
 	}
@@ -1465,8 +1465,8 @@ unsigned int ReadI2C (void)
 			I2C1CON = I2C1CON & 0b01111111; // disables I2C
 			delayMs(1);
 			I2C1CON = I2C1CON | 0b10000000; // enables I2C
-                        trueTimeOut = 0;
-                }
+			trueTimeOut = 0;
+		}
 		timeOut2++;
 
 	}
@@ -1483,12 +1483,12 @@ unsigned int ReadI2C (void)
 
 void delaySCL(void)
 {
-    int timeKiller = 0; //don't delete
-    int myIndex = 0;
-        while (myIndex < 5)
-		{
-			myIndex++;
-		}
+	int timeKiller = 0; //don't delete
+	int myIndex = 0;
+	while (myIndex < 5)
+	{
+		myIndex++;
+	}
 }
 
 /*********************************************************************
@@ -1500,32 +1500,32 @@ void delaySCL(void)
 
 void hangUpI2C(void)
 {
-    int pulsesCreated = 0;
-    int endBit = 0;
- while((pulsesCreated < 9) && (endBit != 1))
-    {
-    TRISBbits.TRISB8 = 0; //Make SCL an outputs
-    PORTBbits.RB8 = 0; //Clear SCL
+	int pulsesCreated = 0;
+	int endBit = 0;
+	while ((pulsesCreated < 9) && (endBit != 1))
+	{
+		TRISBbits.TRISB8 = 0; //Make SCL an outputs
+		PORTBbits.RB8 = 0; //Clear SCL
 
-    //toggle
-        delaySCL();
-        PORTBbits.RB8 = 1; // SCL
-        delaySCL();
-        PORTBbits.RB8 = 0; // SCL
-        delaySCL();
+		//toggle
+		delaySCL();
+		PORTBbits.RB8 = 1; // SCL
+		delaySCL();
+		PORTBbits.RB8 = 0; // SCL
+		delaySCL();
 
-        pulsesCreated++;
+		pulsesCreated++;
 
-        //check to see if it's still hung up
-        int timeOut = 0;
-        while((PORTBbits.RB9 == 0) && (timeOut < 4)){ // SDA is high for
-            delaySCL();
-            timeOut++;
-        }
-        if (timeOut < 4){ // must have pulsed on it's own before timeOut
-            endBit = 1;
-        }
-    }
+		//check to see if it's still hung up
+		int timeOut = 0;
+		while ((PORTBbits.RB9 == 0) && (timeOut < 4)){ // SDA is high for
+			delaySCL();
+			timeOut++;
+		}
+		if (timeOut < 4){ // must have pulsed on it's own before timeOut
+			endBit = 1;
+		}
+	}
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1542,152 +1542,152 @@ void hangUpI2C(void)
 * set
 * Note: None
 ********************************************************************/
-void turnOffClockOscilator (void)
+void turnOffClockOscilator(void)
 {
-// turns off oscilator to prepare to set time
-StartI2C();
-WriteI2C(0xde); //Device Address (RTCC) + Write Command
-IdleI2C();
-WriteI2C(0x00); //address reg. for sec
-IdleI2C();
-WriteI2C(0x00); //Turn off oscillator and sets seconds to 0
-IdleI2C();
-StopI2C();
+	// turns off oscilator to prepare to set time
+	StartI2C();
+	WriteI2C(0xde); //Device Address (RTCC) + Write Command
+	IdleI2C();
+	WriteI2C(0x00); //address reg. for sec
+	IdleI2C();
+	WriteI2C(0x00); //Turn off oscillator and sets seconds to 0
+	IdleI2C();
+	StopI2C();
 }
 
-int getSecondI2C (void) //may want to pass char address to it in the future
+int getSecondI2C(void) //may want to pass char address to it in the future
 {
-int sec; // temp var to hold seconds information
-// 0b1101 1110
-configI2c(); // sets up I2C
-StartI2C();
-WriteI2C(0xde); // MCP7490N device address + write command
-IdleI2C();
-WriteI2C(0x00); // device address for the Seconds register on MCP7490N
-IdleI2C();
-RestartI2C();
-IdleI2C();
-WriteI2C(0xdf); // MCP7490N device address + read command
-IdleI2C();
-sec = (int)ReadI2C();
-StopI2C();
-sec = sec & 0x7f; // removes Oscillator bit
-//sec = BcdToDec(sec); // converts sec to a decimal number
-return sec; // returns the time in sec as a demimal number
+	int sec; // temp var to hold seconds information
+	// 0b1101 1110
+	configI2c(); // sets up I2C
+	StartI2C();
+	WriteI2C(0xde); // MCP7490N device address + write command
+	IdleI2C();
+	WriteI2C(0x00); // device address for the Seconds register on MCP7490N
+	IdleI2C();
+	RestartI2C();
+	IdleI2C();
+	WriteI2C(0xdf); // MCP7490N device address + read command
+	IdleI2C();
+	sec = (int)ReadI2C();
+	StopI2C();
+	sec = sec & 0x7f; // removes Oscillator bit
+	//sec = BcdToDec(sec); // converts sec to a decimal number
+	return sec; // returns the time in sec as a demimal number
 }
-int getMinuteI2C (void)
+int getMinuteI2C(void)
 {
-int min; // temp var to hold seconds information
-configI2c(); // sets up I2C
-StartI2C();
-WriteI2C(0xde); // MCP7490N device address + write command
-IdleI2C();
-WriteI2C(0x01); // device address for the minutes register on MCP7490N
-IdleI2C();
-RestartI2C();
-IdleI2C();
-WriteI2C(0xdf); // MCP7490N device address + read command
-IdleI2C();
-min = (int)ReadI2C();
-StopI2C();
-min = min & 0x7f; // removes unused bit
-//min = BcdToDec(min); // converts min to a decimal number
-return min; // returns the time in min as a demimal number
+	int min; // temp var to hold seconds information
+	configI2c(); // sets up I2C
+	StartI2C();
+	WriteI2C(0xde); // MCP7490N device address + write command
+	IdleI2C();
+	WriteI2C(0x01); // device address for the minutes register on MCP7490N
+	IdleI2C();
+	RestartI2C();
+	IdleI2C();
+	WriteI2C(0xdf); // MCP7490N device address + read command
+	IdleI2C();
+	min = (int)ReadI2C();
+	StopI2C();
+	min = min & 0x7f; // removes unused bit
+	//min = BcdToDec(min); // converts min to a decimal number
+	return min; // returns the time in min as a demimal number
 }
-int getHourI2C (void)
+int getHourI2C(void)
 {
-int hr; // temp var to hold seconds information
-configI2c(); // sets up I2C
-StartI2C();
-WriteI2C(0xde); // MCP7490N device address + write command
-IdleI2C();
-WriteI2C(0x02); // device address for the hours register on MCP7490N
-IdleI2C();
-RestartI2C();
-IdleI2C();
-WriteI2C(0xdf); // MCP7490N device address + read command
-IdleI2C();
-hr = (int)ReadI2C();
-StopI2C();
-hr = hr & 0x3f; // removes unused bits
-//hr = BcdToDec(hr); // converts hr to a decimal number
-return hr; // returns the time in hr as a demimal number
+	int hr; // temp var to hold seconds information
+	configI2c(); // sets up I2C
+	StartI2C();
+	WriteI2C(0xde); // MCP7490N device address + write command
+	IdleI2C();
+	WriteI2C(0x02); // device address for the hours register on MCP7490N
+	IdleI2C();
+	RestartI2C();
+	IdleI2C();
+	WriteI2C(0xdf); // MCP7490N device address + read command
+	IdleI2C();
+	hr = (int)ReadI2C();
+	StopI2C();
+	hr = hr & 0x3f; // removes unused bits
+	//hr = BcdToDec(hr); // converts hr to a decimal number
+	return hr; // returns the time in hr as a demimal number
 }
-int getYearI2C (void)
+int getYearI2C(void)
 {
-int yr; // temp var to hold seconds information
-configI2c(); // sets up I2C
-StartI2C();
-WriteI2C(0xde); // MCP7490N device address + write command
-IdleI2C();
-WriteI2C(0x06); // device address for the years register on MCP7490N
-IdleI2C();
-RestartI2C();
-IdleI2C();
-WriteI2C(0xdf); // MCP7490N device address + read command
-IdleI2C();
-yr = (int) ReadI2C();
-StopI2C();
-//yr = yr & 0x3f; // removes unused bits
-//yr = BcdToDec(yr); // converts yr to a decimal number
-return yr; // returns the time in hr as a demimal number
+	int yr; // temp var to hold seconds information
+	configI2c(); // sets up I2C
+	StartI2C();
+	WriteI2C(0xde); // MCP7490N device address + write command
+	IdleI2C();
+	WriteI2C(0x06); // device address for the years register on MCP7490N
+	IdleI2C();
+	RestartI2C();
+	IdleI2C();
+	WriteI2C(0xdf); // MCP7490N device address + read command
+	IdleI2C();
+	yr = (int)ReadI2C();
+	StopI2C();
+	//yr = yr & 0x3f; // removes unused bits
+	//yr = BcdToDec(yr); // converts yr to a decimal number
+	return yr; // returns the time in hr as a demimal number
 }
-int getMonthI2C (void)
+int getMonthI2C(void)
 {
-int mnth; // temp var to hold seconds information
-configI2c(); // sets up I2C
-StartI2C();
-WriteI2C(0xde); // MCP7490N device address + write command
-IdleI2C();
-WriteI2C(0x05); // device address for the years register on MCP7490N
-IdleI2C();
-RestartI2C();
-IdleI2C();
-WriteI2C(0xdf); // MCP7490N device address + read command
-IdleI2C();
-mnth = (int)ReadI2C();
-StopI2C();
-//yr = yr & 0x3f; // removes unused bits
-//mnth = BcdToDec(mnth); // converts yr to a decimal number
-return mnth; // returns the time in hr as a demimal number
+	int mnth; // temp var to hold seconds information
+	configI2c(); // sets up I2C
+	StartI2C();
+	WriteI2C(0xde); // MCP7490N device address + write command
+	IdleI2C();
+	WriteI2C(0x05); // device address for the years register on MCP7490N
+	IdleI2C();
+	RestartI2C();
+	IdleI2C();
+	WriteI2C(0xdf); // MCP7490N device address + read command
+	IdleI2C();
+	mnth = (int)ReadI2C();
+	StopI2C();
+	//yr = yr & 0x3f; // removes unused bits
+	//mnth = BcdToDec(mnth); // converts yr to a decimal number
+	return mnth; // returns the time in hr as a demimal number
 }
-int getWkdayI2C (void)
+int getWkdayI2C(void)
 {
-unsigned char wkday; // temp var to hold seconds information
-configI2c(); // sets up I2C
-StartI2C();
-WriteI2C(0xde); // MCP7490N device address + write command
-IdleI2C();
-WriteI2C(0x03); // device address for the years register on MCP7490N
-IdleI2C();
-RestartI2C();
-IdleI2C();
-WriteI2C(0xdf); // MCP7490N device address + read command
-IdleI2C();
-wkday = (int)ReadI2C();
-StopI2C();
-//yr = yr & 0x3f; // removes unused bits
-//wkday = BcdToDec(wkday); // converts yr to a decimal number
-return wkday; // returns the time in hr as a demimal number
+	unsigned char wkday; // temp var to hold seconds information
+	configI2c(); // sets up I2C
+	StartI2C();
+	WriteI2C(0xde); // MCP7490N device address + write command
+	IdleI2C();
+	WriteI2C(0x03); // device address for the years register on MCP7490N
+	IdleI2C();
+	RestartI2C();
+	IdleI2C();
+	WriteI2C(0xdf); // MCP7490N device address + read command
+	IdleI2C();
+	wkday = (int)ReadI2C();
+	StopI2C();
+	//yr = yr & 0x3f; // removes unused bits
+	//wkday = BcdToDec(wkday); // converts yr to a decimal number
+	return wkday; // returns the time in hr as a demimal number
 }
-int getDateI2C (void)
+int getDateI2C(void)
 {
-unsigned char date; // temp var to hold seconds information
-configI2c(); // sets up I2C
-StartI2C();
-WriteI2C(0xde); // MCP7490N device address + write command
-IdleI2C();
-WriteI2C(0x04); // device address for the date register on MCP7490N
-IdleI2C();
-RestartI2C();
-IdleI2C();
-WriteI2C(0xdf); // MCP7490N device address + read command
-IdleI2C();
-date = (int)ReadI2C();
-StopI2C();
-//yr = yr & 0x3f; // removes unused bits
-//date = BcdToDec(date); // converts yr to a decimal number
-return date; // returns the time in hr as a demimal number
+	unsigned char date; // temp var to hold seconds information
+	configI2c(); // sets up I2C
+	StartI2C();
+	WriteI2C(0xde); // MCP7490N device address + write command
+	IdleI2C();
+	WriteI2C(0x04); // device address for the date register on MCP7490N
+	IdleI2C();
+	RestartI2C();
+	IdleI2C();
+	WriteI2C(0xdf); // MCP7490N device address + read command
+	IdleI2C();
+	date = (int)ReadI2C();
+	StopI2C();
+	//yr = yr & 0x3f; // removes unused bits
+	//date = BcdToDec(date); // converts yr to a decimal number
+	return date; // returns the time in hr as a demimal number
 }
 /*********************************************************************
 * Function: setTime()
@@ -1698,68 +1698,68 @@ return date; // returns the time in hr as a demimal number
 ********************************************************************/
 void setTime(char sec, char min, char hr, char wkday, char date, char month, char year)
 {
-int leapYear;
-if (year % 4 == 0)
-{
-leapYear = 1; //Is a leap Year
-}
-else
-{
-leapYear = 0; //Is not a leap Year
-}
-char BCDsec = DecToBcd(sec); // To BCD
-char BCDmin = DecToBcd(min); // To BCD
-char BCDhr = DecToBcd(hr);
-char BCDwkday = DecToBcd(wkday); // To BCD
-char BCDdate = DecToBcd(date);
-char BCDmonth = DecToBcd(month); // To BCD
-char BCDyear = DecToBcd(year);
-BCDsec = BCDsec | 0x80; // add turn on oscilator bit
-BCDhr = BCDhr & 0b10111111; // makes 24 hr time
-BCDwkday = BCDwkday & 0b11110111; // the 0 says the external battery backup supply is disabled.
-// To enable: Flip bits and OR it to turn on (NOT CURRENTLY ENABLED).
-if (leapYear == 0)
-{
-BCDmonth = BCDmonth & 0b11011111; //Not a leap year
-}
-else
-{
-BCDmonth = BCDmonth | 0b00100000; //Is a leap year
-}
-configI2c();
-turnOffClockOscilator();
-//------------------------------------------------------------------------------
-// sets clock
-//------------------------------------------------------------------------------
-StartI2C();
-WriteI2C(0xDE); //Device Address (RTCC) + Write Command
-IdleI2C();
-WriteI2C(0x01); //Adress for minutes
-IdleI2C();
-WriteI2C(BCDmin); //Load min
-IdleI2C();
-WriteI2C(BCDhr); //Load hour
-IdleI2C();
-WriteI2C(BCDwkday); //Load day of week
-IdleI2C();
-WriteI2C(BCDdate); //Load Date
-IdleI2C();
-WriteI2C(BCDmonth); //Load Month
-IdleI2C();
-WriteI2C(BCDyear); // Load Year
-IdleI2C();
-StopI2C();
-//------------------------------------------------------------------------------
-// Sets seconds and turns on oscilator
-//------------------------------------------------------------------------------
-StartI2C();
-WriteI2C(0xDE); //Device Address (RTCC) + Write Command
-IdleI2C();
-WriteI2C(0x00); //address reg. for sec
-IdleI2C();
-WriteI2C(BCDsec); //Turn on oscillator and sets seconds
-IdleI2C();
-StopI2C();
+	int leapYear;
+	if (year % 4 == 0)
+	{
+		leapYear = 1; //Is a leap Year
+	}
+	else
+	{
+		leapYear = 0; //Is not a leap Year
+	}
+	char BCDsec = DecToBcd(sec); // To BCD
+	char BCDmin = DecToBcd(min); // To BCD
+	char BCDhr = DecToBcd(hr);
+	char BCDwkday = DecToBcd(wkday); // To BCD
+	char BCDdate = DecToBcd(date);
+	char BCDmonth = DecToBcd(month); // To BCD
+	char BCDyear = DecToBcd(year);
+	BCDsec = BCDsec | 0x80; // add turn on oscilator bit
+	BCDhr = BCDhr & 0b10111111; // makes 24 hr time
+	BCDwkday = BCDwkday & 0b11110111; // the 0 says the external battery backup supply is disabled.
+	// To enable: Flip bits and OR it to turn on (NOT CURRENTLY ENABLED).
+	if (leapYear == 0)
+	{
+		BCDmonth = BCDmonth & 0b11011111; //Not a leap year
+	}
+	else
+	{
+		BCDmonth = BCDmonth | 0b00100000; //Is a leap year
+	}
+	configI2c();
+	turnOffClockOscilator();
+	//------------------------------------------------------------------------------
+	// sets clock
+	//------------------------------------------------------------------------------
+	StartI2C();
+	WriteI2C(0xDE); //Device Address (RTCC) + Write Command
+	IdleI2C();
+	WriteI2C(0x01); //Adress for minutes
+	IdleI2C();
+	WriteI2C(BCDmin); //Load min
+	IdleI2C();
+	WriteI2C(BCDhr); //Load hour
+	IdleI2C();
+	WriteI2C(BCDwkday); //Load day of week
+	IdleI2C();
+	WriteI2C(BCDdate); //Load Date
+	IdleI2C();
+	WriteI2C(BCDmonth); //Load Month
+	IdleI2C();
+	WriteI2C(BCDyear); // Load Year
+	IdleI2C();
+	StopI2C();
+	//------------------------------------------------------------------------------
+	// Sets seconds and turns on oscilator
+	//------------------------------------------------------------------------------
+	StartI2C();
+	WriteI2C(0xDE); //Device Address (RTCC) + Write Command
+	IdleI2C();
+	WriteI2C(0x00); //address reg. for sec
+	IdleI2C();
+	WriteI2C(BCDsec); //Turn on oscillator and sets seconds
+	IdleI2C();
+	StopI2C();
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1779,7 +1779,7 @@ StopI2C();
 ********************************************************************/
 float degToRad(float degrees)
 {
-return degrees * (3.141592 / 180);
+	return degrees * (3.141592 / 180);
 }
 
 
@@ -1793,16 +1793,16 @@ return degrees * (3.141592 / 180);
 ********************************************************************/
 void delayMs(int ms)
 {
-int myIndex;
-while (ms > 0)
-{
-myIndex = 0;
-while (myIndex < 667)
-{
-myIndex++;
-}
-ms--;
-}
+	int myIndex;
+	while (ms > 0)
+	{
+		myIndex = 0;
+		while (myIndex < 667)
+		{
+			myIndex++;
+		}
+		ms--;
+	}
 }
 
 //Returns the decimal value for the lower 8 bits in a 16 bit BCD (Binary Coded Decimal)
@@ -1816,15 +1816,15 @@ ms--;
 ********************************************************************/
 int getLowerBCDAsDecimal(int bcd) //Tested 06-04-2014
 {
-//Get the tens digit (located in the second nibble from the right)
-//by shifting off the ones digit and anding
-int tens = (bcd >> 4) & 0b0000000000001111;
-//Get the ones digit (located in the first nibble from the right)
-//by anding (no bit shifting)
-int ones = bcd & 0b0000000000001111;
-//Returns the decimal value by multiplying the tens digit by ten
-//and adding the ones digit
-return (tens * 10) + ones;
+	//Get the tens digit (located in the second nibble from the right)
+	//by shifting off the ones digit and anding
+	int tens = (bcd >> 4) & 0b0000000000001111;
+	//Get the ones digit (located in the first nibble from the right)
+	//by anding (no bit shifting)
+	int ones = bcd & 0b0000000000001111;
+	//Returns the decimal value by multiplying the tens digit by ten
+	//and adding the ones digit
+	return (tens * 10) + ones;
 }
 //Returns the decimal value for the upper 8 bits in a 16 bit BCD (Binary Coded Decimal)
 /*********************************************************************
@@ -1837,15 +1837,15 @@ return (tens * 10) + ones;
 ********************************************************************/
 int getUpperBCDAsDecimal(int bcd) //Tested 06-04-2014
 {
-//Get the tens digit (located in the first nibble from the left)
-//by shifting off the rest and anding
-int tens = (bcd >> 12) & 0b0000000000001111;
-//Get the ones digit (located in the second nibble from the left)
-//by shifting off the rest and anding
-int ones = (bcd >> 8) & 0b0000000000001111;
-//Returns the decimal value by multiplying the tens digit by ten
-//and adding the ones digit
-return (tens * 10) + ones;
+	//Get the tens digit (located in the first nibble from the left)
+	//by shifting off the rest and anding
+	int tens = (bcd >> 12) & 0b0000000000001111;
+	//Get the ones digit (located in the second nibble from the left)
+	//by shifting off the rest and anding
+	int ones = (bcd >> 8) & 0b0000000000001111;
+	//Returns the decimal value by multiplying the tens digit by ten
+	//and adding the ones digit
+	return (tens * 10) + ones;
 }
 //Returns the hour of day from the internal clock
 /*********************************************************************
@@ -1859,14 +1859,14 @@ return (tens * 10) + ones;
 //Tested 06-04-2014
 int getTimeHour(void) //to determine what volume variable to use;
 {
-//don't want to write, just want to read
-_RTCWREN = 0;
-//sets the pointer to 0b01 so that reading starts at Weekday/Hour
-_RTCPTR = 0b01;
-// Ask for the hour from the internal clock
-int myHour = RTCVAL;
-int hourDecimal = getLowerBCDAsDecimal(myHour);
-return hourDecimal;
+	//don't want to write, just want to read
+	_RTCWREN = 0;
+	//sets the pointer to 0b01 so that reading starts at Weekday/Hour
+	_RTCPTR = 0b01;
+	// Ask for the hour from the internal clock
+	int myHour = RTCVAL;
+	int hourDecimal = getLowerBCDAsDecimal(myHour);
+	return hourDecimal;
 }
 
 /* First, retrieve time string from the SIM 900
@@ -1884,24 +1884,24 @@ Finally, piece together strings (16bytes) and write them to the RTCC */
 ********************************************************************/
 long timeStamp(void)
 {
-long timeStampValue = 0;
-//Set the pointer to 0b01 so that reading starts at Weekday/Hour
-_RTCPTR = 0b01; // decrements with read or write
-_RTCWREN = 0; //don't want to write, just want to read
-long binaryWeekdayHour = RTCVAL; // write wkdy & hour to variable, dec. RTCPTR
-long binaryMinuteSecond = RTCVAL; // write min & sec to variable, dec. RTCPTR
-//For some reason, putting the multiplication for hours on one line like this:
-//
-// timeStampValue = getLowerBCDAsDecimal(binaryWeekdayHour) * 60 * 60;
-//
-//caused an error. We would get some unknown value for the timestamp, so
-//we had to break the code up across multiple lines. So don't try to
-//simplify this!
-timeStampValue = getLowerBCDAsDecimal(binaryWeekdayHour);
-timeStampValue = timeStampValue * 60 * 60;
-timeStampValue = timeStampValue + (getUpperBCDAsDecimal(binaryMinuteSecond) * 60);
-timeStampValue = timeStampValue + getLowerBCDAsDecimal(binaryMinuteSecond);
-return timeStampValue; //timeStampValue;
+	long timeStampValue = 0;
+	//Set the pointer to 0b01 so that reading starts at Weekday/Hour
+	_RTCPTR = 0b01; // decrements with read or write
+	_RTCWREN = 0; //don't want to write, just want to read
+	long binaryWeekdayHour = RTCVAL; // write wkdy & hour to variable, dec. RTCPTR
+	long binaryMinuteSecond = RTCVAL; // write min & sec to variable, dec. RTCPTR
+	//For some reason, putting the multiplication for hours on one line like this:
+	//
+	// timeStampValue = getLowerBCDAsDecimal(binaryWeekdayHour) * 60 * 60;
+	//
+	//caused an error. We would get some unknown value for the timestamp, so
+	//we had to break the code up across multiple lines. So don't try to
+	//simplify this!
+	timeStampValue = getLowerBCDAsDecimal(binaryWeekdayHour);
+	timeStampValue = timeStampValue * 60 * 60;
+	timeStampValue = timeStampValue + (getUpperBCDAsDecimal(binaryMinuteSecond) * 60);
+	timeStampValue = timeStampValue + getLowerBCDAsDecimal(binaryMinuteSecond);
+	return timeStampValue; //timeStampValue;
 }
 
 /*********************************************************************
@@ -1914,22 +1914,22 @@ return timeStampValue; //timeStampValue;
 ********************************************************************/
 void pressReset() //Tested 06-17-2014
 {
-//Variable reset (all the variable of the message)
-longestPrime = 0;
-leakRateLong = 0;
-volume02 = 0;
-volume24 = 0;
-volume46 = 0;
-volume68 = 0;
-volume810 = 0;
-volume1012 = 0;
-volume1214 = 0;
-volume1416 = 0;
-volume1618 = 0;
-volume1820 = 0;
-volume2022 = 0;
-volume2224 = 0;
-//getTime(); //Reset RTCC
+	//Variable reset (all the variable of the message)
+	longestPrime = 0;
+	leakRateLong = 0;
+	volume02 = 0;
+	volume24 = 0;
+	volume46 = 0;
+	volume68 = 0;
+	volume810 = 0;
+	volume1012 = 0;
+	volume1214 = 0;
+	volume1416 = 0;
+	volume1618 = 0;
+	volume1820 = 0;
+	volume2022 = 0;
+	volume2224 = 0;
+	//getTime(); //Reset RTCC
 }
 
 /*********************************************************************
@@ -1943,48 +1943,48 @@ into binary numbers that are used to program the RTCC registers
 ********************************************************************/
 int translate(char digit)
 {
-int binaryNumber;
-if (digit == '0')
-{
-binaryNumber = 0b0000;
-}
-else if (digit == '1')
-{
-binaryNumber = 0b0001;
-}
-else if (digit == '2')
-{
-binaryNumber = 0b0010;
-}
-else if (digit == '3')
-{
-binaryNumber = 0b0011;
-}
-else if (digit == '4')
-{
-binaryNumber = 0b0100;
-}
-else if (digit == '5')
-{
-binaryNumber = 0b0101;
-}
-else if (digit == '6')
-{
-binaryNumber = 0b0110;
-}
-else if (digit == '7')
-{
-binaryNumber = 0b0111;
-}
-else if (digit == '8')
-{
-binaryNumber = 0b1000;
-}
-else if (digit == '9')
-{
-binaryNumber = 0b1001;
-}
-return binaryNumber;
+	int binaryNumber;
+	if (digit == '0')
+	{
+		binaryNumber = 0b0000;
+	}
+	else if (digit == '1')
+	{
+		binaryNumber = 0b0001;
+	}
+	else if (digit == '2')
+	{
+		binaryNumber = 0b0010;
+	}
+	else if (digit == '3')
+	{
+		binaryNumber = 0b0011;
+	}
+	else if (digit == '4')
+	{
+		binaryNumber = 0b0100;
+	}
+	else if (digit == '5')
+	{
+		binaryNumber = 0b0101;
+	}
+	else if (digit == '6')
+	{
+		binaryNumber = 0b0110;
+	}
+	else if (digit == '7')
+	{
+		binaryNumber = 0b0111;
+	}
+	else if (digit == '8')
+	{
+		binaryNumber = 0b1000;
+	}
+	else if (digit == '9')
+	{
+		binaryNumber = 0b1001;
+	}
+	return binaryNumber;
 }
 
 /*********************************************************************
@@ -1996,19 +1996,19 @@ return binaryNumber;
 * TestDate: 06-02-2014
 ********************************************************************/
 void RTCCSet(void){
-// Write the time to the RTCC
-// The enclosed code was graciously donated by the KWHr project
-__builtin_write_RTCWEN(); //does unlock sequence to enable write to RTCC, sets RTCWEN
-RCFGCAL = 0b0010001100000000;
-RTCPWC = 0b0000010100000000;
-_RTCPTR = 0b11;// decrements with read or write
-// Thanks KWHr!!!
-RTCVAL = getYearI2C();
-RTCVAL = getDateI2C() + (getMonthI2C()<< 8);
-RTCVAL = getHourI2C() + (getWkdayI2C()<<8);
-RTCVAL = getSecondI2C() + (getMinuteI2C() << 8); // = binaryMinuteSecond;
-_RTCEN = 1; // = 1; //RTCC module is enabled
-_RTCWREN = 0; // = 0; // disable writing
+	// Write the time to the RTCC
+	// The enclosed code was graciously donated by the KWHr project
+	__builtin_write_RTCWEN(); //does unlock sequence to enable write to RTCC, sets RTCWEN
+	RCFGCAL = 0b0010001100000000;
+	RTCPWC = 0b0000010100000000;
+	_RTCPTR = 0b11;// decrements with read or write
+	// Thanks KWHr!!!
+	RTCVAL = getYearI2C();
+	RTCVAL = getDateI2C() + (getMonthI2C() << 8);
+	RTCVAL = getHourI2C() + (getWkdayI2C() << 8);
+	RTCVAL = getSecondI2C() + (getMinuteI2C() << 8); // = binaryMinuteSecond;
+	_RTCEN = 1; // = 1; //RTCC module is enabled
+	_RTCWREN = 0; // = 0; // disable writing
 }
 
 //Returns the minutes and seconds (in BCD) to set the alarm to.
@@ -2024,37 +2024,37 @@ _RTCWREN = 0; // = 0; // disable writing
 ********************************************************************/
 int getMinuteOffset()
 {
-//Get the number of seconds possible in alarmMinuteMax minuites plus 10 seconds
-//Plus 10 seconds is so that we aren't calling the alarm right at midnight
-int minutesInSeconds = (alarmMinuteMax * 60) + 10;
-//Sets the seed randomly based on the time of day
-long time = timeStamp(); // Gets the time of day in seconds (long)
-int timeConverted = (int) (time / 3); // Convert the time into an int to be supported by srand()
-srand(timeConverted);
-//Get a random time (in seconds)
-int randomTime = rand() % minutesInSeconds;
-//Get the minute part (plus the starting offset minute)
-int minutes = (randomTime / 60) + alarmStartingMinute;
-//Get the remaining seconds after minutes are taken out
-int seconds = randomTime % 60;
-//Get the tens and ones place for the minute
-int minuteTens = minutes / 10;
-int minuteOnes = minutes % 10;
-//Get the tens and ones place for the second
-int secondsTens = seconds / 10;
-int secondsOnes = seconds % 10;
-// Five minutes and one second (for an example reference)
-// 0x0501
-// 0b0000 0101 0000 0001
-//Get the time in BCD by shifting the minutes tens place
-int timeInBCD = minuteTens << 12;
-//Add the shifted minutes ones place
-timeInBCD = timeInBCD + (minuteOnes << 8);
-//Add the shifted seconds tens place
-timeInBCD = timeInBCD + (secondsTens << 4);
-//Add the seconds ones place
-timeInBCD = timeInBCD + secondsOnes;
-return timeInBCD;
+	//Get the number of seconds possible in alarmMinuteMax minuites plus 10 seconds
+	//Plus 10 seconds is so that we aren't calling the alarm right at midnight
+	int minutesInSeconds = (alarmMinuteMax * 60) + 10;
+	//Sets the seed randomly based on the time of day
+	long time = timeStamp(); // Gets the time of day in seconds (long)
+	int timeConverted = (int)(time / 3); // Convert the time into an int to be supported by srand()
+	srand(timeConverted);
+	//Get a random time (in seconds)
+	int randomTime = rand() % minutesInSeconds;
+	//Get the minute part (plus the starting offset minute)
+	int minutes = (randomTime / 60) + alarmStartingMinute;
+	//Get the remaining seconds after minutes are taken out
+	int seconds = randomTime % 60;
+	//Get the tens and ones place for the minute
+	int minuteTens = minutes / 10;
+	int minuteOnes = minutes % 10;
+	//Get the tens and ones place for the second
+	int secondsTens = seconds / 10;
+	int secondsOnes = seconds % 10;
+	// Five minutes and one second (for an example reference)
+	// 0x0501
+	// 0b0000 0101 0000 0001
+	//Get the time in BCD by shifting the minutes tens place
+	int timeInBCD = minuteTens << 12;
+	//Add the shifted minutes ones place
+	timeInBCD = timeInBCD + (minuteOnes << 8);
+	//Add the shifted seconds tens place
+	timeInBCD = timeInBCD + (secondsTens << 4);
+	//Add the seconds ones place
+	timeInBCD = timeInBCD + secondsOnes;
+	return timeInBCD;
 }
 
 //This function converts a BCD to DEC
@@ -2062,14 +2062,14 @@ return timeInBCD;
 //Returns: Hex Value
 char BcdToDec(char val)
 {
-return ( (val/16*10) + (val%16) );
+	return ((val / 16 * 10) + (val % 16));
 }
 //This function converts HEX to BCD
 //Input: Hex Value
 //Returns: BCD Value
 char DecToBcd(char val)
 {
-return ( (val/10*16) + (val%10) );
+	return ((val / 10 * 16) + (val % 10));
 }
 void midnightMessage(void)
 {
