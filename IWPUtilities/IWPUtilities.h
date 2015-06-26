@@ -64,7 +64,7 @@ extern float volume2022;
 extern float volume2224;
 //Pin assignments
 extern int mclrPin;
-extern char Pin2;
+extern int depthSensorPin;
 extern int simVioPin;
 extern char Pin4;
 extern char Pin5;

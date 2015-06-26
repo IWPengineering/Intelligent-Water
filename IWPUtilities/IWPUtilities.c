@@ -270,6 +270,7 @@ int digitalPinSet(int pin, int io) // 1 for analog
 	// Pin 27 - Always VSS for PIC24FV32KA302 - Do nothing
 	// Pin 28 - Always VDD for PIC24FV32KA302 - Do nothing
 }
+
 //TODO: Should be based off of the RB values, not the AN
 void specifyAnalogPin(int pin, int analogOrDigital) // analogOrDigital = 1 if analog
 {
@@ -467,7 +468,6 @@ int digitalPinStatus(int pin)
 	// Pin 28 - Always VDD for PIC24FV32KA302 - Do nothing
 }
 
-
 /////////////////////////////////////////////////////////////////////
 ////                                                             ////
 ////                    INITIALIZATION                           ////
@@ -518,7 +518,7 @@ void initialization(void)
 	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
 	delayMs(3000);
 	delayMs(2000);
-	// Moved the RRTCCSet function up since we do not rely on network anymore
+	// Moved the RTCCSet function up since we do not rely on network anymore
 	configI2c();
 	char seconds = 58;
 	char minutes = 58;
@@ -565,8 +565,6 @@ void initialization(void)
 ////                    STRING FUNCTIONS                         ////
 ////                                                             ////
 /////////////////////////////////////////////////////////////////////
-
-
 
 /*********************************************************************
 * Function: longLength
@@ -758,13 +756,11 @@ void floatToString(float myValue, char *myString) //tested 06-20-2014
 	myString[sLength - 1] = '\0'; // Add terminating character
 }
 
-
 /////////////////////////////////////////////////////////////////////
 ////                                                             ////
 ////                    SIM FUNCTIONS                            ////
 ////                                                             ////
 /////////////////////////////////////////////////////////////////////
-
 
 /*********************************************************************
 * Function: turnOffSIM
@@ -784,6 +780,7 @@ void turnOffSIM()
 	}
 	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
 }
+
 /*********************************************************************
 * Function: turnOnSIM
 * Input: None
@@ -801,6 +798,7 @@ void turnOnSIM()
 	}
 	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
 }
+
 /*********************************************************************
 * Function: tryToConnectToNetwork
 * Input: None
@@ -855,6 +853,7 @@ void tryToConnectToNetwork()
 		}
 	}
 }
+
 /*********************************************************************
 * Function: connectedToNetwork
 * Input: None
@@ -926,7 +925,9 @@ void sendMessage(char message[160])
 		}
 	}
 }
-char intToAscii(unsigned int integer){
+
+char intToAscii(unsigned int integer)
+{
 	return (char)(integer + 48);
 }
 
@@ -953,8 +954,6 @@ void sendTextMessage(char message[160]) // Tested 06-02-2014
 	// & the end of allowing us to send SMS message
 	delayMs(5000); // Give it some time to send the message
 }
-
-
 
 /////////////////////////////////////////////////////////////////////
 ////                                                             ////
@@ -1029,7 +1028,6 @@ void initAdc(void)
 	// AD1CON2
 }
 
-
 //problem: is in radADC
 /*********************************************************************
 * Function: readAdc()
@@ -1043,48 +1041,47 @@ int readAdc(int channel) //check with accelerometer
 {
 	switch (channel)
 	{
-	case 0:
-		specifyAnalogPin(depthSensorPin, 1);
-		analogIOandSHinput(depthSensorPin, 1);
-		break;
-	case 15:
-		specifyAnalogPin(batteryLevelPin, 1);
-		analogIOandSHinput(batteryLevelPin, 1);
-		break;
-	case 12:
-		specifyAnalogPin(yAxisAccelerometerPin, 1);
-		analogIOandSHinput(yAxisAccelerometerPin, 1);
-		//PORTBbits.RB12 = 1; // AN12 is analog ***I changed this to ANSBbits.ANSBxx 03-31-2015
-		//TRISBbits.TRISB12 = 1; // AN12 is an input
-		//AD1CHSbits.CH0SA = 12; // Connect AN12 as the S/H input
-		break;
-	case 11:
-		specifyAnalogPin(xAxisAccelerometerPin, 1);
-		analogIOandSHinput(xAxisAccelerometerPin, 1);
-		//ANSBbits.ANSB13 = 1; // AN11 is analog
-		//TRISBbits.TRISB13 = 1; // AN11 is an input
-		//AD1CHSbits.CH0SA = 11; //Connect AN11 as the S/H input (sample and hold)
-		break;
-	case 4:
-		specifyAnalogPin(rxPin, 1);
-		analogIOandSHinput(rxPin, 1);
-		//ANSBbits.ANSB2 = 1; // AN4 is analog
-		//TRISBbits.TRISB2 = 1; // AN4 is an input
-		//AD1CHSbits.CH0SA = 4; // Connect AN4 as the S/H input
-		break;
-	case 2:
-		specifyAnalogPin(Pin4, 1); //Currently unused, may be used in the future.
-		analogIOandSHinput(Pin4, 1);
-		//ANSBbits.ANSB0 = 1; // AN2 is analog
-		//TRISBbits.TRISB0 = 1; // AN2 is an input
-		//AD1CHSbits.CH0SA = 2; // Connect AN2 as the S/H input
-		break;
+            case 0:
+                    specifyAnalogPin(depthSensorPin, 1);
+                    analogIOandSHinput(depthSensorPin, 1);
+                    break;
+            case 2:
+                    specifyAnalogPin(Pin4, 1); //Currently unused, may be used in the future.
+                    analogIOandSHinput(Pin4, 1);
+                    //ANSBbits.ANSB0 = 1; // AN2 is analog
+                    //TRISBbits.TRISB0 = 1; // AN2 is an input
+                    //AD1CHSbits.CH0SA = 2; // Connect AN2 as the S/H input
+                    break;
+            case 4:
+                    specifyAnalogPin(rxPin, 1);
+                    analogIOandSHinput(rxPin, 1);
+                    //ANSBbits.ANSB2 = 1; // AN4 is analog
+                    //TRISBbits.TRISB2 = 1; // AN4 is an input
+                    //AD1CHSbits.CH0SA = 4; // Connect AN4 as the S/H input
+                    break;
+            case 11:
+                    specifyAnalogPin(xAxisAccelerometerPin, 1);
+                    analogIOandSHinput(xAxisAccelerometerPin, 1);
+                    //ANSBbits.ANSB13 = 1; // AN11 is analog
+                    //TRISBbits.TRISB13 = 1; // AN11 is an input
+                    //AD1CHSbits.CH0SA = 11; //Connect AN11 as the S/H input (sample and hold)
+                    break;
+            case 12:
+                    specifyAnalogPin(yAxisAccelerometerPin, 1);
+                    analogIOandSHinput(yAxisAccelerometerPin, 1);
+                    //PORTBbits.RB12 = 1; // AN12 is analog ***I changed this to ANSBbits.ANSBxx 03-31-2015
+                    //TRISBbits.TRISB12 = 1; // AN12 is an input
+                    //AD1CHSbits.CH0SA = 12; // Connect AN12 as the S/H input
+                    break;
+            case 15:
+                    specifyAnalogPin(batteryLevelPin, 1);
+                    analogIOandSHinput(batteryLevelPin, 1);
+                    break;
 	}
 	AD1CON1bits.ADON = 1; // Turn on ADC
 	AD1CON1bits.SAMP = 1;
 	while (!AD1CON1bits.DONE)
-	{
-	}
+	{}
 	unsigned int adcValue = ADC1BUF0;
 	return adcValue;
 }
@@ -1127,6 +1124,7 @@ void initializeQueue(float value)
 		angleQueue[i] = value;
 	}
 }
+
 /*********************************************************************
 * Function: pushToQueue()
 * Input: float
@@ -1145,6 +1143,7 @@ void pushToQueue(float value)
 	// Insert the value at the end of the queue
 	angleQueue[queueLength - 1] = value;
 }
+
 /*********************************************************************
 * Function: queueAverage()
 * Input: None
@@ -1165,7 +1164,7 @@ float queueAverage()
 	// Returns the average after converting queueLength to a float
 	return sum / (queueLength * 1.0);
 }
-//
+
 /*********************************************************************
 * Function: queueDifference()
 * Input: None
@@ -1179,7 +1178,6 @@ float queueDifference()
 	return angleQueue[queueLength - 1] - angleQueue[0];
 }
 
-
 /*********************************************************************
 * Function: batteryLevel()
 * Input: None
@@ -1189,9 +1187,8 @@ float queueDifference()
 * Note:
 * TestDate: 6/24/2015
 ********************************************************************/
-
-
-float batteryLevel(void){ //this has not been tested
+float batteryLevel(void)//this has not been tested
+{ 
 	char voltageAvgFloatString[20];
 	voltageAvgFloatString[0] = 0;
 	float adcVal1;
@@ -1222,6 +1219,7 @@ float batteryLevel(void){ //this has not been tested
 
 	return realVoltage;
 }
+
 /*********************************************************************
 * Function: readDepthSensor()
 * Input: None
@@ -1238,20 +1236,20 @@ float readDepthSensor(void)
 	float adcAvg;
 	float depthInMeters;
 	float realVoltage;
-	adcVal1 = readAdc(batteryVoltage);
+	adcVal1 = readAdc(depthSensorPin);
 
 	delayMs(50);
 
-	adcVal2 = readAdc(batteryVoltage);
+	adcVal2 = readAdc(depthSensorPin);
 
 	delayMs(50);
 
-	adcVal3 = readAdc(batteryVoltage);
+	adcVal3 = readAdc(depthSensorPin);
 
 
 	adcAvg = (adcVal1 + adcVal2 + adcVal3) / 3;
 
-	// V = adcVal / maxAdcVal * 1 / (voltage divider values) * VCC
+	// V = adcVal / maxAdcVal * VCC
 	realVoltage = adcAvg / 1024 * 3.6;
 
 	depthInMeters = 2.2629 * realVoltage * realVoltage - 5.7605 * realVoltage + 3.4137;
@@ -1284,6 +1282,7 @@ unsigned int IdleI2C(void)
 		timeOut++;
 	}
 }
+
 /*********************************************************************
 * Function: StartI2C()
 * Input: None.
@@ -1307,6 +1306,7 @@ unsigned int StartI2C(void)
 	}
 	//return(I2C1STATbits.S); //Optionally return status
 }
+
 /*********************************************************************
 * Function: StopI2C()
 * Input: None.
@@ -1331,6 +1331,7 @@ unsigned int StopI2C(void)
 	}
 	//return(I2C1STATbits.P); //Optional - return status
 }
+
 /*********************************************************************
 * Function: RestartI2C()
 * Input: None.
@@ -1354,6 +1355,7 @@ void RestartI2C(void)
 	}
 	//return(I2C1STATbits.S); //Optional - return status
 }
+
 void NackI2C(void)
 {
 	int timeOut = 0;
@@ -1369,6 +1371,7 @@ void NackI2C(void)
 		timeOut++;
 	}
 }
+
 void AckI2C(void)
 {
 	int timeOut = 0;
@@ -1384,6 +1387,7 @@ void AckI2C(void)
 		timeOut++;
 	}
 }
+
 void configI2c(void)
 {
 	//From Jake's
@@ -1433,6 +1437,7 @@ void WriteI2C(unsigned char byte)
 
 	}
 }
+
 /*********************************************************************
 * Function: ReadI2C()
 * Input: None
@@ -1480,7 +1485,6 @@ unsigned int ReadI2C(void)
 * Overview: Pulse length for I2C pulse
 * Note: None
 ********************************************************************/
-
 void delaySCL(void)
 {
 	int timeKiller = 0; //don't delete
@@ -1497,7 +1501,6 @@ void delaySCL(void)
 * Output: None.
 * Overview: If I2C is locked up, call this function to hang it up
 ********************************************************************/
-
 void hangUpI2C(void)
 {
 	int pulsesCreated = 0;
@@ -1575,6 +1578,7 @@ int getSecondI2C(void) //may want to pass char address to it in the future
 	//sec = BcdToDec(sec); // converts sec to a decimal number
 	return sec; // returns the time in sec as a demimal number
 }
+
 int getMinuteI2C(void)
 {
 	int min; // temp var to hold seconds information
@@ -1594,6 +1598,7 @@ int getMinuteI2C(void)
 	//min = BcdToDec(min); // converts min to a decimal number
 	return min; // returns the time in min as a demimal number
 }
+
 int getHourI2C(void)
 {
 	int hr; // temp var to hold seconds information
@@ -1613,6 +1618,7 @@ int getHourI2C(void)
 	//hr = BcdToDec(hr); // converts hr to a decimal number
 	return hr; // returns the time in hr as a demimal number
 }
+
 int getYearI2C(void)
 {
 	int yr; // temp var to hold seconds information
@@ -1632,6 +1638,7 @@ int getYearI2C(void)
 	//yr = BcdToDec(yr); // converts yr to a decimal number
 	return yr; // returns the time in hr as a demimal number
 }
+
 int getMonthI2C(void)
 {
 	int mnth; // temp var to hold seconds information
@@ -1670,6 +1677,7 @@ int getWkdayI2C(void)
 	//wkday = BcdToDec(wkday); // converts yr to a decimal number
 	return wkday; // returns the time in hr as a demimal number
 }
+
 int getDateI2C(void)
 {
 	unsigned char date; // temp var to hold seconds information
@@ -1689,6 +1697,7 @@ int getDateI2C(void)
 	//date = BcdToDec(date); // converts yr to a decimal number
 	return date; // returns the time in hr as a demimal number
 }
+
 /*********************************************************************
 * Function: setTime()
 * Input: SS MM HH WW DD MM YY
@@ -1768,7 +1777,6 @@ void setTime(char sec, char min, char hr, char wkday, char date, char month, cha
 ////                                                             ////
 /////////////////////////////////////////////////////////////////////
 
-
 /*********************************************************************
 * Function: degToRad()
 * Input: float
@@ -1781,7 +1789,6 @@ float degToRad(float degrees)
 {
 	return degrees * (3.141592 / 180);
 }
-
 
 /*********************************************************************
 * Function: delayMs()
@@ -1826,6 +1833,7 @@ int getLowerBCDAsDecimal(int bcd) //Tested 06-04-2014
 	//and adding the ones digit
 	return (tens * 10) + ones;
 }
+
 //Returns the decimal value for the upper 8 bits in a 16 bit BCD (Binary Coded Decimal)
 /*********************************************************************
 * Function: getUpperBCDAsDecimal
@@ -1847,6 +1855,7 @@ int getUpperBCDAsDecimal(int bcd) //Tested 06-04-2014
 	//and adding the ones digit
 	return (tens * 10) + ones;
 }
+
 //Returns the hour of day from the internal clock
 /*********************************************************************
 * Function: getTimeHour
@@ -2064,6 +2073,7 @@ char BcdToDec(char val)
 {
 	return ((val / 16 * 10) + (val % 16));
 }
+
 //This function converts HEX to BCD
 //Input: Hex Value
 //Returns: BCD Value
@@ -2071,6 +2081,7 @@ char DecToBcd(char val)
 {
 	return ((val / 10 * 16) + (val % 10));
 }
+
 void midnightMessage(void)
 {
 	/* message type,
