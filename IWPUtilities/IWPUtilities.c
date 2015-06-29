@@ -485,6 +485,9 @@ int digitalPinStatus(int pin)
 void initialization(void)
 {
 	//finished
+
+        //IO port control
+
 	ANSA = 0; // Make PORTA digital I/O
 	TRISA = 0xFFFF; // Make PORTA all inputs
 	ANSB = 0; // All port B pins are digital. Individual ADC are set in the readADC function
@@ -493,20 +496,32 @@ void initialization(void)
 	// From fona code
 	TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
 	TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
-	PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
+
+        // Fona stuff
+
+        PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
 	if (PORTAbits.RA7 == 0){ //Checks see if the Fona is off pin
 		PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
 	}
 	while (PORTAbits.RA7 == 0) {} // Wait for Fona to power up
 	PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
-	T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
+
+        // Timer control
+
+        T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
 	T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
 	T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
-	U1BRG = 51; // Set baud to 9600, FCY = 8MHz (#pragma config FNOSC = FRC)
+
+        // UART control
+
+        U1BRG = 51; // Set baud to 9600, FCY = 8MHz (#pragma config FNOSC = FRC)
 	U1STA = 0;
 	U1MODE = 0x8000; //enable UART for 8 bit data
 	//no parity, 1 stop bit
 	U1STAbits.UTXEN = 1; //enable transmit
+
+
+
 	initAdc(); //Call the initialize ADC function
 	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
 	delayMs(3000);
@@ -518,7 +533,10 @@ void initialization(void)
 	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
 	delayMs(3000);
 	delayMs(2000);
-	// Moved the RTCCSet function up since we do not rely on network anymore
+
+        // I2C things
+
+        // Moved the RTCCSet function up since we do not rely on network anymore
 	configI2c();
 	char seconds = 58;
 	char minutes = 58;
@@ -531,7 +549,12 @@ void initialization(void)
 
 	//I2CtoInternalRTCC();
 	//setInternalTimeBCD(getYearI2C(), getMonthI2C(), getWkdayI2C(), getHourI2C(), getMinuteI2C(), getSecondI2C());
-	RTCCSet(); // Sets time; Pic asks Sim which asks cell tower to get current time
+
+        //Unused now due to reliance on RTCC
+
+        /*
+         *
+        RTCCSet(); // Sets time; Pic asks Sim which asks cell tower to get current time
 	_RTCWREN = 1; // allowing us to write to registers; Set Alarm for sending message
 	ALCFGRPTbits.CHIME = 1; //don't need to reset alarm?
 	ALCFGRPTbits.AMASK = 0b0110; //once a day
@@ -547,6 +570,11 @@ void initialization(void)
 	ALCFGRPTbits.ALRMEN = 1; //enables the alarm
 	_RTCWREN = 0; //no longer able to write to registers
 	IEC3bits.RTCIE = 1; //RTCC Interupt is enabled
+        *
+        */
+
+        
+
 	sendTextMessage("(\"t\":\"initialize\")");
 	prevDay = getDateI2C();
 	//------------Sets up the Internal Clock------------
