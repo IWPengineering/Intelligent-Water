@@ -412,54 +412,41 @@ void specifyAnalogPin(int pin, int analogOrDigital) // analogOrDigital = 1 if an
 	}
 }
 
-void analogIOandSHinput(int pin, int IO) // specify pin and set 1 for input or 0 for output (analog).
-{
-	// ANSBbits.ANSB13 = 1; // AN11 is analog
-	// TRISBbits.TRISB13 = 1; // AN11 is an input
-	// AD1CHSbits.CH0SA = 11; //Connect AN11 as the S/H input (sample and hold)
-	if (pin == 4)
+void pinSampleSelectRegister(int pin){ //  A/D Sample Select Regiser (this is only used in the readADC() function)
+    if (pin == 4)
 	{
-		TRISBbits.TRISB0 = IO;
 		AD1CHSbits.CH0SA = 2; //AN2
 	}
 	else if (pin == 5)
 	{
-		TRISBbits.TRISB1 = IO;
 		AD1CHSbits.CH0SA = 3; //AN3
 	}
 	else if (pin == 6)
 	{
-		TRISBbits.TRISB2 = IO;
 		AD1CHSbits.CH0SA = 4;
 	}
 	else if (pin == 7)
 	{
-		TRISBbits.TRISB3 = IO;
 		AD1CHSbits.CH0SA = 5;
 	}
 	else if (pin == 11)
 	{
-		TRISBbits.TRISB4 = IO;
 		AD1CHSbits.CH0SA = 15;
 	}
 	else if (pin == 23)
 	{
-		TRISBbits.TRISB12 = IO;
 		AD1CHSbits.CH0SA = 12;
 	}
 	else if (pin == 24)
 	{
-		TRISBbits.TRISB13 = IO;
 		AD1CHSbits.CH0SA = 11;
 	}
 	else if (pin == 25)
 	{
-		TRISBbits.TRISB14 = IO;
 		AD1CHSbits.CH0SA = 10;
 	}
 	else if (pin == 26)
 	{
-		TRISBbits.TRISB15 = IO;
 		AD1CHSbits.CH0SA = 9;
 	}
 }
@@ -593,19 +580,19 @@ void initialization(void)
 	// pinDirectionIO(sclI2CPin, 0); //TRISBbits.TRISB8 = 0; // RB8 is an output
 
 	// From fona code
-	pinDirectionIO(pwrKeyPin, 0); //TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
-	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
-	digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
+//	pinDirectionIO(pwrKeyPin, 0); //TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
+//	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
+//	digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
+//
+//	//         Fona stuff
+//	digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
+//	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
+//		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
+//	}
+//	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
+//	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
 
-	//        // Fona stuff
-	//        digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
-	//	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
-	//		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
-	//	}
-	//	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
-	//	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
-
-	// Timer control
+//	// Timer control
 	T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
 	T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
 	T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
@@ -618,19 +605,20 @@ void initialization(void)
 	U1STAbits.UTXEN = 1; //enable transmit
 
 
-	//	// Turn on SIM800
-	//        turnOnSIM();
-	//
-	//        // Moved the RTCCSet function up since we do not rely on network anymore
-	//	configI2c();
-	//	char seconds = 58;
-	//	char minutes = 58;
-	//	char hours = 23;
-	//	char weekday = 6;
-	//	char days = 19;
-	//	char months = 6;
-	//	char years = 15;
-	//	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
+	// Turn on SIM800
+//	turnOnSIM();
+
+
+	// Moved the RTCCSet function up since we do not rely on network anymore
+	configI2c();
+	char seconds = 10;
+	char minutes = 58;
+	char hours = 23;
+	char weekday = 6;
+	char days = 19;
+	char months = 6;
+	char years = 15;
+	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
 
 	/*
 	 *
@@ -653,8 +641,10 @@ void initialization(void)
 	 *
 	 */
 
-	sendTextMessage("(\"t\":\"initialize\")");
+	//sendTextMessage("(\"t\":\"initialize\")");
 	initAdc();
+        prevDay = getDateI2C();
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -888,11 +878,11 @@ void turnOffSIM()
  ********************************************************************/
 void turnOnSIM()
 {
-	digitalPinSet(sclI2CPin, 0);// Turn on SIM800
-	while (digitalPinStatus(pwrKeyPin) == 0) // While STATUS light is not on (SIM900 is off)
+	while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
 	{
 		digitalPinSet(pwrKeyPin, 1); // Hold in PWRKEY button
 	}
+
 	digitalPinSet(pwrKeyPin, 0); // Let go of PWRKEY
 }
 
@@ -1139,40 +1129,47 @@ int readAdc(int channel) //check with accelerometer
 	switch (channel)
 	{
 	case 0:
-		specifyAnalogPin(depthSensorPin, 1);
-		analogIOandSHinput(depthSensorPin, 1);
+		specifyAnalogPin(depthSensorPin, 1);    //make depthSensor Analog
+                pinDirectionIO(depthSensorPin, 1);
+                pinSampleSelectRegister(depthSensorPin);
 		break;
-	case 2:
-		specifyAnalogPin(Pin4, 1); //Currently unused, may be used in the future.
-		analogIOandSHinput(Pin4, 1);
-		//ANSBbits.ANSB0 = 1; // AN2 is analog
+	case 2: //Currently unused, may be used in the future.
+		specifyAnalogPin(Pin4, 1); // makes Pin4 analog
+                pinDirectionIO(Pin4, 1);    // Pin4 in an input
+                pinSampleSelectRegister(Pin4);  // Connect Pin4 as the S/H input
+
+                //ANSBbits.ANSB0 = 1; // AN2 is analog
 		//TRISBbits.TRISB0 = 1; // AN2 is an input
 		//AD1CHSbits.CH0SA = 2; // Connect AN2 as the S/H input
 		break;
 	case 4:
-		specifyAnalogPin(rxPin, 1);
-		analogIOandSHinput(rxPin, 1);
+		specifyAnalogPin(rxPin, 1);     // make rx analog
+                pinDirectionIO(rxPin, 1); // makes rxPin an input
+                pinSampleSelectRegister(rxPin); // Connect rxPin as the S/H input
 		//ANSBbits.ANSB2 = 1; // AN4 is analog
 		//TRISBbits.TRISB2 = 1; // AN4 is an input
 		//AD1CHSbits.CH0SA = 4; // Connect AN4 as the S/H input
 		break;
 	case 11:
-		specifyAnalogPin(xAxisAccelerometerPin, 1);
-		analogIOandSHinput(xAxisAccelerometerPin, 1);
+		specifyAnalogPin(xAxisAccelerometerPin, 1); // makes xAxis analog
+                pinDirectionIO(xAxisAccelerometerPin, 1); // makes xAxis an input
+                pinSampleSelectRegister(xAxisAccelerometerPin); // Connect xAxis as the S/H input
 		//ANSBbits.ANSB13 = 1; // AN11 is analog
 		//TRISBbits.TRISB13 = 1; // AN11 is an input
 		//AD1CHSbits.CH0SA = 11; //Connect AN11 as the S/H input (sample and hold)
 		break;
 	case 12:
-		specifyAnalogPin(yAxisAccelerometerPin, 1);
-		analogIOandSHinput(yAxisAccelerometerPin, 1);
+		specifyAnalogPin(yAxisAccelerometerPin, 1); // makes yAxis analog
+                pinDirectionIO(yAxisAccelerometerPin, 1);    // makes yAxis an input
+                pinSampleSelectRegister(yAxisAccelerometerPin); // Connect yAxis as the S/H input
 		//PORTBbits.RB12 = 1; // AN12 is analog ***I changed this to ANSBbits.ANSBxx 03-31-2015
 		//TRISBbits.TRISB12 = 1; // AN12 is an input
 		//AD1CHSbits.CH0SA = 12; // Connect AN12 as the S/H input
 		break;
 	case 15:
-		specifyAnalogPin(batteryLevelPin, 1);
-		analogIOandSHinput(batteryLevelPin, 1);
+		specifyAnalogPin(batteryLevelPin, 1);   // makes batteryLevelPin analog
+                pinDirectionIO(batteryLevelPin, 1); // makes batteryLevelPin an input
+                pinSampleSelectRegister(batteryLevelPin); // Connect batteryLevelPin
 		break;
 	}
 	AD1CON1bits.ADON = 1; // Turn on ADC
@@ -2437,4 +2434,5 @@ void midnightMessage(void)
 	////////////////////////////////////////////////
 	RTCCSet(); // updates the internal time from the external RTCC if the internal RTCC got off any through out the day
 	prevDay = getDateI2C();
+
 }
