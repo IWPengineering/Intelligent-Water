@@ -151,7 +151,6 @@ int getMinuteOffset();
 char BcdToDec(char val);
 char DecToBcd(char val);
 void midnightMessage(void);
-void hangUpI2C(void);
-
+void SoftwareReset(void);
 #endif	/* IWPUTILITIES_H */
 

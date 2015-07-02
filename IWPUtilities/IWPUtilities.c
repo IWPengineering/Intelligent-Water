@@ -583,88 +583,54 @@ int digitalPinStatus(int pin)
  ********************************************************************/
 void initialization(void)
 {
-<<<<<<< HEAD
 	////------------Sets up all ports as digial inputs-----------------------
-=======
-	//finished
-
         //IO port control
-
->>>>>>> 02e7b9cee26486ab2cb1d10f0d0f4bfb519afcad
 	ANSA = 0; // Make PORTA digital I/O
 	TRISA = 0xFFFF; // Make PORTA all inputs
 	ANSB = 0; // All port B pins are digital. Individual ADC are set in the readADC function
 	TRISB = 0xFFFF; // Sets all of port B to input
 
-	TRISBbits.TRISB8 = 0; // RB8 is an output
+       // pinDirectionIO(sclI2CPin, 0); //TRISBbits.TRISB8 = 0; // RB8 is an output
+	
 	// From fona code
-	TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
-	TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
+	pinDirectionIO(pwrKeyPin, 0); //TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
+	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
+        digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
 
-        // Fona stuff
-
-        PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
-	if (PORTAbits.RA7 == 0){ //Checks see if the Fona is off pin
-		PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
-	}
-	while (PORTAbits.RA7 == 0) {} // Wait for Fona to power up
-	PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
+//        // Fona stuff
+//        digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
+//	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
+//		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
+//	}
+//	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
+//	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
 
         // Timer control
-
         T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
 	T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
 	T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
 
         // UART control
-
         U1BRG = 51; // Set baud to 9600, FCY = 8MHz (#pragma config FNOSC = FRC)
 	U1STA = 0;
 	U1MODE = 0x8000; //enable UART for 8 bit data
 	//no parity, 1 stop bit
-<<<<<<< HEAD
-	U1STAbits.UTXEN=1; //enable transmit
-=======
 	U1STAbits.UTXEN = 1; //enable transmit
 
 
-
->>>>>>> 02e7b9cee26486ab2cb1d10f0d0f4bfb519afcad
-	initAdc(); //Call the initialize ADC function
-	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
-	delayMs(3000);
-	// Turn on SIM900
-	while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
-	{
-		digitalPinSet(sclI2CPin, 1); // Hold in PWRKEY button
-	}
-	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
-	delayMs(3000);
-	delayMs(2000);
-<<<<<<< HEAD
-	// Moved the RRTCCSet function up since we do not rely on network anymore
-	configI2c();
-	setTime(58, 58, 23, 05, 26, 03, 15); // SS MM HH WW DD MM YY Set external time
-	RTCCSet(); // Sets time; Pic asks Sim which asks cell tower to get current time
-=======
-
-        // I2C things
-
-        // Moved the RTCCSet function up since we do not rely on network anymore
-	configI2c();
-	char seconds = 58;
-	char minutes = 58;
-	char hours = 23;
-	char weekday = 6;
-	char days = 19;
-	char months = 6;
-	char years = 15;
-	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
-
-	//I2CtoInternalRTCC();
-	//setInternalTimeBCD(getYearI2C(), getMonthI2C(), getWkdayI2C(), getHourI2C(), getMinuteI2C(), getSecondI2C());
-
-        //Unused now due to reliance on RTCC
+//	// Turn on SIM800
+//        turnOnSIM();
+//
+//        // Moved the RTCCSet function up since we do not rely on network anymore
+//	configI2c();
+//	char seconds = 58;
+//	char minutes = 58;
+//	char hours = 23;
+//	char weekday = 6;
+//	char days = 19;
+//	char months = 6;
+//	char years = 15;
+//	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
 
         /*
          *
@@ -687,16 +653,7 @@ void initialization(void)
         *
         */
 
-        
->>>>>>> 02e7b9cee26486ab2cb1d10f0d0f4bfb519afcad
-
 	sendTextMessage("(\"t\":\"initialize\")");
-	//------------Sets up the Internal Clock------------
-	T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
-	T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
-	T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
-
-	digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
 	initAdc();
 }
 
@@ -912,13 +869,13 @@ void floatToString(float myValue, char *myString) //tested 06-20-2014
  ********************************************************************/
 void turnOffSIM()
 {
-	digitalPinSet(sclI2CPin, 0);
-	// Turn off SIM900
+	digitalPinSet(pwrKeyPin, 0);
+	// Turn off SIM800
 	while (digitalPinStatus(statusPin) == 1) // While STATUS light is on (SIM900 is on)
 	{
-		digitalPinSet(sclI2CPin, 1); // Hold in PWRKEY button
+		digitalPinSet(pwrKeyPin, 1); // Hold in PWRKEY button
 	}
-	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
+	digitalPinSet(pwrKeyPin, 0); // Let go of PWRKEY
 }
 
 /*********************************************************************
@@ -931,12 +888,12 @@ void turnOffSIM()
  ********************************************************************/
 void turnOnSIM()
 {
-	digitalPinSet(sclI2CPin, 0);// Turn on SIM900
-	while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
+	digitalPinSet(sclI2CPin, 0);// Turn on SIM800
+	while (digitalPinStatus(pwrKeyPin) == 0) // While STATUS light is not on (SIM900 is off)
 	{
-		digitalPinSet(sclI2CPin, 1); // Hold in PWRKEY button
+		digitalPinSet(pwrKeyPin, 1); // Hold in PWRKEY button
 	}
-	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
+	digitalPinSet(pwrKeyPin, 0); // Let go of PWRKEY
 }
 
 /*********************************************************************
@@ -1005,20 +962,20 @@ void tryToConnectToNetwork()
 int connectedToNetwork(void) //True when there is a network connection
 {
 	// Make sure you start at the beginning of the positive pulse
-	if (PORTBbits.RB14 == 1)
+	if (digitalPinStatus(netLightPin) == 1) //(PORTBbits.RB14 == 1)
 	{
-		while (PORTBbits.RB14) {}; // TODO: Isn't this a great way to get stuck in a while loop?
+		while (digitalPinStatus(netLightPin)){}; //(PORTBbits.RB14) {}; // TODO: Isn't this a great way to get stuck in a while loop?
 	}
 	// Wait for rising edge
-	while (PORTBbits.RB14 == 0) {}; // TODO: Isn't this a great way to get stuck in a while loop?
+	while ((digitalPinStatus(netLightPin) == 0)){};//PORTBbits.RB14 == 0) {}; // TODO: Isn't this a great way to get stuck in a while loop?
 	// Reset the timer
 	TMR1 = 0;
 	// Get time at start of positive pulse
 	int prevICTime = TMR1;
 	// Wait for the pulse to go low
-	while (PORTBbits.RB14) {}; // TODO: Same as above
+	while (digitalPinStatus(netLightPin)) {}; // TODO: Same as above
 	// Wait for the pulse to go high again
-	while (PORTBbits.RB14 == 0) {}; // TODO: Same as above
+	while (digitalPinStatus(netLightPin) == 0) {}; // TODO: Same as above
 	// Get time at end of second positive pulse
 	int currentICTime = TMR1;
 	long pulseDistance = 0;
@@ -1417,16 +1374,16 @@ void SoftwareReset(void)
 	while ( I2C1CONbits.SEN ); // Wait until START condition is complete
 
 	int pulsesCreated = 0;
-	TRISBbits.TRISB8 = 1;
-	TRISBbits.TRISB9 = 1;
-	if((PORTBbits.RB8 == 1) && (PORTBbits.RB9 == 0)) {
-		TRISBbits.TRISB9 = 0; //Make SDA an output
-		PORTBbits.RB9 = 0; //Clear SDA
-		while ((pulsesCreated < 9) && PORTBbits.RB9 == 0){
+	pinDirectionIO(sclI2CPin, 1);//TRISBbits.TRISB8 = 1;
+	pinDirectionIO(sdaI2CPin, 1);//TRISBbits.TRISB9 = 1;
+	if((digitalPinStatus(sclI2CPin) == 1) && (digitalPinStatus(sdaI2CPin) == 0)) {
+                pinDirectionIO(sdaI2CPin, 1); //Make SDA an output
+		digitalPinSet(sdaI2CPin, 0); //PORTBbits.RB9 = 0; //Clear SDA
+		while ((pulsesCreated < 9) && digitalPinStatus(sdaI2CPin) == 0){ //PORTBbits.RB9 == 0){
 			delaySCL();
-			PORTBbits.RB9 = 1; // SCL
+			digitalPinSet(sclI2CPin, 1); //PORTBbits.RB9 = 1; // SCL
 			delaySCL();
-			PORTBbits.RB9 = 0; // SCL
+			digitalPinSet(sdaI2CPin, 0); //PORTBbits.RB9 = 0; // SCL
 			delaySCL();
 			pulsesCreated++;
 		}
@@ -1674,34 +1631,6 @@ void delaySCL(void)
 	}
 }
 
-/*********************************************************************
- * Function: hangUpI2C()
- * Input: None.
- * Output: None.
- * Overview: If I2C is locked up, call this function to hang it up
- ********************************************************************/
-void hangUpI2C(void) // pulses 9 times if needed
-{
-	int pulsesCreated = 0;
-	TRISBbits.TRISB8=1;
-	TRISBbits.TRISB9=1;
-	if((PORTBbits.RB8 == 1) && (PORTBbits.RB9 == 0)) {
-		TRISBbits.TRISB9 = 0; //Make SDA an output
-		PORTBbits.RB9 = 0; //Clear SDA
-		while ((pulsesCreated < 9) && PORTBbits.RB9 == 0){
-			delaySCL();
-			PORTBbits.RB9 = 1; // SCL
-			delaySCL();
-			PORTBbits.RB9 = 0; // SCL
-			delaySCL();
-			pulsesCreated++;
-		}}
-	configI2c();
-	RestartI2C();
-	stuckI2C = 1;
-
-	return 0xFF;
-}
 
 /////////////////////////////////////////////////////////////////////
 ////                                                             ////

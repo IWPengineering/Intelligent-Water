@@ -72,29 +72,12 @@ void main(void)
 //------------------------------------------------------------------------------
  while (1)
     {
-/*      int value = ReadADC(12);
-        if (value > 512){
-        PORTA=0xFFFF;}
-        else
-        {PORTA= 0;} */
 
-//        PORTA = 0xFFFF;
-//        delayMs(50);
-//        PORTA = 0;
-//        delayMs(50);
         TRISAbits.TRISA1 = 0;
         PORTAbits.RA1 = 1;
         delayMs(200);
         PORTAbits.RA1 = 0;
-//        PORTBbits.RB9 = 0;
         delayMs(200);
-//
-//                PORTBbits.RB8 = 1;
-//        PORTBbits.RB9 = 1;
-//        delayMs(1000);
-//        PORTBbits.RB8 = 0;
-//        PORTBbits.RB9 = 0;
-//        delayMs(1000);
     }
 }
 
