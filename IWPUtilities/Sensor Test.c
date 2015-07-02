@@ -65,19 +65,88 @@
 void main(void)
 {
     initialization();
-    TRISAbits.TRISA1 = 0;
+    TRISAbits.TRISA1 = 0; // pin 3 is an output
 
 //------------------------------------------------------------------------------
 // read seconds  works
 //------------------------------------------------------------------------------
  while (1)
     {
-
-        TRISAbits.TRISA1 = 0;
-        PORTAbits.RA1 = 1;
-        delayMs(200);
-        PORTAbits.RA1 = 0;
-        delayMs(200);
+    // change the rate that pin 3 blinks
+     if (getHandleAngle() <= 15){
+         PORTAbits.RA1 = 1;
+         delayMs(10);
+         PORTAbits.RA1 = 0;
+         delayMs(10);
+     }
+     else if (getHandleAngle() <= 30){
+         PORTAbits.RA1 = 1;
+         delayMs(100);
+         PORTAbits.RA1 = 0;
+         delayMs(100);
     }
+     else if (getHandleAngle() <= 45){
+         PORTAbits.RA1 = 1;
+         delayMs(250);
+         PORTAbits.RA1 = 0;
+         delayMs(250);
+    }
+     else if (getHandleAngle() <= 60){
+         PORTAbits.RA1 = 1;
+         delayMs(500);
+         PORTAbits.RA1 = 0;
+         delayMs(500);
+    }
+     else if (getHandleAngle() <= 75){
+         PORTAbits.RA1 = 1;
+         delayMs(750);
+         PORTAbits.RA1 = 0;
+         delayMs(750);
+    }
+     else if (getHandleAngle() <= 90){
+         PORTAbits.RA1 = 1;
+         delayMs(1000);
+         PORTAbits.RA1 = 0;
+         delayMs(1000);
+    }
+     else if (getHandleAngle() <= 105){
+         PORTAbits.RA1 = 1;
+         delayMs(1250);
+         PORTAbits.RA1 = 0;
+         delayMs(1250);
+    }
+     else if (getHandleAngle() <= 120){
+         PORTAbits.RA1 = 1;
+         delayMs(1500);
+         PORTAbits.RA1 = 0;
+         delayMs(1500);
+    }
+     else if (getHandleAngle() <= 135){
+         PORTAbits.RA1 = 1;
+         delayMs(1750);
+         PORTAbits.RA1 = 0;
+         delayMs(1750);
+    }
+     else if (getHandleAngle() <= 150){
+         PORTAbits.RA1 = 1;
+         delayMs(2000);
+         PORTAbits.RA1 = 0;
+         delayMs(2000);
+    }
+     else if (getHandleAngle() <= 165){
+         PORTAbits.RA1 = 1;
+         delayMs(2250);
+         PORTAbits.RA1 = 0;
+         delayMs(2250);
+    }
+     else if (getHandleAngle() <= 180){
+         PORTAbits.RA1 = 1;
+         delayMs(250);
+         PORTAbits.RA1 = 0;
+         delayMs(250);
+    }
+     else {
+         PORTAbits.RA1 = 1;
+     }
 }
-
+}
