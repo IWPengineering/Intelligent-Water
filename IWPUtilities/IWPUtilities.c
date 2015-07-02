@@ -583,7 +583,14 @@ int digitalPinStatus(int pin)
  ********************************************************************/
 void initialization(void)
 {
+<<<<<<< HEAD
 	////------------Sets up all ports as digial inputs-----------------------
+=======
+	//finished
+
+        //IO port control
+
+>>>>>>> 02e7b9cee26486ab2cb1d10f0d0f4bfb519afcad
 	ANSA = 0; // Make PORTA digital I/O
 	TRISA = 0xFFFF; // Make PORTA all inputs
 	ANSB = 0; // All port B pins are digital. Individual ADC are set in the readADC function
@@ -593,20 +600,36 @@ void initialization(void)
 	// From fona code
 	TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
 	TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
-	PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
+
+        // Fona stuff
+
+        PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
 	if (PORTAbits.RA7 == 0){ //Checks see if the Fona is off pin
 		PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
 	}
 	while (PORTAbits.RA7 == 0) {} // Wait for Fona to power up
 	PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
-	T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
+
+        // Timer control
+
+        T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
 	T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
 	T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
-	U1BRG = 51; // Set baud to 9600, FCY = 8MHz (#pragma config FNOSC = FRC)
+
+        // UART control
+
+        U1BRG = 51; // Set baud to 9600, FCY = 8MHz (#pragma config FNOSC = FRC)
 	U1STA = 0;
 	U1MODE = 0x8000; //enable UART for 8 bit data
 	//no parity, 1 stop bit
+<<<<<<< HEAD
 	U1STAbits.UTXEN=1; //enable transmit
+=======
+	U1STAbits.UTXEN = 1; //enable transmit
+
+
+
+>>>>>>> 02e7b9cee26486ab2cb1d10f0d0f4bfb519afcad
 	initAdc(); //Call the initialize ADC function
 	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
 	delayMs(3000);
@@ -618,10 +641,54 @@ void initialization(void)
 	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
 	delayMs(3000);
 	delayMs(2000);
+<<<<<<< HEAD
 	// Moved the RRTCCSet function up since we do not rely on network anymore
 	configI2c();
 	setTime(58, 58, 23, 05, 26, 03, 15); // SS MM HH WW DD MM YY Set external time
 	RTCCSet(); // Sets time; Pic asks Sim which asks cell tower to get current time
+=======
+
+        // I2C things
+
+        // Moved the RTCCSet function up since we do not rely on network anymore
+	configI2c();
+	char seconds = 58;
+	char minutes = 58;
+	char hours = 23;
+	char weekday = 6;
+	char days = 19;
+	char months = 6;
+	char years = 15;
+	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
+
+	//I2CtoInternalRTCC();
+	//setInternalTimeBCD(getYearI2C(), getMonthI2C(), getWkdayI2C(), getHourI2C(), getMinuteI2C(), getSecondI2C());
+
+        //Unused now due to reliance on RTCC
+
+        /*
+         *
+        RTCCSet(); // Sets time; Pic asks Sim which asks cell tower to get current time
+	_RTCWREN = 1; // allowing us to write to registers; Set Alarm for sending message
+	ALCFGRPTbits.CHIME = 1; //don't need to reset alarm?
+	ALCFGRPTbits.AMASK = 0b0110; //once a day
+	ALCFGRPTbits.ALRMPTR = 0b0010; //sets pointer
+	//The following two lines may not work
+	ALRMVAL = 0x0000; //set day and month to 0 and decrements pointer
+	ALRMVAL = alarmHour; //sets hour to 0 (12am), sets weekday to 0, and decrements pointer
+	ALRMVAL = 0x0000;//getMinuteOffset(); //set 5 min after midnight and set 1 second after midnight-
+	//*********************************************
+	// Make random number between 12:01-12:06
+	// Assigned 05-30-2014; completed 06-09-2014
+	//*********************************************
+	ALCFGRPTbits.ALRMEN = 1; //enables the alarm
+	_RTCWREN = 0; //no longer able to write to registers
+	IEC3bits.RTCIE = 1; //RTCC Interupt is enabled
+        *
+        */
+
+        
+>>>>>>> 02e7b9cee26486ab2cb1d10f0d0f4bfb519afcad
 
 	sendTextMessage("(\"t\":\"initialize\")");
 	//------------Sets up the Internal Clock------------
