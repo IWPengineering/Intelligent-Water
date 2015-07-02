@@ -172,7 +172,7 @@ int vcc2Pin = 28;
 ////                                                             ////
 /////////////////////////////////////////////////////////////////////
 void pinDirectionIO(int pin, int io){ // 1 is an input, 0 is an output
-        // Pin 1 can't change direction
+	// Pin 1 can't change direction
 	if (pin == 2)
 	{
 		TRISAbits.TRISA0 = io;
@@ -584,56 +584,56 @@ int digitalPinStatus(int pin)
 void initialization(void)
 {
 	////------------Sets up all ports as digial inputs-----------------------
-        //IO port control
+	//IO port control
 	ANSA = 0; // Make PORTA digital I/O
 	TRISA = 0xFFFF; // Make PORTA all inputs
 	ANSB = 0; // All port B pins are digital. Individual ADC are set in the readADC function
 	TRISB = 0xFFFF; // Sets all of port B to input
 
-       // pinDirectionIO(sclI2CPin, 0); //TRISBbits.TRISB8 = 0; // RB8 is an output
-	
+	// pinDirectionIO(sclI2CPin, 0); //TRISBbits.TRISB8 = 0; // RB8 is an output
+
 	// From fona code
 	pinDirectionIO(pwrKeyPin, 0); //TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
 	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
-        digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
+	digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
 
-//        // Fona stuff
-//        digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
-//	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
-//		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
-//	}
-//	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
-//	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
+	//        // Fona stuff
+	//        digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
+	//	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
+	//		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
+	//	}
+	//	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
+	//	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
 
-        // Timer control
-        T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
+	// Timer control
+	T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
 	T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
 	T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
 
-        // UART control
-        U1BRG = 51; // Set baud to 9600, FCY = 8MHz (#pragma config FNOSC = FRC)
+	// UART control
+	U1BRG = 51; // Set baud to 9600, FCY = 8MHz (#pragma config FNOSC = FRC)
 	U1STA = 0;
 	U1MODE = 0x8000; //enable UART for 8 bit data
 	//no parity, 1 stop bit
 	U1STAbits.UTXEN = 1; //enable transmit
 
 
-//	// Turn on SIM800
-//        turnOnSIM();
-//
-//        // Moved the RTCCSet function up since we do not rely on network anymore
-//	configI2c();
-//	char seconds = 58;
-//	char minutes = 58;
-//	char hours = 23;
-//	char weekday = 6;
-//	char days = 19;
-//	char months = 6;
-//	char years = 15;
-//	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
+	//	// Turn on SIM800
+	//        turnOnSIM();
+	//
+	//        // Moved the RTCCSet function up since we do not rely on network anymore
+	//	configI2c();
+	//	char seconds = 58;
+	//	char minutes = 58;
+	//	char hours = 23;
+	//	char weekday = 6;
+	//	char days = 19;
+	//	char months = 6;
+	//	char years = 15;
+	//	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
 
-        /*
-         *
+	/*
+	 *
         RTCCSet(); // Sets time; Pic asks Sim which asks cell tower to get current time
 	_RTCWREN = 1; // allowing us to write to registers; Set Alarm for sending message
 	ALCFGRPTbits.CHIME = 1; //don't need to reset alarm?
@@ -650,8 +650,8 @@ void initialization(void)
 	ALCFGRPTbits.ALRMEN = 1; //enables the alarm
 	_RTCWREN = 0; //no longer able to write to registers
 	IEC3bits.RTCIE = 1; //RTCC Interupt is enabled
-        *
-        */
+	 *
+	 */
 
 	sendTextMessage("(\"t\":\"initialize\")");
 	initAdc();
@@ -1377,7 +1377,7 @@ void SoftwareReset(void)
 	pinDirectionIO(sclI2CPin, 1);//TRISBbits.TRISB8 = 1;
 	pinDirectionIO(sdaI2CPin, 1);//TRISBbits.TRISB9 = 1;
 	if((digitalPinStatus(sclI2CPin) == 1) && (digitalPinStatus(sdaI2CPin) == 0)) {
-                pinDirectionIO(sdaI2CPin, 1); //Make SDA an output
+		pinDirectionIO(sdaI2CPin, 1); //Make SDA an output
 		digitalPinSet(sdaI2CPin, 0); //PORTBbits.RB9 = 0; //Clear SDA
 		while ((pulsesCreated < 9) && digitalPinStatus(sdaI2CPin) == 0){ //PORTBbits.RB9 == 0){
 			delaySCL();
