@@ -87,7 +87,7 @@ int getMinuteOffset();
 char BcdToDec(char val);
 char DecToBcd(char val);
 
-**********************************/
+ **********************************/
 
 const int xAxis = 11; // analog pin connected to x axis of accelerometer
 const int yAxis = 12; // analog pin connected to y axis of accelerometer
@@ -113,6 +113,8 @@ int queueCount = 0;
 int queueLength = 7; //don't forget to change angleQueue to this number also
 float angleQueue[7];
 int prevDay;
+int stuckI2C;
+int invalid;
 // ****************************************************************************
 // *** Global Variables *******************************************************
 // ****************************************************************************
@@ -169,110 +171,207 @@ int vcc2Pin = 28;
 ////                PIN MANAGEMENT FUNCTIONS                     ////
 ////                                                             ////
 /////////////////////////////////////////////////////////////////////
-
-int digitalPinSet(int pin, int io) // 1 for analog
-{
-	if (pin == 1)
+void pinDirectionIO(int pin, int io){ // 1 is an input, 0 is an output
+        // Pin 1 can't change direction
+	if (pin == 2)
 	{
-		PORTAbits.RA5 = io;
-	}
-	else if (pin == 2)
-	{
-		PORTAbits.RA0 = io;
+		TRISAbits.TRISA0 = io;
 	}
 	else if (pin == 3)
 	{
-		PORTAbits.RA1 = io;
+		TRISAbits.TRISA1 = io;
 	}
 	else if (pin == 4)
 	{
-		PORTBbits.RB0 = io;
+		TRISBbits.TRISB0 = io;
 	}
 	else if (pin == 5)
 	{
-		PORTBbits.RB1 = io;
+		TRISBbits.TRISB1 = io;
 	}
 	else if (pin == 6)
 	{
-		PORTBbits.RB2 = io;
+		TRISBbits.TRISB2 = io;
 	}
 	else if (pin == 7)
 	{
-		PORTBbits.RB3 = io;
+		TRISBbits.TRISB3 = io;
 	}
 	// Pin8 - Always VSS for PIC24FV32KA302 - Do nothing
 	else if (pin == 9)
 	{
-		PORTAbits.RA2 = io;
+		TRISAbits.TRISA2 = io;
 	}
 	else if (pin == 10)
 	{
-		PORTAbits.RA3 = io;
+		TRISAbits.TRISA3 = io;
 	}
 	else if (pin == 11)
 	{
-		PORTBbits.RB4 = io;
+		TRISBbits.TRISB4 = io;
 	}
 	else if (pin == 12)
 	{
-		PORTAbits.RA4 = io;
+		TRISAbits.TRISA4 = io;
 	}
 	//Pin 13 - Always VDD for PIC24FV32KA302 - Do nothing
 	else if (pin == 14)
 	{
-		PORTBbits.RB5 = io;
+		TRISBbits.TRISB5 = io;
 	}
 	else if (pin == 15)
 	{
-		PORTBbits.RB6 = io;
+		TRISBbits.TRISB6 = io;
 	}
 	else if (pin == 16)
 	{
-		PORTBbits.RB7 = io;
+		TRISBbits.TRISB7 = io;
 	} //Usually reserved for TX
 	else if (pin == 17)
 	{
-		PORTBbits.RB8 = io;
+		TRISBbits.TRISB8 = io;
 	}//Usually reserved for I2C
 	else if (pin == 18)
 	{
-		PORTBbits.RB9 = io;
+		TRISBbits.TRISB9 = io;
 	}//Usually Reserved for I2C
 	else if (pin == 19)
 	{
-		PORTAbits.RA7 = io;
+		TRISAbits.TRISA7 = io;
 	}
 	// Pin 20 - Always vCap for PIC24FV32KA302 - Do nothing
 	else if (pin == 21)
 	{
-		PORTBbits.RB10 = io;
+		TRISBbits.TRISB10 = io;
 	}
 	else if (pin == 22)
 	{
-		PORTBbits.RB11 = io;
+		TRISBbits.TRISB11 = io;
 	}
 	else if (pin == 23)
 	{
-		PORTBbits.RB12 = io;
+		TRISBbits.TRISB12 = io;
 	}
 	else if (pin == 24)
 	{
-		PORTBbits.RB13 = io;
+		TRISBbits.TRISB13 = io;
 	}
 	else if (pin == 25)
 	{
-		PORTBbits.RB14 = io;
+		TRISBbits.TRISB14 = io;
 	}
 	else if (pin == 26)
 	{
-		PORTBbits.RB15 = io;
+		TRISBbits.TRISB15 = io;
+	}
+	// Pin 27 - Always VSS for PIC24FV32KA302 - Do nothing
+	// Pin 28 - Always VDD for PIC24FV32KA302 - Do nothing
+}
+
+
+int digitalPinSet(int pin, int set) // 1 for high, 0 for low
+{
+	if (pin == 1)
+	{
+		PORTAbits.RA5 = set;
+	}
+	else if (pin == 2)
+	{
+		PORTAbits.RA0 = set;
+	}
+	else if (pin == 3)
+	{
+		PORTAbits.RA1 = set;
+	}
+	else if (pin == 4)
+	{
+		PORTBbits.RB0 = set;
+	}
+	else if (pin == 5)
+	{
+		PORTBbits.RB1 = set;
+	}
+	else if (pin == 6)
+	{
+		PORTBbits.RB2 = set;
+	}
+	else if (pin == 7)
+	{
+		PORTBbits.RB3 = set;
+	}
+	// Pin8 - Always VSS for PIC24FV32KA302 - Do nothing
+	else if (pin == 9)
+	{
+		PORTAbits.RA2 = set;
+	}
+	else if (pin == 10)
+	{
+		PORTAbits.RA3 = set;
+	}
+	else if (pin == 11)
+	{
+		PORTBbits.RB4 = set;
+	}
+	else if (pin == 12)
+	{
+		PORTAbits.RA4 = set;
+	}
+	//Pin 13 - Always VDD for PIC24FV32KA302 - Do nothing
+	else if (pin == 14)
+	{
+		PORTBbits.RB5 = set;
+	}
+	else if (pin == 15)
+	{
+		PORTBbits.RB6 = set;
+	}
+	else if (pin == 16)
+	{
+		PORTBbits.RB7 = set;
+	} //Usually reserved for TX
+	else if (pin == 17)
+	{
+		PORTBbits.RB8 = set;
+	}//Usually reserved for I2C
+	else if (pin == 18)
+	{
+		PORTBbits.RB9 = set;
+	}//Usually Reserved for I2C
+	else if (pin == 19)
+	{
+		PORTAbits.RA7 = set;
+	}
+	// Pin 20 - Always vCap for PIC24FV32KA302 - Do nothing
+	else if (pin == 21)
+	{
+		PORTBbits.RB10 = set;
+	}
+	else if (pin == 22)
+	{
+		PORTBbits.RB11 = set;
+	}
+	else if (pin == 23)
+	{
+		PORTBbits.RB12 = set;
+	}
+	else if (pin == 24)
+	{
+		PORTBbits.RB13 = set;
+	}
+	else if (pin == 25)
+	{
+		PORTBbits.RB14 = set;
+	}
+	else if (pin == 26)
+	{
+		PORTBbits.RB15 = set;
 	}
 	// Pin 27 - Always VSS for PIC24FV32KA302 - Do nothing
 	// Pin 28 - Always VDD for PIC24FV32KA302 - Do nothing
 }
 
 //TODO: Should be based off of the RB values, not the AN
-void specifyAnalogPin(int pin, int analogOrDigital) // analogOrDigital = 1 if analog
+void specifyAnalogPin(int pin, int analogOrDigital) // analogOrDigital = 1 if analog, 0 is digital
 {
 	if (pin == 4)
 	{
@@ -475,20 +574,21 @@ int digitalPinStatus(int pin)
 /////////////////////////////////////////////////////////////////////
 
 /*********************************************************************
-* Function: initialization()
-* Input: None
-* Output: None
-* Overview: configures chip to work in our system (when power is turned on, these are set once)
-* Note: Pic Dependent
-* TestDate: 06-03-14
-********************************************************************/
+ * Function: initialization()
+ * Input: None
+ * Output: None
+ * Overview: configures chip to work in our system (when power is turned on, these are set once)
+ * Note: Pic Dependent
+ * TestDate: 06-03-14
+ ********************************************************************/
 void initialization(void)
 {
-	//finished
+	////------------Sets up all ports as digial inputs-----------------------
 	ANSA = 0; // Make PORTA digital I/O
 	TRISA = 0xFFFF; // Make PORTA all inputs
 	ANSB = 0; // All port B pins are digital. Individual ADC are set in the readADC function
 	TRISB = 0xFFFF; // Sets all of port B to input
+
 	TRISBbits.TRISB8 = 0; // RB8 is an output
 	// From fona code
 	TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
@@ -506,7 +606,7 @@ void initialization(void)
 	U1STA = 0;
 	U1MODE = 0x8000; //enable UART for 8 bit data
 	//no parity, 1 stop bit
-	U1STAbits.UTXEN = 1; //enable transmit
+	U1STAbits.UTXEN=1; //enable transmit
 	initAdc(); //Call the initialize ADC function
 	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
 	delayMs(3000);
@@ -518,46 +618,19 @@ void initialization(void)
 	digitalPinSet(sclI2CPin, 0); // Let go of PWRKEY
 	delayMs(3000);
 	delayMs(2000);
-	// Moved the RTCCSet function up since we do not rely on network anymore
+	// Moved the RRTCCSet function up since we do not rely on network anymore
 	configI2c();
-	char seconds = 58;
-	char minutes = 58;
-	char hours = 23;
-	char weekday = 6;
-	char days = 19;
-	char months = 6;
-	char years = 15;
-	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
-
-	//I2CtoInternalRTCC();
-	//setInternalTimeBCD(getYearI2C(), getMonthI2C(), getWkdayI2C(), getHourI2C(), getMinuteI2C(), getSecondI2C());
+	setTime(58, 58, 23, 05, 26, 03, 15); // SS MM HH WW DD MM YY Set external time
 	RTCCSet(); // Sets time; Pic asks Sim which asks cell tower to get current time
-	_RTCWREN = 1; // allowing us to write to registers; Set Alarm for sending message
-	ALCFGRPTbits.CHIME = 1; //don't need to reset alarm?
-	ALCFGRPTbits.AMASK = 0b0110; //once a day
-	ALCFGRPTbits.ALRMPTR = 0b0010; //sets pointer
-	//The following two lines may not work
-	ALRMVAL = 0x0000; //set day and month to 0 and decrements pointer
-	ALRMVAL = alarmHour; //sets hour to 0 (12am), sets weekday to 0, and decrements pointer
-	ALRMVAL = 0x0000;//getMinuteOffset(); //set 5 min after midnight and set 1 second after midnight-
-	//*********************************************
-	// Make random number between 12:01-12:06
-	// Assigned 05-30-2014; completed 06-09-2014
-	//*********************************************
-	ALCFGRPTbits.ALRMEN = 1; //enables the alarm
-	_RTCWREN = 0; //no longer able to write to registers
-	IEC3bits.RTCIE = 1; //RTCC Interupt is enabled
+
 	sendTextMessage("(\"t\":\"initialize\")");
-	prevDay = getDateI2C();
 	//------------Sets up the Internal Clock------------
-	//T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
-	//T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
-	//T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
-	////------------Sets up all ports as digial inputs-----------------------
-	//ANSA = 0; // Make PORTA digital I/O
-	//TRISA = 0xFFFF; // Make PORTA all inputs
-	//ANSB = 0; // All port B pins are digital. Individual ADC are set in the readADC function
-	//TRISB = 0xFFFF; // Sets all of port B to input
+	T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
+	T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
+	T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
+
+	digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
+	initAdc();
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -567,13 +640,13 @@ void initialization(void)
 /////////////////////////////////////////////////////////////////////
 
 /*********************************************************************
-* Function: longLength
-* Input: number
-* Output: length
-* Overview: Returns the number of digits in the given integer
-* Note: Library
-* TestDate: 06-03-2014
-********************************************************************/
+ * Function: longLength
+ * Input: number
+ * Output: length
+ * Overview: Returns the number of digits in the given integer
+ * Note: Library
+ * TestDate: 06-03-2014
+ ********************************************************************/
 int longLength(long num)
 {
 	int length = 0;
@@ -586,13 +659,13 @@ int longLength(long num)
 }
 
 /*********************************************************************
-* Function: longToString
-* Input: integer and string
-* Output: None
-* Overview: Sets the given char array to an array filled with the digits of the given long
-* Note: Library
-* TestDate: 06-04-2014
-********************************************************************/
+ * Function: longToString
+ * Input: integer and string
+ * Output: None
+ * Overview: Sets the given char array to an array filled with the digits of the given long
+ * Note: Library
+ * TestDate: 06-04-2014
+ ********************************************************************/
 void longToString(long num, char *numString)
 {
 	//Declares an array of digits to refer to
@@ -624,13 +697,13 @@ void longToString(long num, char *numString)
 }
 
 /*********************************************************************
-* Function: stringLength
-* Input: string
-* Output: Interger
-* Overview: Returns the number of characters (not including \0) in the given string
-* Note: Library
-* TestDate: 06-09-2014
-********************************************************************/
+ * Function: stringLength
+ * Input: string
+ * Output: Interger
+ * Overview: Returns the number of characters (not including \0) in the given string
+ * Note: Library
+ * TestDate: 06-09-2014
+ ********************************************************************/
 int stringLength(char *string)
 {
 	int i = 0;
@@ -643,13 +716,13 @@ int stringLength(char *string)
 }
 
 /*********************************************************************
-* Function: concat
-* Input: Two strings
-* Output: None
-* Overview: Concatenates two strings
-* Note: Library
-* TestDate: 06-09-2014
-********************************************************************/
+ * Function: concat
+ * Input: Two strings
+ * Output: None
+ * Overview: Concatenates two strings
+ * Note: Library
+ * TestDate: 06-09-2014
+ ********************************************************************/
 void concat(char *dest, const char *src)
 {
 	//Increments the pointer to the end of the string
@@ -662,13 +735,13 @@ void concat(char *dest, const char *src)
 }
 
 /*********************************************************************
-* Function: floatToString
-* Input: float myvalue and character myString
-* Output: None
-* Overview: Fills the character array with the digits in the given float
-* Note: Make the mantissa and exponent positive if they were negative
-* TestDate: 06-20-2014
-********************************************************************/
+ * Function: floatToString
+ * Input: float myvalue and character myString
+ * Output: None
+ * Overview: Fills the character array with the digits in the given float
+ * Note: Make the mantissa and exponent positive if they were negative
+ * TestDate: 06-20-2014
+ ********************************************************************/
 //Fills the char array with the digits in the given float
 void floatToString(float myValue, char *myString) //tested 06-20-2014
 {
@@ -763,13 +836,13 @@ void floatToString(float myValue, char *myString) //tested 06-20-2014
 /////////////////////////////////////////////////////////////////////
 
 /*********************************************************************
-* Function: turnOffSIM
-* Input: None
-* Output: None
-* Overview: Turns of the SIM900
-* Note: Pic Dependent
-* TestDate: Not tested as of 03-05-2015
-********************************************************************/
+ * Function: turnOffSIM
+ * Input: None
+ * Output: None
+ * Overview: Turns of the SIM900
+ * Note: Pic Dependent
+ * TestDate: Not tested as of 03-05-2015
+ ********************************************************************/
 void turnOffSIM()
 {
 	digitalPinSet(sclI2CPin, 0);
@@ -782,13 +855,13 @@ void turnOffSIM()
 }
 
 /*********************************************************************
-* Function: turnOnSIM
-* Input: None
-* Output: None
-* Overview: Turns on SIM900
-* Note: Pic Dependent
-* TestDate: Not tested as of 03-05-2015
-********************************************************************/
+ * Function: turnOnSIM
+ * Input: None
+ * Output: None
+ * Overview: Turns on SIM900
+ * Note: Pic Dependent
+ * TestDate: Not tested as of 03-05-2015
+ ********************************************************************/
 void turnOnSIM()
 {
 	digitalPinSet(sclI2CPin, 0);// Turn on SIM900
@@ -800,15 +873,15 @@ void turnOnSIM()
 }
 
 /*********************************************************************
-* Function: tryToConnectToNetwork
-* Input: None
-* Output: None
-* Overview: This function test for network status and attemps to connect to the
-* network. If no netork is found in a minute, the SIM is reset in order
-* to connect agian.
-* Note: Check connection to network
-* TestDate: Not tested as of 03-05-2015
-********************************************************************/
+ * Function: tryToConnectToNetwork
+ * Input: None
+ * Output: None
+ * Overview: This function test for network status and attemps to connect to the
+ * network. If no netork is found in a minute, the SIM is reset in order
+ * to connect agian.
+ * Note: Check connection to network
+ * TestDate: Not tested as of 03-05-2015
+ ********************************************************************/
 void tryToConnectToNetwork()
 {
 	int networkTimeoutCount = 0; // Stores the number of times we reset the SIM
@@ -855,13 +928,13 @@ void tryToConnectToNetwork()
 }
 
 /*********************************************************************
-* Function: connectedToNetwork
-* Input: None
-* Output: pulseDistance
-* Overview: True when there is a network connection
-* Note: Pic Dependent
-* TestDate: Not tested as of 03-05-2015
-********************************************************************/
+ * Function: connectedToNetwork
+ * Input: None
+ * Output: pulseDistance
+ * Overview: True when there is a network connection
+ * Note: Pic Dependent
+ * TestDate: Not tested as of 03-05-2015
+ ********************************************************************/
 int connectedToNetwork(void) //True when there is a network connection
 {
 	// Make sure you start at the beginning of the positive pulse
@@ -895,13 +968,13 @@ int connectedToNetwork(void) //True when there is a network connection
 }
 
 /*********************************************************************
-* Function: sendMessage()
-* Input: String
-* Output: None
-* Overview: Transmits the given characters along serial lines
-* Note: Library, Pic Dependent, sendTextMessage() uses this
-* TestDate: 06-02-2014
-********************************************************************/
+ * Function: sendMessage()
+ * Input: String
+ * Output: None
+ * Overview: Transmits the given characters along serial lines
+ * Note: Library, Pic Dependent, sendTextMessage() uses this
+ * TestDate: 06-02-2014
+ ********************************************************************/
 void sendMessage(char message[160])
 {
 	int stringIndex = 0;
@@ -932,13 +1005,13 @@ char intToAscii(unsigned int integer)
 }
 
 /*********************************************************************
-* Function: sendTextMessage()
-* Input: String
-* Output: None
-* Overview: sends a Text Message to which ever phone number is in the variable 'phoneNumber'
-* Note: Library
-* TestDate: 06-02-2014
-********************************************************************/
+ * Function: sendTextMessage()
+ * Input: String
+ * Output: None
+ * Overview: sends a Text Message to which ever phone number is in the variable 'phoneNumber'
+ * Note: Library
+ * TestDate: 06-02-2014
+ ********************************************************************/
 void sendTextMessage(char message[160]) // Tested 06-02-2014
 {
 	sendMessage("AT+CMGF=1\r\n");//sets to text mode
@@ -962,13 +1035,13 @@ void sendTextMessage(char message[160]) // Tested 06-02-2014
 /////////////////////////////////////////////////////////////////////
 
 /*********************************************************************
-* Function: readWaterSensor
-* Input: None
-* Output: pulseWidth
-* Overview: RB5 is one water sensor, start at beginning of positive pulse
-* Note: Pic Dependent
-* TestDate: Not tested as of 03-05-2015
-********************************************************************/
+ * Function: readWaterSensor
+ * Input: None
+ * Output: pulseWidth
+ * Overview: RB5 is one water sensor, start at beginning of positive pulse
+ * Note: Pic Dependent
+ * TestDate: Not tested as of 03-05-2015
+ ********************************************************************/
 int readWaterSensor(void) // RB5 is one water sensor
 {
 	if (digitalPinStatus(waterPresenceSensorPin) == 1)
@@ -993,13 +1066,13 @@ int readWaterSensor(void) // RB5 is one water sensor
 }
 
 /*********************************************************************
-* Function: initAdc()
-* Input: None
-* Output: None
-* Overview: Initializes Analog to Digital Converter
-* Note: Pic Dependent
-* TestDate: 06-02-2014
-********************************************************************/
+ * Function: initAdc()
+ * Input: None
+ * Output: None
+ * Overview: Initializes Analog to Digital Converter
+ * Note: Pic Dependent
+ * TestDate: 06-02-2014
+ ********************************************************************/
 void initAdc(void)
 {
 	// 10bit conversion
@@ -1030,53 +1103,53 @@ void initAdc(void)
 
 //problem: is in radADC
 /*********************************************************************
-* Function: readAdc()
-* Input: channel
-* Output: adcValue
-* Overview: check with accelerometer
-* Note: Pic Dependent
-* TestDate:
-********************************************************************/
+ * Function: readAdc()
+ * Input: channel
+ * Output: adcValue
+ * Overview: check with accelerometer
+ * Note: Pic Dependent
+ * TestDate:
+ ********************************************************************/
 int readAdc(int channel) //check with accelerometer
 {
 	switch (channel)
 	{
-            case 0:
-                    specifyAnalogPin(depthSensorPin, 1);
-                    analogIOandSHinput(depthSensorPin, 1);
-                    break;
-            case 2:
-                    specifyAnalogPin(Pin4, 1); //Currently unused, may be used in the future.
-                    analogIOandSHinput(Pin4, 1);
-                    //ANSBbits.ANSB0 = 1; // AN2 is analog
-                    //TRISBbits.TRISB0 = 1; // AN2 is an input
-                    //AD1CHSbits.CH0SA = 2; // Connect AN2 as the S/H input
-                    break;
-            case 4:
-                    specifyAnalogPin(rxPin, 1);
-                    analogIOandSHinput(rxPin, 1);
-                    //ANSBbits.ANSB2 = 1; // AN4 is analog
-                    //TRISBbits.TRISB2 = 1; // AN4 is an input
-                    //AD1CHSbits.CH0SA = 4; // Connect AN4 as the S/H input
-                    break;
-            case 11:
-                    specifyAnalogPin(xAxisAccelerometerPin, 1);
-                    analogIOandSHinput(xAxisAccelerometerPin, 1);
-                    //ANSBbits.ANSB13 = 1; // AN11 is analog
-                    //TRISBbits.TRISB13 = 1; // AN11 is an input
-                    //AD1CHSbits.CH0SA = 11; //Connect AN11 as the S/H input (sample and hold)
-                    break;
-            case 12:
-                    specifyAnalogPin(yAxisAccelerometerPin, 1);
-                    analogIOandSHinput(yAxisAccelerometerPin, 1);
-                    //PORTBbits.RB12 = 1; // AN12 is analog ***I changed this to ANSBbits.ANSBxx 03-31-2015
-                    //TRISBbits.TRISB12 = 1; // AN12 is an input
-                    //AD1CHSbits.CH0SA = 12; // Connect AN12 as the S/H input
-                    break;
-            case 15:
-                    specifyAnalogPin(batteryLevelPin, 1);
-                    analogIOandSHinput(batteryLevelPin, 1);
-                    break;
+	case 0:
+		specifyAnalogPin(depthSensorPin, 1);
+		analogIOandSHinput(depthSensorPin, 1);
+		break;
+	case 2:
+		specifyAnalogPin(Pin4, 1); //Currently unused, may be used in the future.
+		analogIOandSHinput(Pin4, 1);
+		//ANSBbits.ANSB0 = 1; // AN2 is analog
+		//TRISBbits.TRISB0 = 1; // AN2 is an input
+		//AD1CHSbits.CH0SA = 2; // Connect AN2 as the S/H input
+		break;
+	case 4:
+		specifyAnalogPin(rxPin, 1);
+		analogIOandSHinput(rxPin, 1);
+		//ANSBbits.ANSB2 = 1; // AN4 is analog
+		//TRISBbits.TRISB2 = 1; // AN4 is an input
+		//AD1CHSbits.CH0SA = 4; // Connect AN4 as the S/H input
+		break;
+	case 11:
+		specifyAnalogPin(xAxisAccelerometerPin, 1);
+		analogIOandSHinput(xAxisAccelerometerPin, 1);
+		//ANSBbits.ANSB13 = 1; // AN11 is analog
+		//TRISBbits.TRISB13 = 1; // AN11 is an input
+		//AD1CHSbits.CH0SA = 11; //Connect AN11 as the S/H input (sample and hold)
+		break;
+	case 12:
+		specifyAnalogPin(yAxisAccelerometerPin, 1);
+		analogIOandSHinput(yAxisAccelerometerPin, 1);
+		//PORTBbits.RB12 = 1; // AN12 is analog ***I changed this to ANSBbits.ANSBxx 03-31-2015
+		//TRISBbits.TRISB12 = 1; // AN12 is an input
+		//AD1CHSbits.CH0SA = 12; // Connect AN12 as the S/H input
+		break;
+	case 15:
+		specifyAnalogPin(batteryLevelPin, 1);
+		analogIOandSHinput(batteryLevelPin, 1);
+		break;
 	}
 	AD1CON1bits.ADON = 1; // Turn on ADC
 	AD1CON1bits.SAMP = 1;
@@ -1087,18 +1160,18 @@ int readAdc(int channel) //check with accelerometer
 }
 
 /*********************************************************************
-* Function: getHandleAngle()
-* Input: None
-* Output: Float
-* Overview: Returns the current angle of the pump. The accelerometer
+ * Function: getHandleAngle()
+ * Input: None
+ * Output: Float
+ * Overview: Returns the current angle of the pump. The accelerometer
 should be oriented on the pump handle so that when the
 pump handle (the side the user is using) is down (water
 present), the angle is positive. When the pump handle
 (the side the user is using) is up (no water present),
 the angle is negative.Gets a snapshot of the current sensor values.
-* Note: Library
-* TestDate: TESTED 06-20-2014
-********************************************************************/
+ * Note: Library
+ * TestDate: TESTED 06-20-2014
+ ********************************************************************/
 float getHandleAngle()
 {
 	signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
@@ -1109,13 +1182,13 @@ float getHandleAngle()
 }
 
 /*********************************************************************
-* Function: initializeQueue()
-* Input: float
-* Output: None
-* Overview: Set all values in the queue to the intial value
-* Note: Library
-* TestDate: 06-20-2014
-********************************************************************/
+ * Function: initializeQueue()
+ * Input: float
+ * Output: None
+ * Overview: Set all values in the queue to the intial value
+ * Note: Library
+ * TestDate: 06-20-2014
+ ********************************************************************/
 void initializeQueue(float value)
 {
 	int i = 0;
@@ -1126,13 +1199,13 @@ void initializeQueue(float value)
 }
 
 /*********************************************************************
-* Function: pushToQueue()
-* Input: float
-* Output: None
-* Overview: Shift values down one
-* Note: Library
-* TestDate: 06-20-2014
-********************************************************************/
+ * Function: pushToQueue()
+ * Input: float
+ * Output: None
+ * Overview: Shift values down one
+ * Note: Library
+ * TestDate: 06-20-2014
+ ********************************************************************/
 void pushToQueue(float value)
 {
 	int i = 0;
@@ -1145,13 +1218,13 @@ void pushToQueue(float value)
 }
 
 /*********************************************************************
-* Function: queueAverage()
-* Input: None
-* Output: float
-* Overview: Takes the average of the queue
-* Note: Library
-* TestDate: NOT TESTED
-********************************************************************/
+ * Function: queueAverage()
+ * Input: None
+ * Output: float
+ * Overview: Takes the average of the queue
+ * Note: Library
+ * TestDate: NOT TESTED
+ ********************************************************************/
 float queueAverage()
 {
 	float sum = 0;
@@ -1166,29 +1239,29 @@ float queueAverage()
 }
 
 /*********************************************************************
-* Function: queueDifference()
-* Input: None
-* Output: float
-* Overview: Returns the difference between the last and first numbers in the queue
-* Note: Library
-* TestDate: NOT TESTED
-********************************************************************/
+ * Function: queueDifference()
+ * Input: None
+ * Output: float
+ * Overview: Returns the difference between the last and first numbers in the queue
+ * Note: Library
+ * TestDate: NOT TESTED
+ ********************************************************************/
 float queueDifference()
 {
 	return angleQueue[queueLength - 1] - angleQueue[0];
 }
 
 /*********************************************************************
-* Function: batteryLevel()
-* Input: None
-* Output: float
-* Overview: returns an output of a float with a value of the battery voltage compared to an
-* expected VCC of 3.6V
-* Note:
-* TestDate: 6/24/2015
-********************************************************************/
+ * Function: batteryLevel()
+ * Input: None
+ * Output: float
+ * Overview: returns an output of a float with a value of the battery voltage compared to an
+ * expected VCC of 3.6V
+ * Note:
+ * TestDate: 6/24/2015
+ ********************************************************************/
 float batteryLevel(void)//this has not been tested
-{ 
+{
 	char voltageAvgFloatString[20];
 	voltageAvgFloatString[0] = 0;
 	float adcVal1;
@@ -1221,13 +1294,13 @@ float batteryLevel(void)//this has not been tested
 }
 
 /*********************************************************************
-* Function: readDepthSensor()
-* Input: None
-* Output: float
-* Overview: returns the depth of the probe in meters
-* Note: Library
-* TestDate: TBD
-********************************************************************/
+ * Function: readDepthSensor()
+ * Input: None
+ * Output: float
+ * Overview: returns the depth of the probe in meters
+ * Note: Library
+ * TestDate: TBD
+ ********************************************************************/
 float readDepthSensor(void)
 {
 	float adcVal1;
@@ -1263,33 +1336,69 @@ float readDepthSensor(void)
 ////                    I2C FUNCTIONS                            ////
 ////                                                             ////
 /////////////////////////////////////////////////////////////////////
+/*********************************************************************
+ * Function: SoftwareReset()
+ * Input: None.
+ * Output: None.
+ * Overview: Resets software for I2C
+ * Note: Contains a timeout loop that will disable then enable I2C
+ ********************************************************************/
+void SoftwareReset(void)
+{
+	IdleI2C(); // Ensure module is idle
+	StartI2C(); // Initiate START condition
+	while ( I2C1CONbits.SEN ); // Wait until START condition is complete
+
+	int pulsesCreated = 0;
+	TRISBbits.TRISB8 = 1;
+	TRISBbits.TRISB9 = 1;
+	if((PORTBbits.RB8 == 1) && (PORTBbits.RB9 == 0)) {
+		TRISBbits.TRISB9 = 0; //Make SDA an output
+		PORTBbits.RB9 = 0; //Clear SDA
+		while ((pulsesCreated < 9) && PORTBbits.RB9 == 0){
+			delaySCL();
+			PORTBbits.RB9 = 1; // SCL
+			delaySCL();
+			PORTBbits.RB9 = 0; // SCL
+			delaySCL();
+			pulsesCreated++;
+		}
+	}
+	// put pulse code here
+	RestartI2C(); // Initiate START condition
+	while ( I2C1CONbits.RSEN ); // Wait until START condition is complete
+	StopI2C(); // Initiate STOP condition
+	while ( I2C1CONbits.PEN ); // Wait until STOP condition is complete
+}
 
 /*********************************************************************
-* Function: IdleI2C()
-* Input: None.
-* Output: None.
-* Overview: Waits for bus to become Idle
-* Note: Contains a timeout loop that will disable then enable I2C
-********************************************************************/
+ * Function: IdleI2C()
+ * Input: None.
+ * Output: None.
+ * Overview: Waits for bus to become Idle
+ * Note: Contains a timeout loop that will disable then enable I2C
+ ********************************************************************/
 unsigned int IdleI2C(void)
 {
 	int timeOut = 0;
 	while (I2C1STATbits.TRSTAT){//Wait for bus Idle
 		if (timeOut == 1300){ // time out loop incase I2C gets stuck
-			hangUpI2C();
-			IdleI2C();
+			SoftwareReset();
+			invalid=0xff;
+			break;
 		}
-		timeOut++;
 	}
+	timeOut++;
 }
 
+
 /*********************************************************************
-* Function: StartI2C()
-* Input: None.
-* Output: None.
-* Overview: Generates an I2C Start Condition
-* Note: Contains a timeout loop that will disable then enable I2C
-********************************************************************/
+ * Function: StartI2C()
+ * Input: None.
+ * Output: None.
+ * Overview: Generates an I2C Start Condition
+ * Note: Contains a timeout loop that will disable then enable I2C
+ ********************************************************************/
 unsigned int StartI2C(void)
 {
 	//This function generates an I2C start condition and returns status
@@ -1299,8 +1408,9 @@ unsigned int StartI2C(void)
 	while (I2C1CONbits.SEN) //Wait for Start COndition
 	{
 		if (timeOut == 1300){ // time out loop incase I2C gets stuck
-			hangUpI2C();
-			StartI2C();
+			SoftwareReset();
+			invalid=0xff;
+			break;
 		}
 		timeOut++;
 	}
@@ -1308,12 +1418,12 @@ unsigned int StartI2C(void)
 }
 
 /*********************************************************************
-* Function: StopI2C()
-* Input: None.
-* Output: None.
-* Overview: Generates a bus stop condition
-* Note: None
-********************************************************************/
+ * Function: StopI2C()
+ * Input: None.
+ * Output: None.
+ * Overview: Generates a bus stop condition
+ * Note: None
+ ********************************************************************/
 unsigned int StopI2C(void)
 {
 	//This function generates an I2C stop condition and returns status
@@ -1324,8 +1434,9 @@ unsigned int StopI2C(void)
 	while (I2C1CONbits.PEN) //Wait for Stop
 	{
 		if (timeOut == 1300){ // time out loop incase I2C gets stuck
-			hangUpI2C();
-			StopI2C();
+			SoftwareReset();
+			invalid=0xff;
+			break;
 		}
 		timeOut++;
 	}
@@ -1333,12 +1444,12 @@ unsigned int StopI2C(void)
 }
 
 /*********************************************************************
-* Function: RestartI2C()
-* Input: None.
-* Output: None.
-* Overview: Generates a restart condition and optionally returns status
-* Note: None
-********************************************************************/
+ * Function: RestartI2C()
+ * Input: None.
+ * Output: None.
+ * Overview: Generates a restart condition and optionally returns status
+ * Note: None
+ ********************************************************************/
 void RestartI2C(void)
 {
 	//This function generates an I2C Restart condition and returns status
@@ -1348,8 +1459,9 @@ void RestartI2C(void)
 	while (I2C1CONbits.RSEN) //Wait for restart
 	{
 		if (timeOut == 1300){ // time out loop incase I2C gets stuck
-			hangUpI2C();
-			RestartI2C();
+			SoftwareReset();
+			invalid=0xff;
+			break;
 		}
 		timeOut++;
 	}
@@ -1365,8 +1477,9 @@ void NackI2C(void)
 	{
 		if (timeOut == 1300)
 		{ // time out loop incase I2C gets stuck
-			hangUpI2C();
-			NackI2C();
+			SoftwareReset();
+			invalid=0xff;
+			break;
 		}
 		timeOut++;
 	}
@@ -1381,8 +1494,9 @@ void AckI2C(void)
 	{
 		if (timeOut == 1300)
 		{ // time out loop incase I2C gets stuck
-			hangUpI2C();
-			AckI2C();
+			SoftwareReset();
+			invalid=0xff;
+			break;
 		}
 		timeOut++;
 	}
@@ -1400,12 +1514,12 @@ void configI2c(void)
 	I2C1CONbits.I2CEN = 1; // Configures I2C pins as I2C (on pins 17 an 18)
 }
 /*********************************************************************
-* Function: WriteI2C()
-* Input: Byte to write.
-* Output: None.
-* Overview: Writes a byte out to the bus
-* Note: None
-********************************************************************/
+ * Function: WriteI2C()
+ * Input: Byte to write.
+ * Output: None.
+ * Overview: Writes a byte out to the bus
+ * Note: None
+ ********************************************************************/
 void WriteI2C(unsigned char byte)
 {
 	//This function transmits the byte passed to the function
@@ -1415,10 +1529,9 @@ void WriteI2C(unsigned char byte)
 	{
 		if (timeOut1 == 1300)
 		{ // time out loop incase I2C gets stuck
-			I2C1CON = I2C1CON & 0b01111111; // disables I2C
-			delayMs(1);
-			I2C1CON = I2C1CON | 0b10000000; // enables I2C
-			trueTimeOut = 0;
+			SoftwareReset();
+			invalid=0xff;
+			break;
 		}
 		timeOut1++;
 
@@ -1429,22 +1542,24 @@ void WriteI2C(unsigned char byte)
 	{
 		if (timeOut2 == 1300)
 		{ // time out loop incase I2C gets stuck
-			I2C1CON = I2C1CON & 0b01111111; // disables I2C
-			delayMs(1);
-			I2C1CON = I2C1CON | 0b10000000; // enables I2C
+			SoftwareReset();
+			invalid=0xff;
+			break;
 		}
 		timeOut2++;
 
 	}
+
+
 }
 
 /*********************************************************************
-* Function: ReadI2C()
-* Input: None
-* Output: Returns one Byte from Slave device
-* Overview: Receives Byte & Writes a Nack out to the bus
-* Note: None
-********************************************************************/
+ * Function: ReadI2C()
+ * Input: None
+ * Output: Returns one Byte from Slave device
+ * Overview: Receives Byte & Writes a Nack out to the bus
+ * Note: None
+ ********************************************************************/
 unsigned int ReadI2C(void)
 {
 	int timeOut1 = 0;
@@ -1455,10 +1570,8 @@ unsigned int ReadI2C(void)
 	while (!I2C1STATbits.RBF && trueTimeOut) // Waits for register to fill up
 	{
 		if (timeOut1 == 1300){ // time out loop incase I2C gets stuck
-			I2C1CON = I2C1CON & 0b01111111; // disables I2C
-			delayMs(1);
-			I2C1CON = I2C1CON | 0b10000000; // enables I2C
-			trueTimeOut = 0;
+			SoftwareReset();
+			return 0xff; // invalid
 		}
 		timeOut1++;
 
@@ -1467,10 +1580,9 @@ unsigned int ReadI2C(void)
 	while (I2C1CONbits.ACKEN && trueTimeOut) // Waits till ACK is sent (hardware reset)
 	{
 		if (timeOut2 == 1300){ // time out loop incase I2C gets stuck
-			I2C1CON = I2C1CON & 0b01111111; // disables I2C
-			delayMs(1);
-			I2C1CON = I2C1CON | 0b10000000; // enables I2C
-			trueTimeOut = 0;
+			SoftwareReset();
+			return 0xff; //invalid
+
 		}
 		timeOut2++;
 
@@ -1479,12 +1591,12 @@ unsigned int ReadI2C(void)
 }
 
 /*********************************************************************
-* Function: delaySCL()
-* Input: None
-* Output: None
-* Overview: Pulse length for I2C pulse
-* Note: None
-********************************************************************/
+ * Function: delaySCL()
+ * Input: None
+ * Output: None
+ * Overview: Pulse length for I2C pulse
+ * Note: None
+ ********************************************************************/
 void delaySCL(void)
 {
 	int timeKiller = 0; //don't delete
@@ -1496,39 +1608,32 @@ void delaySCL(void)
 }
 
 /*********************************************************************
-* Function: hangUpI2C()
-* Input: None.
-* Output: None.
-* Overview: If I2C is locked up, call this function to hang it up
-********************************************************************/
-void hangUpI2C(void)
+ * Function: hangUpI2C()
+ * Input: None.
+ * Output: None.
+ * Overview: If I2C is locked up, call this function to hang it up
+ ********************************************************************/
+void hangUpI2C(void) // pulses 9 times if needed
 {
 	int pulsesCreated = 0;
-	int endBit = 0;
-	while ((pulsesCreated < 9) && (endBit != 1))
-	{
-		TRISBbits.TRISB8 = 0; //Make SCL an outputs
-		PORTBbits.RB8 = 0; //Clear SCL
-
-		//toggle
-		delaySCL();
-		PORTBbits.RB8 = 1; // SCL
-		delaySCL();
-		PORTBbits.RB8 = 0; // SCL
-		delaySCL();
-
-		pulsesCreated++;
-
-		//check to see if it's still hung up
-		int timeOut = 0;
-		while ((PORTBbits.RB9 == 0) && (timeOut < 4)){ // SDA is high for
+	TRISBbits.TRISB8=1;
+	TRISBbits.TRISB9=1;
+	if((PORTBbits.RB8 == 1) && (PORTBbits.RB9 == 0)) {
+		TRISBbits.TRISB9 = 0; //Make SDA an output
+		PORTBbits.RB9 = 0; //Clear SDA
+		while ((pulsesCreated < 9) && PORTBbits.RB9 == 0){
 			delaySCL();
-			timeOut++;
-		}
-		if (timeOut < 4){ // must have pulsed on it's own before timeOut
-			endBit = 1;
-		}
-	}
+			PORTBbits.RB9 = 1; // SCL
+			delaySCL();
+			PORTBbits.RB9 = 0; // SCL
+			delaySCL();
+			pulsesCreated++;
+		}}
+	configI2c();
+	RestartI2C();
+	stuckI2C = 1;
+
+	return 0xFF;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1538,13 +1643,13 @@ void hangUpI2C(void)
 /////////////////////////////////////////////////////////////////////
 
 /*********************************************************************
-* Function: turnOffClockOscilator()
-* Input: None
-* Output: None
-* Overview: Turns off RTCC Oscillator MCP7940N so it can be
-* set
-* Note: None
-********************************************************************/
+ * Function: turnOffClockOscilator()
+ * Input: None
+ * Output: None
+ * Overview: Turns off RTCC Oscillator MCP7940N so it can be
+ * set
+ * Note: None
+ ********************************************************************/
 void turnOffClockOscilator(void)
 {
 	// turns off oscilator to prepare to set time
@@ -1563,17 +1668,64 @@ int getSecondI2C(void) //may want to pass char address to it in the future
 	int sec; // temp var to hold seconds information
 	// 0b1101 1110
 	configI2c(); // sets up I2C
+	if (invalid == 0xff){
+		invalid = 0;
+		getSecondI2C();
+	}
 	StartI2C();
+	if (invalid == 0xff){
+		invalid = 0;
+		getSecondI2C();
+	}
 	WriteI2C(0xde); // MCP7490N device address + write command
+	if (invalid == 0xff){
+		invalid = 0;
+		getSecondI2C();
+	}
 	IdleI2C();
+	if (invalid == 0xff){
+		invalid = 0;
+		getSecondI2C();
+	}
 	WriteI2C(0x00); // device address for the Seconds register on MCP7490N
+	if (invalid == 0xff){
+		invalid = 0;
+		getSecondI2C();
+	}
 	IdleI2C();
+	if (invalid == 0xff){
+		invalid = 0;
+		getSecondI2C();
+	}
 	RestartI2C();
+	if (invalid == 0xff){
+		invalid = 0;
+		getSecondI2C();
+	}
 	IdleI2C();
+	if (invalid == 0xff){
+		invalid = 0;
+		getSecondI2C();
+	}
 	WriteI2C(0xdf); // MCP7490N device address + read command
+	if (invalid == 0xff){
+		invalid = 0;
+		getSecondI2C();
+	}
 	IdleI2C();
+	if (invalid == 0xff){
+		invalid = 0;
+		getSecondI2C();
+	}
 	sec = (int)ReadI2C();
+	if (ReadI2C == 0xff){
+		getSecondI2C();
+	}
 	StopI2C();
+	if (invalid == 0xff){
+		invalid = 0;
+		getSecondI2C();
+	}
 	sec = sec & 0x7f; // removes Oscillator bit
 	//sec = BcdToDec(sec); // converts sec to a decimal number
 	return sec; // returns the time in sec as a demimal number
@@ -1583,17 +1735,64 @@ int getMinuteI2C(void)
 {
 	int min; // temp var to hold seconds information
 	configI2c(); // sets up I2C
+	if (invalid == 0xff){
+		invalid = 0;
+		getMinuteI2C();
+	}
 	StartI2C();
+	if (invalid == 0xff){
+		invalid = 0;
+		getMinuteI2C();
+	}
 	WriteI2C(0xde); // MCP7490N device address + write command
+	if (invalid == 0xff){
+		invalid = 0;
+		getMinuteI2C();
+	}
 	IdleI2C();
+	if (invalid == 0xff){
+		invalid = 0;
+		getMinuteI2C();
+	}
 	WriteI2C(0x01); // device address for the minutes register on MCP7490N
+	if (invalid == 0xff){
+		invalid = 0;
+		getMinuteI2C();
+	}
 	IdleI2C();
+	if (invalid == 0xff){
+		invalid = 0;
+		getMinuteI2C();
+	}
 	RestartI2C();
+	if (invalid == 0xff){
+		invalid = 0;
+		getMinuteI2C();
+	}
 	IdleI2C();
+	if (invalid == 0xff){
+		invalid = 0;
+		getMinuteI2C();
+	}
 	WriteI2C(0xdf); // MCP7490N device address + read command
+	if (invalid == 0xff){
+		invalid = 0;
+		getMinuteI2C();
+	}
 	IdleI2C();
+	if (invalid == 0xff){
+		invalid = 0;
+		getMinuteI2C();
+	}
 	min = (int)ReadI2C();
+	if (ReadI2C == 0xff){
+		getMinuteI2C();
+	}
 	StopI2C();
+	if (invalid == 0xff){
+		invalid = 0;
+		getMinuteI2C();
+	}
 	min = min & 0x7f; // removes unused bit
 	//min = BcdToDec(min); // converts min to a decimal number
 	return min; // returns the time in min as a demimal number
@@ -1603,17 +1802,55 @@ int getHourI2C(void)
 {
 	int hr; // temp var to hold seconds information
 	configI2c(); // sets up I2C
+	if (invalid == 0xff){
+		invalid = 0;
+		getHourI2C();
+	}
 	StartI2C();
+	if (stuckI2C == 1){
+		getHourI2C();
+	}
 	WriteI2C(0xde); // MCP7490N device address + write command
+	if (stuckI2C == 1){
+		getHourI2C();
+	}
 	IdleI2C();
+	if (stuckI2C == 1){
+		getHourI2C();
+	}
+
 	WriteI2C(0x02); // device address for the hours register on MCP7490N
+	if (stuckI2C == 1){
+		getHourI2C();
+	}
 	IdleI2C();
+	if (stuckI2C == 1){
+		getHourI2C();
+	}
 	RestartI2C();
+	if (stuckI2C == 1){
+		getHourI2C();
+	}
 	IdleI2C();
+	if (stuckI2C == 1){
+		getHourI2C();
+	}
 	WriteI2C(0xdf); // MCP7490N device address + read command
+	if (stuckI2C == 1){
+		getHourI2C();
+	}
 	IdleI2C();
+	if (stuckI2C == 1){
+		getHourI2C();
+	}
 	hr = (int)ReadI2C();
+	if (stuckI2C == 1){
+		getHourI2C();
+	}
 	StopI2C();
+	if (stuckI2C == 1){
+		getHourI2C();
+	}
 	hr = hr & 0x3f; // removes unused bits
 	//hr = BcdToDec(hr); // converts hr to a decimal number
 	return hr; // returns the time in hr as a demimal number
@@ -1699,12 +1936,12 @@ int getDateI2C(void)
 }
 
 /*********************************************************************
-* Function: setTime()
-* Input: SS MM HH WW DD MM YY
-* Output: None
-* Overview: Sets time for MCP7940N
-* Note: uses DecToBcd and I2C functions
-********************************************************************/
+ * Function: setTime()
+ * Input: SS MM HH WW DD MM YY
+ * Output: None
+ * Overview: Sets time for MCP7940N
+ * Note: uses DecToBcd and I2C functions
+ ********************************************************************/
 void setTime(char sec, char min, char hr, char wkday, char date, char month, char year)
 {
 	int leapYear;
@@ -1778,26 +2015,26 @@ void setTime(char sec, char min, char hr, char wkday, char date, char month, cha
 /////////////////////////////////////////////////////////////////////
 
 /*********************************************************************
-* Function: degToRad()
-* Input: float
-* Output: float
-* Overview: Converts angles in degrees to angle in radians.
-* Note: Library
-* TestDate: 06-20-2014
-********************************************************************/
+ * Function: degToRad()
+ * Input: float
+ * Output: float
+ * Overview: Converts angles in degrees to angle in radians.
+ * Note: Library
+ * TestDate: 06-20-2014
+ ********************************************************************/
 float degToRad(float degrees)
 {
 	return degrees * (3.141592 / 180);
 }
 
 /*********************************************************************
-* Function: delayMs()
-* Input: milliseconds
-* Output: None
-* Overview: Delays the specified number of milliseconds
-* Note: Depends on Clock speed. Pic Dependent
-* TestDate: 05-20-14
-********************************************************************/
+ * Function: delayMs()
+ * Input: milliseconds
+ * Output: None
+ * Overview: Delays the specified number of milliseconds
+ * Note: Depends on Clock speed. Pic Dependent
+ * TestDate: 05-20-14
+ ********************************************************************/
 void delayMs(int ms)
 {
 	int myIndex;
@@ -1814,13 +2051,13 @@ void delayMs(int ms)
 
 //Returns the decimal value for the lower 8 bits in a 16 bit BCD (Binary Coded Decimal)
 /*********************************************************************
-* Function: getLowerBCDAsDecimal
-* Input: int bcd
-* Output: Decimal verision of BCD added in (lower byte)
-* Overview: Returns the decimal value for the lower 8 bits in a 16 bit BCD (Binary Coded Decimal)
-* Note: Library
-* TestDate: 06-04-2014
-********************************************************************/
+ * Function: getLowerBCDAsDecimal
+ * Input: int bcd
+ * Output: Decimal verision of BCD added in (lower byte)
+ * Overview: Returns the decimal value for the lower 8 bits in a 16 bit BCD (Binary Coded Decimal)
+ * Note: Library
+ * TestDate: 06-04-2014
+ ********************************************************************/
 int getLowerBCDAsDecimal(int bcd) //Tested 06-04-2014
 {
 	//Get the tens digit (located in the second nibble from the right)
@@ -1836,13 +2073,13 @@ int getLowerBCDAsDecimal(int bcd) //Tested 06-04-2014
 
 //Returns the decimal value for the upper 8 bits in a 16 bit BCD (Binary Coded Decimal)
 /*********************************************************************
-* Function: getUpperBCDAsDecimal
-* Input: int bcd
-* Output: Decimal verision of BCD added in (upper byte)
-* Overview: Returns the decimal value for the Upper 8 bits in a 16 bit BCD (Binary Coded Decimal)
-* Note: Library
-* TestDate: 06-04-2014
-********************************************************************/
+ * Function: getUpperBCDAsDecimal
+ * Input: int bcd
+ * Output: Decimal verision of BCD added in (upper byte)
+ * Overview: Returns the decimal value for the Upper 8 bits in a 16 bit BCD (Binary Coded Decimal)
+ * Note: Library
+ * TestDate: 06-04-2014
+ ********************************************************************/
 int getUpperBCDAsDecimal(int bcd) //Tested 06-04-2014
 {
 	//Get the tens digit (located in the first nibble from the left)
@@ -1858,13 +2095,13 @@ int getUpperBCDAsDecimal(int bcd) //Tested 06-04-2014
 
 //Returns the hour of day from the internal clock
 /*********************************************************************
-* Function: getTimeHour
-* Input: None
-* Output: hourDecimal
-* Overview: Returns the hour of day from the internal clock
-* Note: Pic Dependent
-* TestDate: 06-04-2014
-********************************************************************/
+ * Function: getTimeHour
+ * Input: None
+ * Output: hourDecimal
+ * Overview: Returns the hour of day from the internal clock
+ * Note: Pic Dependent
+ * TestDate: 06-04-2014
+ ********************************************************************/
 //Tested 06-04-2014
 int getTimeHour(void) //to determine what volume variable to use;
 {
@@ -1884,13 +2121,13 @@ Next, translate each time partition, by digit, into a binary string
 Finally, piece together strings (16bytes) and write them to the RTCC */
 // Tested 06-02-2014
 /*********************************************************************
-* Function: timeStamp()
-* Input: void
-* Output: long timeStampValue
-* Overview: Returns the current time in seconds (the seconds passed so far in the day)
-* Note:
-* TestDate: 06-04-2014
-********************************************************************/
+ * Function: timeStamp()
+ * Input: void
+ * Output: long timeStampValue
+ * Overview: Returns the current time in seconds (the seconds passed so far in the day)
+ * Note:
+ * TestDate: 06-04-2014
+ ********************************************************************/
 long timeStamp(void)
 {
 	long timeStampValue = 0;
@@ -1914,13 +2151,13 @@ long timeStamp(void)
 }
 
 /*********************************************************************
-* Function: pressReset()
-* Input: None
-* Output: None
-* Overview: Resets the values
-* Note: Previously used to reset the RTCC, but currently does not.
-* TestDate: 06-17-2014
-********************************************************************/
+ * Function: pressReset()
+ * Input: None
+ * Output: None
+ * Overview: Resets the values
+ * Note: Previously used to reset the RTCC, but currently does not.
+ * TestDate: 06-17-2014
+ ********************************************************************/
 void pressReset() //Tested 06-17-2014
 {
 	//Variable reset (all the variable of the message)
@@ -1942,14 +2179,14 @@ void pressReset() //Tested 06-17-2014
 }
 
 /*********************************************************************
-* Function: translate()
-* Input: String
-* Output: int binaryNumber
-* Overview: The following integers are used for turning the corresponding time-value strings
+ * Function: translate()
+ * Input: String
+ * Output: int binaryNumber
+ * Overview: The following integers are used for turning the corresponding time-value strings
 into binary numbers that are used to program the RTCC registers
-* Note: Library
-* TestDate: 06-02-2014
-********************************************************************/
+ * Note: Library
+ * TestDate: 06-02-2014
+ ********************************************************************/
 int translate(char digit)
 {
 	int binaryNumber;
@@ -1997,13 +2234,13 @@ int translate(char digit)
 }
 
 /*********************************************************************
-* Function: RTCCSet()
-* Input: None
-* Output: None
-* Overview: Get time string from SIM900
-* Note: Pic Dependent
-* TestDate: 06-02-2014
-********************************************************************/
+ * Function: RTCCSet()
+ * Input: None
+ * Output: None
+ * Overview: Get time string from SIM900
+ * Note: Pic Dependent
+ * TestDate: 06-02-2014
+ ********************************************************************/
 void RTCCSet(void){
 	// Write the time to the RTCC
 	// The enclosed code was graciously donated by the KWHr project
@@ -2024,13 +2261,13 @@ void RTCCSet(void){
 //Generates a random number of seconds between 1 and the alarmMinuteMax
 //global variable to use for the minutes and seconds.
 /*********************************************************************
-* Function: getMinuteOffset()
-* Input: None
-* Output: int time in BCD
-* Overview: Randomizes sending of text messages a couple minutes after midnight.
-* Note: Library
-* TestDate: 06-13-2014
-********************************************************************/
+ * Function: getMinuteOffset()
+ * Input: None
+ * Output: int time in BCD
+ * Overview: Randomizes sending of text messages a couple minutes after midnight.
+ * Note: Library
+ * TestDate: 06-13-2014
+ ********************************************************************/
 int getMinuteOffset()
 {
 	//Get the number of seconds possible in alarmMinuteMax minuites plus 10 seconds
@@ -2085,35 +2322,35 @@ char DecToBcd(char val)
 void midnightMessage(void)
 {
 	/* message type,
-	* version # (no version number, we should just be able to check for new values in JSON),
-	* date? (no date, the sms should have that within it),
-	* sequence #; incase we didn't get a message (sent and recieved last 30, 60 total),
-	* message data (all the variables):
-	* leakageCoefficient (leakRateLongString)
-	* longestPrime
-	* volume02String
-	* volume24String
-	* volume46String
-	* volume68String
-	* volume810String
-	* volume1012String
-	* volume1214String
-	* volume1416String
-	* volume1618String
-	* volume1820String
-	* volume2022String
-	* volume2224String
-	* version #?
-	* (won't include max/ min level in this version)
-	* error1? (forseeable errors in the future)
-	* error2? (forseeable errors in the future)
-	* (won't use battery percentage till january)
-	* check sum (sum of all the values)
-	*
-	*
-	* {"t":"d","d":[{"l":123.123,"p":123.123,"v":[123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123]}]}
-	*
-	*/
+	 * version # (no version number, we should just be able to check for new values in JSON),
+	 * date? (no date, the sms should have that within it),
+	 * sequence #; incase we didn't get a message (sent and recieved last 30, 60 total),
+	 * message data (all the variables):
+	 * leakageCoefficient (leakRateLongString)
+	 * longestPrime
+	 * volume02String
+	 * volume24String
+	 * volume46String
+	 * volume68String
+	 * volume810String
+	 * volume1012String
+	 * volume1214String
+	 * volume1416String
+	 * volume1618String
+	 * volume1820String
+	 * volume2022String
+	 * volume2224String
+	 * version #?
+	 * (won't include max/ min level in this version)
+	 * error1? (forseeable errors in the future)
+	 * error2? (forseeable errors in the future)
+	 * (won't use battery percentage till january)
+	 * check sum (sum of all the values)
+	 *
+	 *
+	 * {"t":"d","d":[{"l":123.123,"p":123.123,"v":[123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123]}]}
+	 *
+	 */
 	//Message assembly and sending; Use *floatToString() to send:
 	char longestPrimeString[20];
 	longestPrimeString[0] = 0;
