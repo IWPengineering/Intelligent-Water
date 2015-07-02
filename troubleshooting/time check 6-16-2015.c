@@ -402,19 +402,94 @@ void setTime(char sec, char min, char hr, char wkday, char date, char month, cha
     IdleI2C();
     StopI2C();
 }
-
+/*********************************************************************
+* Function: stringLength
+* Input: string
+* Output: Interger
+* Overview: Returns the number of characters (not including \0) in the given string
+* Note: Library
+* TestDate: 06-09-2014
+********************************************************************/
+int stringLength(char *string)
+{
+int i = 0;
+//Checks for the terminating character
+while(string[i] != '\0')
+{
+i++;
+}
+return i;
+}
+/*********************************************************************
+* Function: sendMessage()
+* Input: String
+* Output: None
+* Overview: Transmits the given characters along serial lines
+* Note: Library, Pic Dependent, sendTextMessage() uses this
+* TestDate: 06-02-2014
+********************************************************************/
+void sendMessage (char message[160])
+{
+int stringIndex = 0;
+int delayIndex;
+U1BRG=25; //set baud to 9600, assumes FCY=4Mhz/19200
+U1STA=0;
+U1MODE=0x8000; //enable UART for 8 bit data
+//no parity, 1 stop bit
+U1STAbits.UTXEN=1; //enable transmit
+while (stringIndex < stringLength(message))
+{
+if(U1STAbits.UTXBF == 0)
+{
+U1TXREG= message[stringIndex];
+stringIndex++;
+for (delayIndex = 0; delayIndex < 1000; delayIndex++){ }
+}
+else
+{
+for (delayIndex = 0; delayIndex < 30000; delayIndex++){ }
+}
+}
+}
+char intToAscii(unsigned int integer){
+return (char) (integer + 48);
+}
+/*********************************************************************
+* Function: sendTextMessage()
+* Input: String
+* Output: None
+* Overview: sends a Text Message to which ever phone number is in the variable 'phoneNumber'
+* Note: Library
+* TestDate: 06-02-2014
+********************************************************************/
+void sendTextMessage(char message[160]) // Tested 06-02-2014
+{
+sendMessage("AT+CMGF=1\r\n");//sets to text mode
+delayMs(250);
+sendMessage("AT+CMGS=\""); //beginning of allowing us to send SMS message
+sendMessage(phoneNumber);
+sendMessage("\"\r\n"); //middle of allowing us to send SMS message
+delayMs(250);
+sendMessage(message);
+delayMs(250);
+sendMessage("\x1A"); // method 2: sending hexidecimal representation
+// of 26 to sendMessage function (line 62)
+// & the end of allowing us to send SMS message
+delayMs(5000); // Give it some time to send the message
+}
 void main (void){
 
     initialization();
-//    configI2c();
-//    char seconds = 30;
-//    char minutes = 53;
-//    char hours = 9;
-//    char weekday = 6;
-//    char days = 3;
-//    char months = 6;
-//    char years = 15;
-//setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
+    configI2c();
+    char seconds = 30;
+    char minutes = 53;
+    char hours = 9;
+    char weekday = 6;
+    char days = 3;
+    char months = 6;
+    char years = 15;
+setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
+
 
 
 
@@ -422,6 +497,8 @@ void main (void){
 // read seconds  works
 //------------------------------------------------------------------------------
   while(1) {
+      if ((getSec() == 0) && (getMin == 0)){
+      }
       getHr();
       getMin();
       getSec();
