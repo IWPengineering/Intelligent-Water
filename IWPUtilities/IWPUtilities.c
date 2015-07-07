@@ -579,18 +579,6 @@ void initialization(void)
 
 	// pinDirectionIO(sclI2CPin, 0); //TRISBbits.TRISB8 = 0; // RB8 is an output
 
-	// From fona code
-//	pinDirectionIO(pwrKeyPin, 0); //TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
-//	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
-//	digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
-//
-//	//         Fona stuff
-//	digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
-//	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
-//		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
-//	}
-//	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
-//	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
 
 //	// Timer control
 	T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
@@ -604,9 +592,28 @@ void initialization(void)
 	//no parity, 1 stop bit
 	U1STAbits.UTXEN = 1; //enable transmit
 
+	// From fona code
+	pinDirectionIO(pwrKeyPin, 0); //TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
+	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
+	digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
+
+	//         Fona stuff
+	digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
+	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
+		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
+	}
+	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
+	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
 
 	// Turn on SIM800
-//	turnOnSIM();
+	turnOnSIM();
+      
+	// Turn on SIM900
+	while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
+	{
+		digitalPinSet(pwrKeyPin, 1); // Hold in PWRKEY button
+	}
+	digitalPinSet(pwrKeyPin, 0); // Let go of PWRKEY
 
 
 	// Moved the RTCCSet function up since we do not rely on network anymore
@@ -640,13 +647,12 @@ void initialization(void)
 	IEC3bits.RTCIE = 1; //RTCC Interupt is enabled
 	 *
 	 */
-
-	//sendTextMessage("(\"t\":\"initialize\")");
+        delayMs(10000);
+	sendTextMessage("(\"t\":\"initialize\")");
 	initAdc();
         prevDay = getDateI2C();
 
 }
-
 /////////////////////////////////////////////////////////////////////
 ////                                                             ////
 ////                    STRING FUNCTIONS                         ////
@@ -859,13 +865,12 @@ void floatToString(float myValue, char *myString) //tested 06-20-2014
  ********************************************************************/
 void turnOffSIM()
 {
-	digitalPinSet(pwrKeyPin, 0);
 	// Turn off SIM800
 	while (digitalPinStatus(statusPin) == 1) // While STATUS light is on (SIM900 is on)
 	{
-		digitalPinSet(pwrKeyPin, 1); // Hold in PWRKEY button
+		digitalPinSet(pwrKeyPin, 0); // Hold in PWRKEY button
 	}
-	digitalPinSet(pwrKeyPin, 0); // Let go of PWRKEY
+	digitalPinSet(pwrKeyPin, 1); // Let go of PWRKEY
 }
 
 /*********************************************************************
@@ -878,6 +883,7 @@ void turnOffSIM()
  ********************************************************************/
 void turnOnSIM()
 {
+
 	while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
 	{
 		digitalPinSet(pwrKeyPin, 1); // Hold in PWRKEY button
