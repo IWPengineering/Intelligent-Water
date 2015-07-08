@@ -2421,23 +2421,25 @@ void midnightMessage(void)
         testValueString1[0] = 0;
         testValueString2[0] = 0;
         testValueString3[0] = 0;
-        longToString(prevMinute, testValueString1);
+        longToString(BcdToDec(prevMinute), testValueString1);
 
         prevMinute = getMinuteI2C();
 
-        longToString(prevMinute, testValueString2);
-        longToString(getMinuteI2C(), testValueString3);
+        longToString(BcdToDec(prevMinute), testValueString2);
+        longToString(BcdToDec(getMinuteI2C()), testValueString3);
 
         char testValueMessage[160];
         testValueMessage[0] = 0;
-        concat(testValueMessage, "prevDay before: ");
+        concat(testValueMessage, "prevMin before: ");
         concat(testValueMessage, testValueString1);
-        concat(testValueMessage, ", prevDay after: ");
+        concat(testValueMessage, ", prevMin after: ");
         concat(testValueMessage, testValueString2);
         concat(testValueMessage, ", getMinuteI2C(): ");
         concat(testValueMessage, testValueString3);
         concat(testValueMessage, "!");
 
+        tryToConnectToNetwork();
+	delayMs(2000);
         sendTextMessage(testValueMessage);
 
 
@@ -2527,15 +2529,15 @@ void midnightMessage(void)
 	concat(dataMessage, volume2224String);
 
         //DEBUG DEBUG DEBUG DEBUG DEBUG
-	concat(dataMessage, ">))");
-//        concat(dataMessage, debugCounterString);
+	concat(dataMessage, ">)) debugCounter: ");
+        concat(dataMessage, debugCounterString);
 
 
 // Try to establish network connection
 	tryToConnectToNetwork();
 	delayMs(2000);
 	// Send off the data
-	//sendTextMessage(dataMessage);
+	sendTextMessage(dataMessage);
 
 	pressReset();
 	////////////////////////////////////////////////
