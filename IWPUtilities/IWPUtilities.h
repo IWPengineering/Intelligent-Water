@@ -43,6 +43,9 @@ extern int queueCount;
 extern int queueLength; //don't forget to change angleQueue to this number also
 extern float angleQueue[7];
 extern int prevDay;
+extern int prevHour;
+
+
 // ****************************************************************************
 // *** Global Variables *******************************************************
 // ****************************************************************************
@@ -91,6 +94,8 @@ extern int netLightPin;
 extern int waterPresenceSensorOnOffPin;
 extern int GNDPin;
 extern int vcc2Pin;
+extern int prevMinute;
+extern int debugCounter;
 
 
 

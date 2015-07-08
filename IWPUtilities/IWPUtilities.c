@@ -109,12 +109,22 @@ const int angleDeltaThreshold = 2; // The angle delta to check against
 const float upstrokeToMeters = 0.01287;
 const int minimumAngleDelta = 10;
 const float batteryLevelConstant = 0.476;       //This number is found by Vout = (R32 * Vin) / (R32 + R31), Yields Vin = Vout / 0.476
+const int secondI2Cvar = 0x00;
+const int minuteI2Cvar = 0x01;
+const int hourI2Cvar = 0x02;
+const int dayI2Cvar = 0x03;
+const int dateI2Cvar = 0x04;
+const int monthI2Cvar = 0x05;
+const int yearI2Cvar = 0x06;
 int queueCount = 0;
 int queueLength = 7; //don't forget to change angleQueue to this number also
 float angleQueue[7];
 int prevDay;
+int prevMinute;
+int prevHour; // just for testing, not a real variable
 int stuckI2C;
 int invalid;
+int debugCounter;
 // ****************************************************************************
 // *** Global Variables *******************************************************
 // ****************************************************************************
@@ -606,15 +616,8 @@ void initialization(void)
 	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
 
 	// Turn on SIM800
-	turnOnSIM();
+	 turnOnSIM();
       
-	// Turn on SIM900
-	while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
-	{
-		digitalPinSet(pwrKeyPin, 1); // Hold in PWRKEY button
-	}
-	digitalPinSet(pwrKeyPin, 0); // Let go of PWRKEY
-
 
 	// Moved the RTCCSet function up since we do not rely on network anymore
 	configI2c();
@@ -650,7 +653,9 @@ void initialization(void)
         delayMs(10000);
 	sendTextMessage("(\"t\":\"initialize\")");
 	initAdc();
-        prevDay = getDateI2C();
+        //prevDay = getDateI2C();
+        //prevHour = getHourI2C();
+        prevMinute = getMinuteI2C();
 
 }
 /////////////////////////////////////////////////////////////////////
@@ -865,12 +870,19 @@ void floatToString(float myValue, char *myString) //tested 06-20-2014
  ********************************************************************/
 void turnOffSIM()
 {
-	// Turn off SIM800
-	while (digitalPinStatus(statusPin) == 1) // While STATUS light is on (SIM900 is on)
-	{
-		digitalPinSet(pwrKeyPin, 0); // Hold in PWRKEY button
+	while (digitalPinStatus(statusPin) == 1){ //Checks see if the Fona is on pin
+		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn off Fona
 	}
-	digitalPinSet(pwrKeyPin, 1); // Let go of PWRKEY
+	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
+	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
+
+
+	// Turn off SIM800
+//	while (digitalPinStatus(statusPin) == 1) // While STATUS light is on (SIM900 is on)
+//	{
+//		digitalPinSet(pwrKeyPin, 0); // Hold in PWRKEY button
+//	}
+//	digitalPinSet(pwrKeyPin, 0); // Let go of PWRKEY
 }
 
 /*********************************************************************
@@ -883,13 +895,20 @@ void turnOffSIM()
  ********************************************************************/
 void turnOnSIM()
 {
-
-	while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
-	{
-		digitalPinSet(pwrKeyPin, 1); // Hold in PWRKEY button
+    digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
+	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
+		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
 	}
+	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
+	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
 
-	digitalPinSet(pwrKeyPin, 0); // Let go of PWRKEY
+
+//	while (digitalPinStatus(statusPin) == 0) // While STATUS light is not on (SIM900 is off)
+//	{
+//		digitalPinSet(pwrKeyPin, 1); // Hold in PWRKEY button
+//	}
+//
+//	digitalPinSet(pwrKeyPin, 0); // Let go of PWRKEY
 }
 
 /*********************************************************************
@@ -1034,6 +1053,8 @@ char intToAscii(unsigned int integer)
  ********************************************************************/
 void sendTextMessage(char message[160]) // Tested 06-02-2014
 {
+        turnOnSIM();
+        delayMs(10000);
 	sendMessage("AT+CMGF=1\r\n");//sets to text mode
 	delayMs(250);
 	sendMessage("AT+CMGS=\""); //beginning of allowing us to send SMS message
@@ -1046,6 +1067,7 @@ void sendTextMessage(char message[160]) // Tested 06-02-2014
 	// of 26 to sendMessage function (line 62)
 	// & the end of allowing us to send SMS message
 	delayMs(5000); // Give it some time to send the message
+        turnOffSIM();
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1733,6 +1755,12 @@ int getSecondI2C(void) //may want to pass char address to it in the future
 int getMinuteI2C(void)
 {
 	int min; // temp var to hold seconds information
+
+        if (invalid == 0){
+            SoftwareReset();
+            invalid = 1;
+        }
+
 	configI2c(); // sets up I2C
 	if (invalid == 0xff){
 		invalid = 0;
@@ -1916,20 +1944,54 @@ int getWkdayI2C(void)
 
 int getDateI2C(void)
 {
-	unsigned char date; // temp var to hold seconds information
+	int date; // temp var to hold dat information
 	configI2c(); // sets up I2C
+        if (invalid == 0xff){
+            invalid = 0;
+            getDateI2C;
+        }
 	StartI2C();
+        if(stuckI2C==1){
+            getDateI2C();
+        }
 	WriteI2C(0xde); // MCP7490N device address + write command
-	IdleI2C();
+        if(stuckI2C == 1){
+            getDateI2C();
+        }
+        IdleI2C();
+        if(stuckI2C == 1){
+            getDateI2C();
+        }
 	WriteI2C(0x04); // device address for the date register on MCP7490N
-	IdleI2C();
-	RestartI2C();
-	IdleI2C();
-	WriteI2C(0xdf); // MCP7490N device address + read command
-	IdleI2C();
-	date = (int)ReadI2C();
+	if(stuckI2C == 1){
+            getDateI2C();
+        }
+        IdleI2C();
+	if(stuckI2C == 1){
+            getDateI2C();
+        }
+        RestartI2C();
+	if(stuckI2C == 1){
+            getDateI2C();
+        }
+        IdleI2C();
+	if(stuckI2C == 1){
+            getDateI2C();
+        }
+        WriteI2C(0xdf); // MCP7490N device address + read command
+	if(stuckI2C == 1){
+            getDateI2C();
+        }
+        IdleI2C();
+	if(stuckI2C == 1){
+            getDateI2C();
+        }
+        date = (int)ReadI2C();
 	StopI2C();
-	//yr = yr & 0x3f; // removes unused bits
+        if(stuckI2C == 1){
+            getDateI2C();
+        }
+	date = date & 0x3f; // removes unused bits
 	//date = BcdToDec(date); // converts yr to a decimal number
 	return date; // returns the time in hr as a demimal number
 }
@@ -2350,6 +2412,42 @@ void midnightMessage(void)
 	 * {"t":"d","d":[{"l":123.123,"p":123.123,"v":[123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123,123.123]}]}
 	 *
 	 */
+
+    	//prevDay = getDateI2C();
+            //DEBUG DEBUG DEBUG DEBUG DEBUG
+        char testValueString1[20];
+        char testValueString2[20];
+        char testValueString3[20];
+        testValueString1[0] = 0;
+        testValueString2[0] = 0;
+        testValueString3[0] = 0;
+        longToString(prevMinute, testValueString1);
+
+        prevMinute = getMinuteI2C();
+
+        longToString(prevMinute, testValueString2);
+        longToString(getMinuteI2C(), testValueString3);
+
+        char testValueMessage[160];
+        testValueMessage[0] = 0;
+        concat(testValueMessage, "prevDay before: ");
+        concat(testValueMessage, testValueString1);
+        concat(testValueMessage, ", prevDay after: ");
+        concat(testValueMessage, testValueString2);
+        concat(testValueMessage, ", getMinuteI2C(): ");
+        concat(testValueMessage, testValueString3);
+        concat(testValueMessage, "!");
+
+        sendTextMessage(testValueMessage);
+
+
+                //DEBUG DEBUG DEBUG DEBUG DEBUG
+        char debugCounterString[20];
+        debugCounterString[0] = 0;
+        longToString(debugCounter++, debugCounterString);
+
+
+        //prevHour = getHourI2C();
 	//Message assembly and sending; Use *floatToString() to send:
 	char longestPrimeString[20];
 	longestPrimeString[0] = 0;
@@ -2427,18 +2525,22 @@ void midnightMessage(void)
 	concat(dataMessage, volume2022String);
 	concat(dataMessage, ",");
 	concat(dataMessage, volume2224String);
+
+        //DEBUG DEBUG DEBUG DEBUG DEBUG
 	concat(dataMessage, ">))");
-	// Try to establish network connection
+//        concat(dataMessage, debugCounterString);
+
+
+// Try to establish network connection
 	tryToConnectToNetwork();
 	delayMs(2000);
 	// Send off the data
-	sendTextMessage(dataMessage);
+	//sendTextMessage(dataMessage);
 
 	pressReset();
 	////////////////////////////////////////////////
 	// Should we put the SIM back to sleep here?
 	////////////////////////////////////////////////
 	RTCCSet(); // updates the internal time from the external RTCC if the internal RTCC got off any through out the day
-	prevDay = getDateI2C();
 
 }
