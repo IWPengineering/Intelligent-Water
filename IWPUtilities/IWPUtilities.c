@@ -120,7 +120,7 @@ int queueCount = 0;
 int queueLength = 7; //don't forget to change angleQueue to this number also
 float angleQueue[7];
 int prevDay;
-int prevMinute;
+//int prevMinute;
 int prevHour; // just for testing, not a real variable
 int stuckI2C;
 int invalid;
@@ -150,12 +150,12 @@ float volume2224 = 0;
 int mclrPin = 1;
 int depthSensorPin = 2;
 int simVioPin = 3;
-char Pin4 = 'unused';
-char Pin5 = 'unused';
+int Pin4 = 4;
+int Pin5 = 5;
 int rxPin = 6;
-char Pin7 = 'unused';
+int Pin7 = 7;
 int GND2Pin = 8;
-char Pin9 = 'unused';
+int Pin9 = 9;
 char Pin10 = 'unused';
 int batteryLevelPin = 11;
 char Pin12 = 'unused';
@@ -279,7 +279,7 @@ void pinDirectionIO(int pin, int io){ // 1 is an input, 0 is an output
 }
 
 
-int digitalPinSet(int pin, int set) // 1 for high, 0 for low
+void digitalPinSet(int pin, int set) // 1 for high, 0 for low
 {
 	if (pin == 1)
 	{
@@ -564,6 +564,20 @@ int digitalPinStatus(int pin)
 	// Pin 28 - Always VDD for PIC24FV32KA302 - Do nothing
 }
 
+
+//DEBUG DEBUG DEBUG DEBUG
+void debugHighLow(int pin){
+    specifyAnalogPin(pin, 0); // makes digital
+    pinDirectionIO(pin, 0); // makes output
+    if(digitalPinStatus(pin) == 0) {
+        digitalPinSet(pin, 1); // makes high
+    }
+    else{
+        digitalPinSet(pin, 0); //makes low
+    }
+}
+//DEBUG DEBUG DEBUG DEBUG
+
 /////////////////////////////////////////////////////////////////////
 ////                                                             ////
 ////                    INITIALIZATION                           ////
@@ -601,11 +615,12 @@ void initialization(void)
 	U1MODE = 0x8000; //enable UART for 8 bit data
 	//no parity, 1 stop bit
 	U1STAbits.UTXEN = 1; //enable transmit
+        pinDirectionIO(waterPresenceSensorOnOffPin, 0);
+	digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
 
 	// From fona code
 	pinDirectionIO(pwrKeyPin, 0); //TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
 	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
-	digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
 
 	//         Fona stuff
 	digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
@@ -622,7 +637,7 @@ void initialization(void)
 	// Moved the RTCCSet function up since we do not rely on network anymore
 	configI2c();
 	char seconds = 10;
-	char minutes = 58;
+	char minutes = 50;
 	char hours = 23;
 	char weekday = 6;
 	char days = 19;
@@ -650,12 +665,12 @@ void initialization(void)
 	IEC3bits.RTCIE = 1; //RTCC Interupt is enabled
 	 *
 	 */
-        delayMs(10000);
+//        delayMs(10000);
 	sendTextMessage("(\"t\":\"initialize\")");
 	initAdc();
         //prevDay = getDateI2C();
-        //prevHour = getHourI2C();
-        prevMinute = getMinuteI2C();
+         prevHour = getHourI2C();
+//        prevMinute = getMinuteI2C();
 
 }
 /////////////////////////////////////////////////////////////////////
@@ -2421,20 +2436,20 @@ void midnightMessage(void)
         testValueString1[0] = 0;
         testValueString2[0] = 0;
         testValueString3[0] = 0;
-        longToString(BcdToDec(prevMinute), testValueString1);
+        longToString(BcdToDec(prevHour), testValueString1);
 
-        prevMinute = getMinuteI2C();
+        prevHour = getHourI2C();
 
-        longToString(BcdToDec(prevMinute), testValueString2);
-        longToString(BcdToDec(getMinuteI2C()), testValueString3);
+        longToString(BcdToDec(prevHour), testValueString2);
+        longToString(BcdToDec(getHourI2C()), testValueString3);
 
         char testValueMessage[160];
         testValueMessage[0] = 0;
-        concat(testValueMessage, "prevMin before: ");
+        concat(testValueMessage, "prevHour before: ");
         concat(testValueMessage, testValueString1);
-        concat(testValueMessage, ", prevMin after: ");
+        concat(testValueMessage, ", prevHour after: ");
         concat(testValueMessage, testValueString2);
-        concat(testValueMessage, ", getMinuteI2C(): ");
+        concat(testValueMessage, ", getHourI2C(): ");
         concat(testValueMessage, testValueString3);
         concat(testValueMessage, "!");
 

@@ -69,12 +69,12 @@ extern float volume2224;
 extern int mclrPin;
 extern int depthSensorPin;
 extern int simVioPin;
-extern char Pin4;
-extern char Pin5;
+extern int Pin4;
+extern int Pin5;
 extern int rxPin;
-extern char Pin7;
+extern int Pin7;
 extern int GND2Pin;
-extern char Pin9;
+extern int Pin9;
 extern char Pin10;
 extern int batteryLevelPin;
 extern char Pin12;
@@ -94,13 +94,13 @@ extern int netLightPin;
 extern int waterPresenceSensorOnOffPin;
 extern int GNDPin;
 extern int vcc2Pin;
-extern int prevMinute;
-extern int debugCounter;
+extern int prevHour;
+extern int debugCounter; // DEBUG DEBUG DEBUG DEBUG DEBUG
 
 
 
-
-int digitalPinSet(int pin, int io);
+void debugHighLow(int pin); // DEBUG DEBUG DEBUG DEBUG DEBUG
+void digitalPinSet(int pin, int io);
 void specifyAnalogPin(int pin, int analogOrDigital);
 void analogIOandSHinput(int pin, int IO);
 int digitalPinStatus(int pin);
