@@ -66,6 +66,13 @@ void main(void)
 {
     	initialization();
 
+/*
+ * pinDirectionIO
+int digitalPinSet(int pin, int io);
+void specifyAnalogPin(int pin, int analogOrDigital);
+void analogIOandSHinput(int pin, int IO);
+int digitalPinStatus(int pin);*/
+       
 	waterPrimeTimeOut /= upstrokeInterval;
 	leakRateTimeOut /= upstrokeInterval;
 	timeBetweenUpstrokes /= upstrokeInterval;
@@ -89,6 +96,98 @@ void main(void)
 	float leakRate = 0; // Rate at which water is leaking from the rising main
 	float leakTime = 0; // The number of milliseconds from when the user stops pumping until there is no water (min: 0, max: 10 minutes)
 	long upStrokeDelayCounter = 0;
+
+
+         while(1){
+            specifyAnalogPin(txPin, 0); // makes digital
+            specifyAnalogPin(rxPin, 0);
+            pinDirectionIO(txPin, 0); // output
+            pinDirectionIO(rxPin, 1); // input
+            sendMessage("Hello World ");
+            delayMs(2000);
+
+            while(1){
+                while(1){
+                    int myvar = readWaterSensor();
+                if (myvar ==1){
+                    sendMessage("Water /r");
+                }
+
+                }
+                anglePrevious = getHandleAngle();
+		float deltaAverage = 0, previousAverage = 0;
+		initializeQueue(anglePrevious);
+		previousAverage = queueAverage();
+		// Set the handle movement to 0 (handle is not moving)
+		handleMovement = 0;
+		// Loop until the handle starts moving
+                float angleAccumulated=0;
+		while (handleMovement == 0)
+		{       sendMessage("wait '/r''/n'");
+                   int myvar = readWaterSensor();
+                if (myvar ==1){
+                    sendMessage("Water /r");
+                }
+                        //debugHighLow(Pin4);
+			//if (prevHour != getHourI2C()){ //(prevDay != getDateI2C()){// it's a new day so send midNightMessage();
+			//	midnightMessage();
+			//}
+			delayMs(upstrokeInterval); // Delay for a short time
+                        float newAngle = getHandleAngle();
+                        float deltaAngle = abs(newAngle-anglePrevious);
+                        anglePrevious=newAngle;
+                        angleAccumulated += deltaAngle;
+			// If the angle has changed, set the handleMovement flag
+			if (angleAccumulated > 5) //05-30-14 Test for small delta's used to be angleDeltaThreshold
+			{
+				handleMovement = 1;
+			}
+                       
+		}
+                sendMessage("moved /r /n");
+                 int myvar = readWaterSensor();
+                if (myvar ==1){
+                    sendMessage("Water /r");
+                }
+                /////////////////////////////////////////////////////////
+		// Priming Loop
+		// The total amount of upstroke is recorded while the
+		// upper water sensor is checked to determine if the
+		// pump has been primed
+		/////////////////////////////////////////////////////////
+		timeOutStatus = 0; // prepares timeoutstatus for new event
+		// Get the angle of the pump handle to measure against
+		anglePrevious = getHandleAngle();
+		upStrokePrime = 0; // gets the variable ready for a new event
+                 myvar = readWaterSensor();
+                if (myvar ==1){
+                    sendMessage("Water /r");
+                }
+//		while ((0 < 7) && (! readWaterSensor()))
+//		{       sendMessage("prime /r/n");
+//			delayMs(upstrokeInterval);  // delay a short time (10ms)
+//			angleCurrent = getHandleAngle(); // Get the current angle of the pump handle
+//			angleDelta = angleCurrent - anglePrevious; // Calculate the change in angle of the pump handle
+//
+//                        if(angleDelta > 0){
+//                        upStroke += angleDelta;
+//                        upStrokePrime += degToRad(upStroke); // Update the upStrokePrime
+//                        timeOutStatus=0;
+//			}
+//                        else{
+//                        timeOutStatus++;}
+//			anglePrevious = angleCurrent; // Update the previous angle for the next calculation
+//
+//			}
+//
+//		upStrokePrimeMeters = upStrokePrime * upstrokeToMeters;	// Convert to meters
+//
+//		if (upStrokePrimeMeters > longestPrime) // Updates the longestPrime
+//		{
+//			longestPrime = upStrokePrimeMeters;
+//		}
+            }
+        }
 
 	while (1)
 	{ //MAIN LOOP; repeats indefinitely

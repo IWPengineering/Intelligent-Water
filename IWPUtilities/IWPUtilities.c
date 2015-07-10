@@ -98,7 +98,7 @@ const int alarmHour = 0x0000; // The weekday and hour (24 hour format) (in BCD) 
 const int alarmStartingMinute = 1; // The minimum minute that the alarm will go off
 const int alarmMinuteMax = 5; // The max number of minutes to offset the alarm (the alarmStartingMinute + a random number between 0 and this number)
 const int adjustmentFactor = 511; // Used to ajust the values read from the accelerometer
-const int pulseWidthThreshold = 0x0800; // The value to check the pulse width against (2048)
+const int pulseWidthThreshold = 20; // The value to check the pulse width against (2048)
 const int networkPulseWidthThreshold = 0x4E20; // The value to check the pulse width against (about 20000)
 const int upstrokeInterval = 10; // The number of milliseconds to delay before reading the upstroke
 int waterPrimeTimeOut = 7000; // Equivalent to 7 seconds (in 50 millisecond intervals); 50 = upstrokeInterval
@@ -622,21 +622,21 @@ void initialization(void)
 	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
 
 	//         Fona stuff
-	digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
-	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
-		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
-	}
-	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
-	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
+//	digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
+//	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
+//		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
+//	}
+//	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
+//	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
 
 	// Turn on SIM800
-	 turnOnSIM();
+//	 turnOnSIM();
       
 
 	// Moved the RTCCSet function up since we do not rely on network anymore
 	configI2c();
 	char seconds = 10;
-	char minutes = 50;
+	char minutes = 55;
 	char hours = 23;
 	char weekday = 6;
 	char days = 19;
@@ -646,6 +646,7 @@ void initialization(void)
 
 	/*
 	 *
+         * Interrupt and internal clock commands for internal RTCC
         RTCCSet(); // Sets time; Pic asks Sim which asks cell tower to get current time
 	_RTCWREN = 1; // allowing us to write to registers; Set Alarm for sending message
 	ALCFGRPTbits.CHIME = 1; //don't need to reset alarm?
@@ -664,8 +665,8 @@ void initialization(void)
 	IEC3bits.RTCIE = 1; //RTCC Interupt is enabled
 	 *
 	 */
-        tryToConnectToNetwork();
-        sendTextMessage("(\"t\":\"initialize\")");
+//        tryToConnectToNetwork();
+//        sendTextMessage("(\"t\":\"initialize\")");
 	initAdc();
         //prevDay = getDateI2C();
          prevHour = getHourI2C();

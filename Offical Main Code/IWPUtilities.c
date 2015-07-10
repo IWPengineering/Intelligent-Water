@@ -105,7 +105,7 @@ int waterPrimeTimeOut = 7000; // Equivalent to 7 seconds (in 50 millisecond inte
 long leakRateTimeOut = 18000; // Equivalent to 18 seconds (in 50 millisecond intervals); 50 = upstrokeInterval
 long timeBetweenUpstrokes = 3000; // 3 seconds (based on upstrokeInterval)
 const int decimalAccuracy = 3; // Number of decimal places to use when converting floats to strings
-const int angleDeltaThreshold = 2; // The angle delta to check against
+const int angleDeltaThreshold = 1; // The angle delta to check against
 const float upstrokeToMeters = 0.01287;
 const int minimumAngleDelta = 10;
 const float batteryLevelConstant = 0.476;       //This number is found by Vout = (R32 * Vin) / (R32 + R31), Yields Vin = Vout / 0.476
@@ -132,8 +132,8 @@ int debugCounter;
 //char phoneNumber[] = "+19783840645"; // Number for Jake Sargent
 //char phoneNumber[] = "+17177784498"; // Number for Upside Wireless
 char phoneNumber[] = "+13018737202"; // Number for Jacqui Young
-float longestPrime = 0; // total upstroke fo the longest priming event of the day
-float leakRateLong = 0; // largest leak rate recorded for the day
+float longestPrime = 19; // total upstroke fo the longest priming event of the day
+float leakRateLong = 16; // largest leak rate recorded for the day
 float volume02 = 0; // Total Volume extracted from 0:00-2:00
 float volume24 = 0;
 float volume46 = 0;
@@ -637,7 +637,7 @@ void initialization(void)
 	// Moved the RTCCSet function up since we do not rely on network anymore
 	configI2c();
 	char seconds = 10;
-	char minutes = 50;
+	char minutes = 55;
 	char hours = 23;
 	char weekday = 6;
 	char days = 19;
