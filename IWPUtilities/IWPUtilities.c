@@ -622,15 +622,15 @@ void initialization(void)
 	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
 
 	//         Fona stuff
-//	digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
-//	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
-//		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
-//	}
-//	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
-//	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
+	digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
+	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
+		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
+	}
+	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
+	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
 
 	// Turn on SIM800
-//	 turnOnSIM();
+	 turnOnSIM();
       
 
 	// Moved the RTCCSet function up since we do not rely on network anymore
@@ -665,8 +665,8 @@ void initialization(void)
 	IEC3bits.RTCIE = 1; //RTCC Interupt is enabled
 	 *
 	 */
-//        tryToConnectToNetwork();
-//        sendTextMessage("(\"t\":\"initialize\")");
+        tryToConnectToNetwork();
+        sendTextMessage("(\"t\":\"initialize\")");
 	initAdc();
         //prevDay = getDateI2C();
          prevHour = getHourI2C();

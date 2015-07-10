@@ -65,13 +65,6 @@
 void main(void)
 {
     	initialization();
-
-/*
- * pinDirectionIO
-int digitalPinSet(int pin, int io);
-void specifyAnalogPin(int pin, int analogOrDigital);
-void analogIOandSHinput(int pin, int IO);
-int digitalPinStatus(int pin);*/
        
 	waterPrimeTimeOut /= upstrokeInterval;
 	leakRateTimeOut /= upstrokeInterval;
@@ -97,98 +90,6 @@ int digitalPinStatus(int pin);*/
 	float leakTime = 0; // The number of milliseconds from when the user stops pumping until there is no water (min: 0, max: 10 minutes)
 	long upStrokeDelayCounter = 0;
 
-
-         while(1){
-            specifyAnalogPin(txPin, 0); // makes digital
-            specifyAnalogPin(rxPin, 0);
-            pinDirectionIO(txPin, 0); // output
-            pinDirectionIO(rxPin, 1); // input
-            sendMessage("Hello World ");
-            delayMs(2000);
-
-            while(1){
-                while(1){
-                    int myvar = readWaterSensor();
-                if (myvar ==1){
-                    sendMessage("Water /r");
-                }
-
-                }
-                anglePrevious = getHandleAngle();
-		float deltaAverage = 0, previousAverage = 0;
-		initializeQueue(anglePrevious);
-		previousAverage = queueAverage();
-		// Set the handle movement to 0 (handle is not moving)
-		handleMovement = 0;
-		// Loop until the handle starts moving
-                float angleAccumulated=0;
-		while (handleMovement == 0)
-		{       sendMessage("wait '/r''/n'");
-                   int myvar = readWaterSensor();
-                if (myvar ==1){
-                    sendMessage("Water /r");
-                }
-                        //debugHighLow(Pin4);
-			//if (prevHour != getHourI2C()){ //(prevDay != getDateI2C()){// it's a new day so send midNightMessage();
-			//	midnightMessage();
-			//}
-			delayMs(upstrokeInterval); // Delay for a short time
-                        float newAngle = getHandleAngle();
-                        float deltaAngle = abs(newAngle-anglePrevious);
-                        anglePrevious=newAngle;
-                        angleAccumulated += deltaAngle;
-			// If the angle has changed, set the handleMovement flag
-			if (angleAccumulated > 5) //05-30-14 Test for small delta's used to be angleDeltaThreshold
-			{
-				handleMovement = 1;
-			}
-                       
-		}
-                sendMessage("moved /r /n");
-                 int myvar = readWaterSensor();
-                if (myvar ==1){
-                    sendMessage("Water /r");
-                }
-                /////////////////////////////////////////////////////////
-		// Priming Loop
-		// The total amount of upstroke is recorded while the
-		// upper water sensor is checked to determine if the
-		// pump has been primed
-		/////////////////////////////////////////////////////////
-		timeOutStatus = 0; // prepares timeoutstatus for new event
-		// Get the angle of the pump handle to measure against
-		anglePrevious = getHandleAngle();
-		upStrokePrime = 0; // gets the variable ready for a new event
-                 myvar = readWaterSensor();
-                if (myvar ==1){
-                    sendMessage("Water /r");
-                }
-//		while ((0 < 7) && (! readWaterSensor()))
-//		{       sendMessage("prime /r/n");
-//			delayMs(upstrokeInterval);  // delay a short time (10ms)
-//			angleCurrent = getHandleAngle(); // Get the current angle of the pump handle
-//			angleDelta = angleCurrent - anglePrevious; // Calculate the change in angle of the pump handle
-//
-//                        if(angleDelta > 0){
-//                        upStroke += angleDelta;
-//                        upStrokePrime += degToRad(upStroke); // Update the upStrokePrime
-//                        timeOutStatus=0;
-//			}
-//                        else{
-//                        timeOutStatus++;}
-//			anglePrevious = angleCurrent; // Update the previous angle for the next calculation
-//
-//			}
-//
-//		upStrokePrimeMeters = upStrokePrime * upstrokeToMeters;	// Convert to meters
-//
-//		if (upStrokePrimeMeters > longestPrime) // Updates the longestPrime
-//		{
-//			longestPrime = upStrokePrimeMeters;
-//		}
-            }
-        }
-
 	while (1)
 	{ //MAIN LOOP; repeats indefinitely
 		////////////////////////////////////////////////////////////
@@ -204,26 +105,27 @@ int digitalPinStatus(int pin);*/
 		// Set the handle movement to 0 (handle is not moving)
 		handleMovement = 0;
 		// Loop until the handle starts moving
+                float angleAccumulated=0;
 		while (handleMovement == 0)
 		{
                         debugHighLow(Pin4);
 			if (prevHour != getHourI2C()){ //(prevDay != getDateI2C()){// it's a new day so send midNightMessage();
 				midnightMessage();
 			}
-			// Delay for a short time
-			delayMs(upstrokeInterval);
-			// Get the current angle of the pump handle
-			pushToQueue(getHandleAngle());
-			//Calculate the change in angle of the pump handle
-			deltaAverage = queueAverage() - previousAverage;
-			previousAverage = queueAverage();
+			delayMs(upstrokeInterval); // Delay for a short time
+                        float newAngle = getHandleAngle();
+                        float deltaAngle = abs(newAngle-anglePrevious);
+                        anglePrevious=newAngle;
+                        angleAccumulated += deltaAngle;
 			// If the angle has changed, set the handleMovement flag
-			if (deltaAverage > angleDeltaThreshold) //05-30-14 Test for small delta's
+			if (angleAccumulated > 5) //05-30-14 Test for small delta's used to be angleDeltaThreshold
 			{
 				handleMovement = 1;
 			}
-		} //Exit loop when handle is moving
-		/////////////////////////////////////////////////////////
+
+		}
+                
+                /////////////////////////////////////////////////////////
 		// Priming Loop
 		// The total amount of upstroke is recorded while the
 		// upper water sensor is checked to determine if the
@@ -233,43 +135,32 @@ int digitalPinStatus(int pin);*/
 		// Get the angle of the pump handle to measure against
 		anglePrevious = getHandleAngle();
 		upStrokePrime = 0; // gets the variable ready for a new event
+               
 		while ((timeOutStatus < waterPrimeTimeOut) && !readWaterSensor())
-		{       debugHighLow(Pin5);
-			delayMs(upstrokeInterval);
-			// Get the current angle of the pump handle
-			angleCurrent = getHandleAngle();
-			// Calculate the change in angle of the pump handle
-			angleDelta = angleCurrent - anglePrevious;
-			// If the pump angle has changed, update the up stroke, otherwise set it to 0
-			if (angleDelta > angleDeltaThreshold)
-			{
-				upStroke = angleDelta;
+		{       
+			delayMs(upstrokeInterval);  // delay a short time (10ms)
+			angleCurrent = getHandleAngle(); // Get the current angle of the pump handle
+			angleDelta = angleCurrent - anglePrevious; // Calculate the change in angle of the pump handle
+                        
+                        if(angleDelta > 5){
+                        upStroke += angleDelta;
+                        upStrokePrime += degToRad(upStroke); // Update the upStrokePrime
+                        timeOutStatus=0;
 			}
-			else
-			{
-				upStroke = 0;
+                        else{
+                        timeOutStatus++;}
+			anglePrevious = angleCurrent; // Update the previous angle for the next calculation
+
 			}
-			// Update the previous angle for the next calculation
-			anglePrevious = angleCurrent;
-			// If no upstroke is happening, increase the timeout
-			if (upStroke == 0)
-			{
-				timeOutStatus++;
-			}
-			// Otherwise, reset the timeout because movement occurred
-			else if (upStroke > 0)
-			{
-				timeOutStatus = 0;
-				upStrokePrime += degToRad(upStroke); // Update the upStrokePrime
-			}
-		}
-		// Convert to meters
-		upStrokePrimeMeters = upStrokePrime * upstrokeToMeters;
-		// Updates the longestPrime
-		if (upStrokePrimeMeters > longestPrime)
+
+		upStrokePrimeMeters = upStrokePrime * upstrokeToMeters;	// Convert to meters
+
+		if (upStrokePrimeMeters > longestPrime) // Updates the longestPrime
 		{
 			longestPrime = upStrokePrimeMeters;
 		}
+
+
 		///////////////////////////////////////////////////////
 		// Volume Calculation loop
 		// Tracks the upStroke for the water being extracted
