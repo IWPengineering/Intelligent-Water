@@ -1,4 +1,4 @@
-#include "IWPUtilities.h"
+#include "../Offical Main Code/IWPUtilities.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -105,7 +105,7 @@ int waterPrimeTimeOut = 7000; // Equivalent to 7 seconds (in 50 millisecond inte
 long leakRateTimeOut = 18000; // Equivalent to 18 seconds (in 50 millisecond intervals); 50 = upstrokeInterval
 long timeBetweenUpstrokes = 3000; // 3 seconds (based on upstrokeInterval)
 const int decimalAccuracy = 3; // Number of decimal places to use when converting floats to strings
-const int angleDeltaThreshold = 1; // The angle delta to check against
+const int angleDeltaThreshold = 2; // The angle delta to check against
 const float upstrokeToMeters = 0.01287;
 const int minimumAngleDelta = 10;
 const float batteryLevelConstant = 0.476;       //This number is found by Vout = (R32 * Vin) / (R32 + R31), Yields Vin = Vout / 0.476
@@ -124,6 +124,7 @@ int prevDay;
 int prevHour; // just for testing, not a real variable
 int stuckI2C;
 int invalid;
+int debugCounter;
 // ****************************************************************************
 // *** Global Variables *******************************************************
 // ****************************************************************************
@@ -155,9 +156,9 @@ int rxPin = 6;
 int Pin7 = 7;
 int GND2Pin = 8;
 int Pin9 = 9;
-int Pin10 = 10;
+char Pin10 = 'unused';
 int batteryLevelPin = 11;
-int Pin12 = 12;
+char Pin12 = 'unused';
 int vccPin = 13;
 int waterPresenceSensorPin = 14;
 int pwrKeyPin = 15;
@@ -614,7 +615,7 @@ void initialization(void)
 	U1MODE = 0x8000; //enable UART for 8 bit data
 	//no parity, 1 stop bit
 	U1STAbits.UTXEN = 1; //enable transmit
-        pinDirectionIO(waterPresenceSensorOnOffPin, 0); //makes water presence sensor pin an output.
+        pinDirectionIO(waterPresenceSensorOnOffPin, 0);
 	digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
 
 	// From fona code
@@ -664,8 +665,8 @@ void initialization(void)
 	IEC3bits.RTCIE = 1; //RTCC Interupt is enabled
 	 *
 	 */
-        tryToConnectToNetwork();
-        sendTextMessage("(\"t\":\"initialize\")");
+//        delayMs(10000);
+	sendTextMessage("(\"t\":\"initialize\")");
 	initAdc();
         //prevDay = getDateI2C();
          prevHour = getHourI2C();
@@ -2457,6 +2458,12 @@ void midnightMessage(void)
         sendTextMessage(testValueMessage);
 
 
+                //DEBUG DEBUG DEBUG DEBUG DEBUG
+        char debugCounterString[20];
+        debugCounterString[0] = 0;
+        longToString(debugCounter++, debugCounterString);
+
+
         //prevHour = getHourI2C();
 	//Message assembly and sending; Use *floatToString() to send:
 	char longestPrimeString[20];
@@ -2535,9 +2542,13 @@ void midnightMessage(void)
 	concat(dataMessage, volume2022String);
 	concat(dataMessage, ",");
 	concat(dataMessage, volume2224String);
-	concat(dataMessage, ">))");
 
-        // Try to establish network connection
+        //DEBUG DEBUG DEBUG DEBUG DEBUG
+	concat(dataMessage, ">)) debugCounter: ");
+        concat(dataMessage, debugCounterString);
+
+
+// Try to establish network connection
 	tryToConnectToNetwork();
 	delayMs(2000);
 	// Send off the data
