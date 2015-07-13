@@ -1409,16 +1409,19 @@ float readDepthSensor(void)
  ********************************************************************/
 void SoftwareReset(void)
 {
+    	I2C1CONbits.I2CEN = 0; // doesn't Configure I2C pins as I2C (on pins 17 an 18)
+        configI2c();    // Configure 12C pins as 12C (on pins 17 and 18
+
 	IdleI2C(); // Ensure module is idle
 	StartI2C(); // Initiate START condition
 	while ( I2C1CONbits.SEN ); // Wait until START condition is complete
 
 	int pulsesCreated = 0;
-	pinDirectionIO(sclI2CPin, 1);//TRISBbits.TRISB8 = 1;
-	pinDirectionIO(sdaI2CPin, 1);//TRISBbits.TRISB9 = 1;
+	pinDirectionIO(sclI2CPin, 1); // input
+	pinDirectionIO(sdaI2CPin, 1); // input
 	if((digitalPinStatus(sclI2CPin) == 1) && (digitalPinStatus(sdaI2CPin) == 0)) {
-		pinDirectionIO(sdaI2CPin, 1); //Make SDA an output
-		digitalPinSet(sdaI2CPin, 0); //PORTBbits.RB9 = 0; //Clear SDA
+		pinDirectionIO(sdaI2CPin, 1); // make SDA an input
+		digitalPinSet(sdaI2CPin, 0); // set SDA
 		while ((pulsesCreated < 9) && digitalPinStatus(sdaI2CPin) == 0){ //PORTBbits.RB9 == 0){
 			delaySCL();
 			digitalPinSet(sclI2CPin, 1); //PORTBbits.RB9 = 1; // SCL
