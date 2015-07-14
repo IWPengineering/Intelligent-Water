@@ -8,9 +8,19 @@
 #ifndef IWPUTILITIES_H
 #define	IWPUTILITIES_H
 
-// ****************************************************************************
-// *** Include Statemets ******************************************************
-// ****************************************************************************
+
+//ENUM declarations
+
+enum RTCCregister
+{
+    SEC_REGISTER,
+    MIN_REGISTER,
+    HOUR_REGISTER,
+    WKDAY_REGISTER,
+    DATE_REGISTER,
+    MONTH_REGISTER,
+    YEAR_REGISTER
+};
 
 
 
@@ -44,6 +54,7 @@ extern int queueLength; //don't forget to change angleQueue to this number also
 extern float angleQueue[7];
 extern int prevDay;
 extern int prevHour;
+extern int invalid;
 
 
 // ****************************************************************************

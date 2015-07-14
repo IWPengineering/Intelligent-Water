@@ -122,7 +122,6 @@ float angleQueue[7];
 int prevDay;
 //int prevMinute;
 int prevHour; // just for testing, not a real variable
-int stuckI2C;
 int invalid;
 // ****************************************************************************
 // *** Global Variables *******************************************************
@@ -1420,7 +1419,7 @@ void SoftwareReset(void)
 	pinDirectionIO(sclI2CPin, 1); // input
 	pinDirectionIO(sdaI2CPin, 1); // input
 	if((digitalPinStatus(sclI2CPin) == 1) && (digitalPinStatus(sdaI2CPin) == 0)) {
-		pinDirectionIO(sdaI2CPin, 1); // make SDA an input
+		pinDirectionIO(sdaI2CPin, 0); // make SDA an input
 		digitalPinSet(sdaI2CPin, 0); // set SDA
 		while ((pulsesCreated < 9) && digitalPinStatus(sdaI2CPin) == 0){ //PORTBbits.RB9 == 0){
 			delaySCL();
@@ -1682,6 +1681,80 @@ void delaySCL(void)
 /////////////////////////////////////////////////////////////////////
 
 /*********************************************************************
+ * Function: readRTCC
+ * Input: enum RTCCaddress
+ * Output: None
+ * Overview: reads from the register specified by the input
+ * Note: None
+ ********************************************************************/
+
+int readRTCC(enum RTCCregister RTCCregister)
+{
+    unsigned char address;
+    unsigned char mask;
+    int data;
+
+    switch(RTCCregister)
+    {
+        case SEC_REGISTER:
+            address = 0x00;
+            mask = 0x7F;
+            break;
+
+        case MIN_REGISTER:
+            address = 0x01;
+            mask = 0x7F;
+            break;
+
+        case HOUR_REGISTER:
+            address = 0x02;
+            mask = 0x3F;
+            break;
+
+        case WKDAY_REGISTER:
+            address = 0x03;
+            mask = 0x07;
+            break;
+
+        case DATE_REGISTER:
+            address = 0x04;
+            mask = 0x3F;
+            break;
+
+        case MONTH_REGISTER:
+            address = 0x05;
+            mask = 0x1F;
+            break;
+
+        case YEAR_REGISTER:
+            address = 0x06;
+            mask = 0xFF;
+            break;
+    }
+
+	configI2c(); // sets up I2C
+	StartI2C();
+	WriteI2C(0xde); // MCP7490N device address + write command
+	IdleI2C();
+	WriteI2C(address); // device address for the given register on MCP7490N
+	IdleI2C();
+	RestartI2C();
+	IdleI2C();
+	WriteI2C(0xdf); // MCP7490N device address + read command
+	IdleI2C();
+	data = (int)ReadI2C();
+	StopI2C();
+        if(invalid == 0xFF)
+        {
+            invalid = 0;
+            data = readRTCC(address);
+        }
+	data = data & mask; // removes unnecessary bits (mostly control bits and other non-time data)
+	return data; // returns the time in address as a BCD number
+
+}
+
+/*********************************************************************
  * Function: turnOffClockOscilator()
  * Input: None
  * Output: None
@@ -1699,72 +1772,35 @@ void turnOffClockOscilator(void)
 	IdleI2C();
 	WriteI2C(0x00); //Turn off oscillator and sets seconds to 0
 	IdleI2C();
+        if(invalid == 0xFF)
+        {
+            invalid = 0;
+            turnOffClockOscilator();
+        }
 	StopI2C();
 }
 
 int getSecondI2C(void) //may want to pass char address to it in the future
 {
 	int sec; // temp var to hold seconds information
-	// 0b1101 1110
+
 	configI2c(); // sets up I2C
-	if (invalid == 0xff){
-		invalid = 0;
-		getSecondI2C();
-	}
 	StartI2C();
-	if (invalid == 0xff){
-		invalid = 0;
-		getSecondI2C();
-	}
 	WriteI2C(0xde); // MCP7490N device address + write command
-	if (invalid == 0xff){
-		invalid = 0;
-		getSecondI2C();
-	}
 	IdleI2C();
-	if (invalid == 0xff){
-		invalid = 0;
-		getSecondI2C();
-	}
 	WriteI2C(0x00); // device address for the Seconds register on MCP7490N
-	if (invalid == 0xff){
-		invalid = 0;
-		getSecondI2C();
-	}
 	IdleI2C();
-	if (invalid == 0xff){
-		invalid = 0;
-		getSecondI2C();
-	}
 	RestartI2C();
-	if (invalid == 0xff){
-		invalid = 0;
-		getSecondI2C();
-	}
 	IdleI2C();
-	if (invalid == 0xff){
-		invalid = 0;
-		getSecondI2C();
-	}
 	WriteI2C(0xdf); // MCP7490N device address + read command
-	if (invalid == 0xff){
-		invalid = 0;
-		getSecondI2C();
-	}
 	IdleI2C();
-	if (invalid == 0xff){
-		invalid = 0;
-		getSecondI2C();
-	}
 	sec = (int)ReadI2C();
-	if (ReadI2C == 0xff){
-		getSecondI2C();
-	}
 	StopI2C();
-	if (invalid == 0xff){
-		invalid = 0;
-		getSecondI2C();
-	}
+        if(invalid == 0xFF)
+        {
+            invalid = 0;
+            sec = getSecondI2C();
+        }
 	sec = sec & 0x7f; // removes Oscillator bit
 	//sec = BcdToDec(sec); // converts sec to a decimal number
 	return sec; // returns the time in sec as a demimal number
@@ -1773,71 +1809,23 @@ int getSecondI2C(void) //may want to pass char address to it in the future
 int getMinuteI2C(void)
 {
 	int min; // temp var to hold seconds information
-
-        if (invalid == 0){
-            SoftwareReset();
-            invalid = 1;
-        }
-
 	configI2c(); // sets up I2C
-	if (invalid == 0xff){
-		invalid = 0;
-		getMinuteI2C();
-	}
 	StartI2C();
-	if (invalid == 0xff){
-		invalid = 0;
-		getMinuteI2C();
-	}
 	WriteI2C(0xde); // MCP7490N device address + write command
-	if (invalid == 0xff){
-		invalid = 0;
-		getMinuteI2C();
-	}
 	IdleI2C();
-	if (invalid == 0xff){
-		invalid = 0;
-		getMinuteI2C();
-	}
 	WriteI2C(0x01); // device address for the minutes register on MCP7490N
-	if (invalid == 0xff){
-		invalid = 0;
-		getMinuteI2C();
-	}
 	IdleI2C();
-	if (invalid == 0xff){
-		invalid = 0;
-		getMinuteI2C();
-	}
 	RestartI2C();
-	if (invalid == 0xff){
-		invalid = 0;
-		getMinuteI2C();
-	}
 	IdleI2C();
-	if (invalid == 0xff){
-		invalid = 0;
-		getMinuteI2C();
-	}
 	WriteI2C(0xdf); // MCP7490N device address + read command
-	if (invalid == 0xff){
-		invalid = 0;
-		getMinuteI2C();
-	}
 	IdleI2C();
-	if (invalid == 0xff){
-		invalid = 0;
-		getMinuteI2C();
-	}
 	min = (int)ReadI2C();
-	if (ReadI2C == 0xff){
-		getMinuteI2C();
-	}
 	StopI2C();
-	if (invalid == 0xff){
-		invalid = 0;
-		getMinuteI2C();
-	}
+        if(invalid == 0xFF)
+        {
+            invalid = 0;
+            min = getMinuteI2C();
+        }
 	min = min & 0x7f; // removes unused bit
 	//min = BcdToDec(min); // converts min to a decimal number
 	return min; // returns the time in min as a demimal number
@@ -1847,55 +1835,23 @@ int getHourI2C(void)
 {
 	int hr; // temp var to hold seconds information
 	configI2c(); // sets up I2C
-	if (invalid == 0xff){
-		invalid = 0;
-		getHourI2C();
-	}
 	StartI2C();
-	if (stuckI2C == 1){
-		getHourI2C();
-	}
 	WriteI2C(0xde); // MCP7490N device address + write command
-	if (stuckI2C == 1){
-		getHourI2C();
-	}
 	IdleI2C();
-	if (stuckI2C == 1){
-		getHourI2C();
-	}
-
 	WriteI2C(0x02); // device address for the hours register on MCP7490N
-	if (stuckI2C == 1){
-		getHourI2C();
-	}
 	IdleI2C();
-	if (stuckI2C == 1){
-		getHourI2C();
-	}
 	RestartI2C();
-	if (stuckI2C == 1){
-		getHourI2C();
-	}
 	IdleI2C();
-	if (stuckI2C == 1){
-		getHourI2C();
-	}
 	WriteI2C(0xdf); // MCP7490N device address + read command
-	if (stuckI2C == 1){
-		getHourI2C();
-	}
 	IdleI2C();
-	if (stuckI2C == 1){
-		getHourI2C();
-	}
 	hr = (int)ReadI2C();
-	if (stuckI2C == 1){
-		getHourI2C();
-	}
 	StopI2C();
-	if (stuckI2C == 1){
-		getHourI2C();
-	}
+
+        if(invalid = 0xFF)
+        {
+            invalid = 0;
+            hr = getHourI2C();
+        }
 	hr = hr & 0x3f; // removes unused bits
 	//hr = BcdToDec(hr); // converts hr to a decimal number
 	return hr; // returns the time in hr as a demimal number
@@ -1916,8 +1872,11 @@ int getYearI2C(void)
 	IdleI2C();
 	yr = (int)ReadI2C();
 	StopI2C();
-	//yr = yr & 0x3f; // removes unused bits
-	//yr = BcdToDec(yr); // converts yr to a decimal number
+        if(invalid == 0xFF)
+        {
+            invalid = 0;
+            yr = getYearI2C();
+        }
 	return yr; // returns the time in hr as a demimal number
 }
 
@@ -1936,9 +1895,14 @@ int getMonthI2C(void)
 	IdleI2C();
 	mnth = (int)ReadI2C();
 	StopI2C();
-	//yr = yr & 0x3f; // removes unused bits
-	//mnth = BcdToDec(mnth); // converts yr to a decimal number
+        if(invalid == 0xFF)
+        {
+            invalid = 0;
+            mnth = getMonthI2C();
+        }
+        mnth = mnth & 0x1F;
 	return mnth; // returns the time in hr as a demimal number
+
 }
 int getWkdayI2C(void)
 {
@@ -1955,8 +1919,12 @@ int getWkdayI2C(void)
 	IdleI2C();
 	wkday = (int)ReadI2C();
 	StopI2C();
-	//yr = yr & 0x3f; // removes unused bits
-	//wkday = BcdToDec(wkday); // converts yr to a decimal number
+        if(invalid == 0xFF)
+        {
+            invalid = 0;
+            wkday = getWkdayI2C();
+        }
+	wkday = wkday & 0x07; // converts yr to a decimal number
 	return wkday; // returns the time in hr as a demimal number
 }
 
@@ -1964,50 +1932,21 @@ int getDateI2C(void)
 {
 	int date; // temp var to hold dat information
 	configI2c(); // sets up I2C
-        if (invalid == 0xff){
-            invalid = 0;
-            getDateI2C;
-        }
 	StartI2C();
-        if(stuckI2C==1){
-            getDateI2C();
-        }
 	WriteI2C(0xde); // MCP7490N device address + write command
-        if(stuckI2C == 1){
-            getDateI2C();
-        }
         IdleI2C();
-        if(stuckI2C == 1){
-            getDateI2C();
-        }
 	WriteI2C(0x04); // device address for the date register on MCP7490N
-	if(stuckI2C == 1){
-            getDateI2C();
-        }
         IdleI2C();
-	if(stuckI2C == 1){
-            getDateI2C();
-        }
         RestartI2C();
-	if(stuckI2C == 1){
-            getDateI2C();
-        }
         IdleI2C();
-	if(stuckI2C == 1){
-            getDateI2C();
-        }
         WriteI2C(0xdf); // MCP7490N device address + read command
-	if(stuckI2C == 1){
-            getDateI2C();
-        }
         IdleI2C();
-	if(stuckI2C == 1){
-            getDateI2C();
-        }
         date = (int)ReadI2C();
 	StopI2C();
-        if(stuckI2C == 1){
-            getDateI2C();
+        if(invalid == 0xFF)
+        {
+            invalid = 0;
+            date = getDateI2C();
         }
 	date = date & 0x3f; // removes unused bits
 	//date = BcdToDec(date); // converts yr to a decimal number
