@@ -1831,9 +1831,10 @@ int getMinuteI2C(void)
 	IdleI2C();
 	min = (int)ReadI2C();
 	StopI2C();
-        if (invalid == 0xff){
+        if (invalid == 0xff)
+        {
             invalid = 0;
-            getMinuteI2C();
+            min = getMinuteI2C();
         }
 	min = min & 0x7f; // removes unused bit
 	return min; // returns the time in min as a demimal number
@@ -1854,9 +1855,10 @@ int getHourI2C(void)
 	IdleI2C();
 	hr = (int)ReadI2C();
 	StopI2C();
-	if(invalid == 0xff){
+	if(invalid == 0xff)
+        {
                 invalid = 0;
-		getHourI2C();
+		hr = getHourI2C();
 	}
 	hr = hr & 0x3f; // removes unused bits
 	//hr = BcdToDec(hr); // converts hr to a decimal number
@@ -1878,7 +1880,12 @@ int getYearI2C(void)
 	IdleI2C();
 	yr = (int)ReadI2C();
 	StopI2C();
-	//yr = yr & 0x3f; // removes unused bits
+        if(invalid == 0xff)
+        {
+                invalid = 0;
+		yr = getYearI2C();
+	}
+	yr = yr & 0xff; // removes unused bits
 	//yr = BcdToDec(yr); // converts yr to a decimal number
 	return yr; // returns the time in hr as a demimal number
 }
@@ -1898,7 +1905,12 @@ int getMonthI2C(void)
 	IdleI2C();
 	mnth = (int)ReadI2C();
 	StopI2C();
-	//yr = yr & 0x3f; // removes unused bits
+        if(invalid == 0xff)
+        {
+                invalid = 0;
+		mnth = getMonthI2C();
+	}
+        mnth = mnth & 0x1F;
 	//mnth = BcdToDec(mnth); // converts yr to a decimal number
 	return mnth; // returns the time in hr as a demimal number
 }
@@ -1917,7 +1929,12 @@ int getWkdayI2C(void)
 	IdleI2C();
 	wkday = (int)ReadI2C();
 	StopI2C();
-	//yr = yr & 0x3f; // removes unused bits
+        if(invalid == 0xff)
+        {
+                invalid = 0;
+		wkday = getWkdayI2C();
+	}
+        wkday = wkday & 0x07;
 	//wkday = BcdToDec(wkday); // converts yr to a decimal number
 	return wkday; // returns the time in hr as a demimal number
 }
@@ -1937,12 +1954,12 @@ int getDateI2C(void)
 	IdleI2C();
 	date = (int)ReadI2C();
 	StopI2C();
-        date = date & 0x3f; // removes unused bits
         if(invalid == 0xff)
         {
             invalid = 0;
             date = getDateI2C();
         }
+        date = date & 0x3f; // removes unused bits
 	//date = BcdToDec(date); // converts yr to a decimal number
 	return date; // returns the time in hr as a demimal number
 }
