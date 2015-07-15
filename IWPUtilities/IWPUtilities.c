@@ -1419,7 +1419,7 @@ void SoftwareReset(void)
 	pinDirectionIO(sclI2CPin, 1); // input
 	pinDirectionIO(sdaI2CPin, 1); // input
 	if((digitalPinStatus(sclI2CPin) == 1) && (digitalPinStatus(sdaI2CPin) == 0)) {
-		pinDirectionIO(sdaI2CPin, 0); // make SDA an input
+		pinDirectionIO(sdaI2CPin, 0); // make SDA an output
 		digitalPinSet(sdaI2CPin, 0); // set SDA
 		while ((pulsesCreated < 9) && digitalPinStatus(sdaI2CPin) == 0){ //PORTBbits.RB9 == 0){
 			delaySCL();
@@ -1562,7 +1562,7 @@ void AckI2C(void)
 		{ // time out loop incase I2C gets stuck
 			SoftwareReset();
 			invalid=0xff;
-			break;
+			return;
 		}
 		timeOut++;
 	}
@@ -1590,27 +1590,26 @@ void WriteI2C(unsigned char byte)
 {
 	//This function transmits the byte passed to the function
 	int timeOut1 = 0;
-	int trueTimeOut = 1;
-	while (I2C1STATbits.TRSTAT && trueTimeOut)//Wait for bus to be idle
+	while (I2C1STATbits.TRSTAT)//Wait for bus to be idle
 	{
 		if (timeOut1 == 1300)
 		{ // time out loop incase I2C gets stuck
 			SoftwareReset();
 			invalid=0xff;
-			break;
+			return;
 		}
 		timeOut1++;
 
 	}
 	I2C1TRN = byte; //Load byte to I2C1 Transmit buffer
 	int timeOut2 = 0;
-	while (I2C1STATbits.TBF && trueTimeOut) //wait for data transmission
+	while (I2C1STATbits.TBF) //wait for data transmission
 	{
 		if (timeOut2 == 1300)
 		{ // time out loop incase I2C gets stuck
 			SoftwareReset();
 			invalid=0xff;
-			break;
+			return;
 		}
 		timeOut2++;
 
@@ -1630,23 +1629,24 @@ unsigned int ReadI2C(void)
 {
 	int timeOut1 = 0;
 	int timeOut2 = 0;
-	int trueTimeOut = 1;
 	I2C1CONbits.ACKDT = 1; // Prepares to send NACK
 	I2C1CONbits.RCEN = 1; // Gives control of clock to Slave device
-	while (!I2C1STATbits.RBF && trueTimeOut) // Waits for register to fill up
+	while (!I2C1STATbits.RBF) // Waits for register to fill up
 	{
 		if (timeOut1 == 1300){ // time out loop incase I2C gets stuck
 			SoftwareReset();
-			return 0xff; // invalid
+			invalid = 0xff; // invalid
+                        return 0xff;
 		}
 		timeOut1++;
 
 	}
 	I2C1CONbits.ACKEN = 1; // Sends NACK or ACK set above
-	while (I2C1CONbits.ACKEN && trueTimeOut) // Waits till ACK is sent (hardware reset)
+	while (I2C1CONbits.ACKEN) // Waits till ACK is sent (hardware reset)
 	{
 		if (timeOut2 == 1300){ // time out loop incase I2C gets stuck
 			SoftwareReset();
+                        invalid = 0xff;
 			return 0xff; //invalid
 
 		}
