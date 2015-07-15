@@ -23,7 +23,6 @@ enum RTCCregister
 };
 
 
-
 //These variables were changed to be constants so that their values would
 //not be changed accidentally - 6/6/14 Avery deGruchy
 // ****************************************************************************
@@ -62,6 +61,7 @@ extern int invalid;
 // ****************************************************************************
 //static char phoneNumber[] = "+233247398396"; // Number for the Black Phone
 extern char phoneNumber[]; // Number for Upside Wireless
+extern char phoneNumber2[]; // Tony's number
 extern float longestPrime; // total upstroke fo the longest priming event of the day
 extern float leakRateLong; // largest leak rate recorded for the day
 extern float volume02; // Total Volume extracted from 0:00-2:00
