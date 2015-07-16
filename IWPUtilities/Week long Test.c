@@ -321,34 +321,34 @@ void main(void)
 		case 1:
 			volume24 = volume24 + volumeEvent;
 			break;
-		case 3:
+		case 2:
 			volume46 = volume46 + volumeEvent;
 			break;
-		case 4:
+		case 3:
 			volume68 = volume68 + volumeEvent;
 			break;
-		case 5:
+		case 4:
 			volume810 = volume810 + volumeEvent;
 			break;
-		case 6:
+		case 5:
 			volume1012 = volume1012 + volumeEvent;
 			break;
-		case 7:
+		case 6:
 			volume1214 = volume1214 + volumeEvent;
 			break;
-		case 8:
+		case 7:
 			volume1416 = volume1416 + volumeEvent;
 			break;
-		case 9:
+		case 8:
 			volume1618 = volume1618 + volumeEvent;
 			break;
-		case 10:
+		case 9:
 			volume1820 = volume1820 + volumeEvent;
 			break;
-		case 11:
+		case 10:
 			volume2022 = volume2022 + volumeEvent;
 			break;
-		case 12:
+		case 11:
 			volume2224 = volume2224 + volumeEvent;
 			break;
 		}
