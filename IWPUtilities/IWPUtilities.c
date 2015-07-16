@@ -121,7 +121,7 @@ int queueLength = 7; //don't forget to change angleQueue to this number also
 float angleQueue[7];
 int prevDay;
 //int prevMinute;
-int prevHour; // just for testing, not a real variable
+//int prevHour; // just for testing, not a real variable
 int invalid;
 // ****************************************************************************
 // *** Global Variables *******************************************************
@@ -668,8 +668,8 @@ void initialization(void)
         tryToConnectToNetwork();
         sendTextMessage("(\"t\":\"initialize\")");
 	initAdc();
-        //prevDay = getDateI2C();
-         prevHour = getHourI2C();
+        prevDay = getDateI2C();
+//         prevHour = getHourI2C();
 //        prevMinute = getMinuteI2C();
 
 }
@@ -2382,20 +2382,25 @@ void midnightMessage(void)
         testValueString1[0] = 0;
         testValueString2[0] = 0;
         testValueString3[0] = 0;
-        longToString(BcdToDec(prevHour), testValueString1);
+        //longToString(BcdToDec(prevHour), testValueString1);
+        longToString(BcdToDec(prevDay), testValueString1);
 
-        prevHour = getHourI2C();
+        //prevHour = getHourI2C();
+        prevDay = getHourI2C();
 
-        longToString(BcdToDec(prevHour), testValueString2);
-        longToString(BcdToDec(getHourI2C()), testValueString3);
+//        longToString(BcdToDec(prevHour), testValueString2);
+//        longToString(BcdToDec(getHourI2C()), testValueString3);
+
+         longToString(BcdToDec(prevDay), testValueString2);
+         longToString(BcdToDec(getDateI2C()), testValueString3);
 
         char testValueMessage[160];
         testValueMessage[0] = 0;
         concat(testValueMessage, "prevHour before: ");
         concat(testValueMessage, testValueString1);
-        concat(testValueMessage, ", prevHour after: ");
+        concat(testValueMessage, ", prevDay after: ");
         concat(testValueMessage, testValueString2);
-        concat(testValueMessage, ", getHourI2C(): ");
+        concat(testValueMessage, ", getDateI2C(): ");
         concat(testValueMessage, testValueString3);
         concat(testValueMessage, "!");
 

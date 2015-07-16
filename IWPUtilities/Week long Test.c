@@ -90,7 +90,8 @@ void main(void)
 	float leakRate = 0; // Rate at which water is leaking from the rising main
 	float leakTime = 0; // The number of milliseconds from when the user stops pumping until there is no water (min: 0, max: 10 minutes)
 	long upStrokeDelayCounter = 0;
-        int currentHour;
+        //int currentHour;
+        int currentDay;
 
 	while (1)
 	{ //MAIN LOOP; repeats indefinitely
@@ -111,8 +112,9 @@ void main(void)
 		while (handleMovement == 0)
 		{
                         debugHighLow(Pin4);
-                        currentHour = getHourI2C();
-			if (prevHour != currentHour){ //(prevDay != getDateI2C()){// it's a new day so send midNightMessage();
+                        currentDay = getDateI2C();
+                        //currentHour = getHourI2C();
+			if (prevDay != currentDay){ //(prevHour != currentHour){ // it's a new day so send midNightMessage();
                                 batteryFloat = batteryLevel();
 				midnightMessage();
 			}
