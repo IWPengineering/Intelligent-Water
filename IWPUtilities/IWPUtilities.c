@@ -635,7 +635,7 @@ void initialization(void)
 	// Moved the RTCCSet function up since we do not rely on network anymore
 	configI2c();
 	char seconds = 10;
-	char minutes = 55;
+	char minutes = 58;
 	char hours = 23;
 	char weekday = 6;
 	char days = 19;
@@ -1451,7 +1451,7 @@ unsigned int IdleI2C(void)
 		if (timeOut == 1300){ // time out loop incase I2C gets stuck
 			SoftwareReset();
 			invalid=0xff;
-			break;
+			return;
 		}
 	}
 	timeOut++;
@@ -1590,27 +1590,26 @@ void WriteI2C(unsigned char byte)
 {
 	//This function transmits the byte passed to the function
 	int timeOut1 = 0;
-	int trueTimeOut = 1;
-	while (I2C1STATbits.TRSTAT && trueTimeOut)//Wait for bus to be idle
+	while (I2C1STATbits.TRSTAT)//Wait for bus to be idle
 	{
 		if (timeOut1 == 1300)
 		{ // time out loop incase I2C gets stuck
 			SoftwareReset();
 			invalid=0xff;
-			break;
+			return;
 		}
 		timeOut1++;
 
 	}
 	I2C1TRN = byte; //Load byte to I2C1 Transmit buffer
 	int timeOut2 = 0;
-	while (I2C1STATbits.TBF && trueTimeOut) //wait for data transmission
+	while (I2C1STATbits.TBF) //wait for data transmission
 	{
 		if (timeOut2 == 1300)
 		{ // time out loop incase I2C gets stuck
 			SoftwareReset();
 			invalid=0xff;
-			break;
+			return;
 		}
 		timeOut2++;
 
@@ -1630,23 +1629,24 @@ unsigned int ReadI2C(void)
 {
 	int timeOut1 = 0;
 	int timeOut2 = 0;
-	int trueTimeOut = 1;
 	I2C1CONbits.ACKDT = 1; // Prepares to send NACK
 	I2C1CONbits.RCEN = 1; // Gives control of clock to Slave device
-	while (!I2C1STATbits.RBF && trueTimeOut) // Waits for register to fill up
+	while (!I2C1STATbits.RBF) // Waits for register to fill up
 	{
 		if (timeOut1 == 1300){ // time out loop incase I2C gets stuck
 			SoftwareReset();
+                        invalid = 0xff;
 			return 0xff; // invalid
 		}
 		timeOut1++;
 
 	}
 	I2C1CONbits.ACKEN = 1; // Sends NACK or ACK set above
-	while (I2C1CONbits.ACKEN && trueTimeOut) // Waits till ACK is sent (hardware reset)
+	while (I2C1CONbits.ACKEN) // Waits till ACK is sent (hardware reset)
 	{
 		if (timeOut2 == 1300){ // time out loop incase I2C gets stuck
 			SoftwareReset();
+                        invalid = 0xff;
 			return 0xff; //invalid
 
 		}
