@@ -1348,7 +1348,10 @@ float batteryLevel(void)//this has not been tested
 	adcAvg = (adcVal1 + adcVal2 + adcVal3) / 3;
 
 	// V = adcVal / maxAdcVal * 1 / (voltage divider values) * VCC
-	realVoltage = adcAvg / 1024 * 1 / (100 / 243) * 3.6;
+        realVoltage = adcAvg / 1024;
+        realVoltage *= 2.43;
+        realVoltage *= 3.6;
+	//realVoltage = adcAvg / 1024 * 1 / (100 / 243) * 3.6;
 
 	//floatToString(battVoltage, voltageAvgFloatString);
 
