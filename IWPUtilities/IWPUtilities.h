@@ -64,6 +64,7 @@ extern char phoneNumber[]; // Number for Upside Wireless
 extern char phoneNumber2[]; // Tony's number
 extern float longestPrime; // total upstroke fo the longest priming event of the day
 extern float leakRateLong; // largest leak rate recorded for the day
+extern float batteryFloat; // batteryLevel before sends text message commences
 extern float volume02; // Total Volume extracted from 0:00-2:00
 extern float volume24;
 extern float volume46;

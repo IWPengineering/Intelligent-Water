@@ -132,6 +132,7 @@ int invalid;
 char phoneNumber[] = "+13018737202"; // Number for Jacqui Young
 float longestPrime = 0; // total upstroke fo the longest priming event of the day
 float leakRateLong = 0; // largest leak rate recorded for the day
+float batteryFloat;
 float volume02 = 0; // Total Volume extracted from 0:00-2:00
 float volume24 = 0;
 float volume46 = 0;
@@ -2406,6 +2407,8 @@ void midnightMessage(void)
 	longestPrimeString[0] = 0;
 	char leakRateLongString[20];
 	leakRateLongString[0] = 0;
+        char batteryFloatString[20];
+        batteryFloatString[0] = 0;
 	char volume02String[20];
 	volume02String[0] = 0;
 	char volume24String[20];
@@ -2432,6 +2435,7 @@ void midnightMessage(void)
 	volume2224String[0] = 0;
 	floatToString(leakRateLong, leakRateLongString);
 	floatToString(longestPrime, longestPrimeString);
+        floatToString(batteryFloat, batteryFloatString);
 	floatToString(volume02, volume02String);
 	floatToString(volume24, volume24String);
 	floatToString(volume46, volume46String);
@@ -2454,6 +2458,8 @@ void midnightMessage(void)
 	concat(dataMessage, leakRateLongString);
 	concat(dataMessage, ",\"p\":");
 	concat(dataMessage, longestPrimeString);
+        concat(dataMessage, ",\"b\":");
+        concat(dataMessage, batteryFloatString);
 	concat(dataMessage, ",\"v\":<");
 	concat(dataMessage, volume02String);
 	concat(dataMessage, ",");

@@ -113,6 +113,7 @@ void main(void)
                         debugHighLow(Pin4);
                         currentHour = getHourI2C();
 			if (prevHour != currentHour){ //(prevDay != getDateI2C()){// it's a new day so send midNightMessage();
+                                batteryFloat = batteryLevel();
 				midnightMessage();
 			}
 
