@@ -2386,7 +2386,7 @@ void midnightMessage(void)
         longToString(BcdToDec(prevDay), testValueString1);
 
         //prevHour = getHourI2C();
-        prevDay = getHourI2C();
+        prevDay = getDateI2C();
 
 //        longToString(BcdToDec(prevHour), testValueString2);
 //        longToString(BcdToDec(getHourI2C()), testValueString3);
