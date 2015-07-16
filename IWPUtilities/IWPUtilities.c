@@ -129,8 +129,7 @@ int invalid;
 //static char phoneNumber[] = "+233247398396"; // Number for the Black Phone
 //char phoneNumber[] = "+19783840645"; // Number for Jake Sargent
 //char phoneNumber[] = "+17177784498"; // Number for Upside Wireless
-char phoneNumber[] = "+17177784498"; // Number for Jacqui Young
-char phoneNumber2[] = "+13018737202";
+char phoneNumber[] = "+13018737202"; // Number for Jacqui Young
 float longestPrime = 0; // total upstroke fo the longest priming event of the day
 float leakRateLong = 0; // largest leak rate recorded for the day
 float volume02 = 0; // Total Volume extracted from 0:00-2:00
@@ -636,7 +635,7 @@ void initialization(void)
 	// Moved the RTCCSet function up since we do not rely on network anymore
 	configI2c();
 	char seconds = 10;
-	char minutes = 58;
+	char minutes = 55;
 	char hours = 23;
 	char weekday = 6;
 	char days = 19;
@@ -1081,16 +1080,6 @@ void sendTextMessage(char message[160]) // Tested 06-02-2014
 	sendMessage("\x1A"); // method 2: sending hexidecimal representation
 	// of 26 to sendMessage function (line 62)
 	// & the end of allowing us to send SMS message
-        delayMs(10000);
-	sendMessage("AT+CMGF=1\r\n");//sets to text mode
-	delayMs(250);
-	sendMessage("AT+CMGS=\""); //beginning of allowing us to send SMS message
-	sendMessage(phoneNumber2);
-	sendMessage("\"\r\n"); //middle of allowing us to send SMS message
-	delayMs(250);
-	sendMessage(message);
-	delayMs(250);
-	sendMessage("\x1A");
 	delayMs(5000); // Give it some time to send the message
         turnOffSIM();
 }
@@ -1573,7 +1562,7 @@ void AckI2C(void)
 		{ // time out loop incase I2C gets stuck
 			SoftwareReset();
 			invalid=0xff;
-			return;
+			break;
 		}
 		timeOut++;
 	}
@@ -1601,26 +1590,27 @@ void WriteI2C(unsigned char byte)
 {
 	//This function transmits the byte passed to the function
 	int timeOut1 = 0;
-	while (I2C1STATbits.TRSTAT)//Wait for bus to be idle
+	int trueTimeOut = 1;
+	while (I2C1STATbits.TRSTAT && trueTimeOut)//Wait for bus to be idle
 	{
 		if (timeOut1 == 1300)
 		{ // time out loop incase I2C gets stuck
 			SoftwareReset();
 			invalid=0xff;
-			return;
+			break;
 		}
 		timeOut1++;
 
 	}
 	I2C1TRN = byte; //Load byte to I2C1 Transmit buffer
 	int timeOut2 = 0;
-	while (I2C1STATbits.TBF) //wait for data transmission
+	while (I2C1STATbits.TBF && trueTimeOut) //wait for data transmission
 	{
 		if (timeOut2 == 1300)
 		{ // time out loop incase I2C gets stuck
 			SoftwareReset();
 			invalid=0xff;
-			return;
+			break;
 		}
 		timeOut2++;
 
@@ -1640,24 +1630,23 @@ unsigned int ReadI2C(void)
 {
 	int timeOut1 = 0;
 	int timeOut2 = 0;
+	int trueTimeOut = 1;
 	I2C1CONbits.ACKDT = 1; // Prepares to send NACK
 	I2C1CONbits.RCEN = 1; // Gives control of clock to Slave device
-	while (!I2C1STATbits.RBF) // Waits for register to fill up
+	while (!I2C1STATbits.RBF && trueTimeOut) // Waits for register to fill up
 	{
 		if (timeOut1 == 1300){ // time out loop incase I2C gets stuck
 			SoftwareReset();
-                        invalid = 0xff; //invalid
 			return 0xff; // invalid
 		}
 		timeOut1++;
 
 	}
 	I2C1CONbits.ACKEN = 1; // Sends NACK or ACK set above
-	while (I2C1CONbits.ACKEN) // Waits till ACK is sent (hardware reset)
+	while (I2C1CONbits.ACKEN && trueTimeOut) // Waits till ACK is sent (hardware reset)
 	{
 		if (timeOut2 == 1300){ // time out loop incase I2C gets stuck
 			SoftwareReset();
-                        invalid = 0xff;
 			return 0xff; //invalid
 
 		}
@@ -1690,6 +1679,7 @@ void delaySCL(void)
 ////                    RTCC FUNCTIONS                           ////
 ////                                                             ////
 /////////////////////////////////////////////////////////////////////
+
 /*********************************************************************
  * Function: readRTCC
  * Input: enum RTCCaddress
@@ -1784,7 +1774,7 @@ void turnOffClockOscilator(void)
 	IdleI2C();
         if(invalid == 0xFF)
         {
-            invalid  = 0;
+            invalid = 0;
             turnOffClockOscilator();
         }
 	StopI2C();
@@ -1793,6 +1783,7 @@ void turnOffClockOscilator(void)
 int getSecondI2C(void) //may want to pass char address to it in the future
 {
 	int sec; // temp var to hold seconds information
+
 	configI2c(); // sets up I2C
 	StartI2C();
 	WriteI2C(0xde); // MCP7490N device address + write command
@@ -1805,8 +1796,7 @@ int getSecondI2C(void) //may want to pass char address to it in the future
 	IdleI2C();
 	sec = (int)ReadI2C();
 	StopI2C();
-
-        if(invalid == 0xff)
+        if(invalid == 0xFF)
         {
             invalid = 0;
             sec = getSecondI2C();
@@ -1831,11 +1821,13 @@ int getMinuteI2C(void)
 	IdleI2C();
 	min = (int)ReadI2C();
 	StopI2C();
-        if (invalid == 0xff){
+        if(invalid == 0xFF)
+        {
             invalid = 0;
-            getMinuteI2C();
+            min = getMinuteI2C();
         }
 	min = min & 0x7f; // removes unused bit
+	//min = BcdToDec(min); // converts min to a decimal number
 	return min; // returns the time in min as a demimal number
 }
 
@@ -1854,10 +1846,12 @@ int getHourI2C(void)
 	IdleI2C();
 	hr = (int)ReadI2C();
 	StopI2C();
-	if(invalid == 0xff){
-                invalid = 0;
-		getHourI2C();
-	}
+
+        if(invalid == 0xFF)
+        {
+            invalid = 0;
+            hr = getHourI2C();
+        }
 	hr = hr & 0x3f; // removes unused bits
 	//hr = BcdToDec(hr); // converts hr to a decimal number
 	return hr; // returns the time in hr as a demimal number
@@ -1878,8 +1872,11 @@ int getYearI2C(void)
 	IdleI2C();
 	yr = (int)ReadI2C();
 	StopI2C();
-	//yr = yr & 0x3f; // removes unused bits
-	//yr = BcdToDec(yr); // converts yr to a decimal number
+        if(invalid == 0xFF)
+        {
+            invalid = 0;
+            yr = getYearI2C();
+        }
 	return yr; // returns the time in hr as a demimal number
 }
 
@@ -1898,9 +1895,14 @@ int getMonthI2C(void)
 	IdleI2C();
 	mnth = (int)ReadI2C();
 	StopI2C();
-	//yr = yr & 0x3f; // removes unused bits
-	//mnth = BcdToDec(mnth); // converts yr to a decimal number
+        if(invalid == 0xFF)
+        {
+            invalid = 0;
+            mnth = getMonthI2C();
+        }
+        mnth = mnth & 0x1F;
 	return mnth; // returns the time in hr as a demimal number
+
 }
 int getWkdayI2C(void)
 {
@@ -1917,8 +1919,12 @@ int getWkdayI2C(void)
 	IdleI2C();
 	wkday = (int)ReadI2C();
 	StopI2C();
-	//yr = yr & 0x3f; // removes unused bits
-	//wkday = BcdToDec(wkday); // converts yr to a decimal number
+        if(invalid == 0xFF)
+        {
+            invalid = 0;
+            wkday = getWkdayI2C();
+        }
+	wkday = wkday & 0x07; // converts yr to a decimal number
 	return wkday; // returns the time in hr as a demimal number
 }
 
@@ -1933,16 +1939,16 @@ int getDateI2C(void)
         IdleI2C();
         RestartI2C();
         IdleI2C();
-	WriteI2C(0xdf); // MCP7490N device address + read command
-	IdleI2C();
-	date = (int)ReadI2C();
+        WriteI2C(0xdf); // MCP7490N device address + read command
+        IdleI2C();
+        date = (int)ReadI2C();
 	StopI2C();
-        date = date & 0x3f; // removes unused bits
-        if(invalid == 0xff)
+        if(invalid == 0xFF)
         {
             invalid = 0;
             date = getDateI2C();
         }
+	date = date & 0x3f; // removes unused bits
 	//date = BcdToDec(date); // converts yr to a decimal number
 	return date; // returns the time in hr as a demimal number
 }
