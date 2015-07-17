@@ -1392,7 +1392,11 @@ float readDepthSensor(void)
 	// V = adcVal / maxAdcVal * VCC
 	realVoltage = adcAvg / 1024 * 3.6;
 
-	depthInMeters = 2.2629 * realVoltage * realVoltage - 5.7605 * realVoltage + 3.4137;
+	//depthInMeters = 2.2629 * realVoltage * realVoltage - 5.7605 * realVoltage + 3.4137;
+        depthInMeters = 2.2629 * realVoltage;
+        depthInMeters *= realVoltage;
+        depthInMeters -= 5.7605 * realVoltage;
+        depthInMeters +=3.4137;
 
 	return depthInMeters;
 
