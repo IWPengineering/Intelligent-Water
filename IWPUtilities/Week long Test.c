@@ -312,7 +312,8 @@ void main(void)
 		{
 			leakRateLong = leakRate;
 		}
-		volumeEvent = (MKII * upStrokeExtract) - (leakRate * extractionDuration);
+		volumeEvent = (MKII * upStrokeExtract) 
+                volumeEvent -= (leakRate * extractionDuration);
 		hour = getHourI2C();
 		switch (hour / 2)
 		{ //organize extaction into 2 hours bins
