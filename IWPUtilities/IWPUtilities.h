@@ -51,8 +51,8 @@ extern const float batteryLevelConstant;       //This number is found by Vout = 
 extern int queueCount;
 extern int queueLength; //don't forget to change angleQueue to this number also
 extern float angleQueue[7];
-extern int prevDay;
-//extern int prevHour;
+//extern int prevDay;
+extern int prevHour;
 extern int invalid;
 
 
