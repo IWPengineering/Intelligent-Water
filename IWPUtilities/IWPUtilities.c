@@ -91,7 +91,7 @@ char DecToBcd(char val);
 
 const int xAxis = 11; // analog pin connected to x axis of accelerometer
 const int yAxis = 12; // analog pin connected to y axis of accelerometer
-const int batteryVoltage = 15;                  // analog pin connected to the battery
+const int batteryVoltage = 15;                  // analog channel connected to the battery
 const float MKII = 0.467; // 0.4074 L/Radian; transfer variable for mkII delta handle angle to outflow
 const float leakSensorVolume = 0.01781283; // This is in Liters; pipe dia. = 33mm; rod diam 12 mm; gage length 24mm
 const int alarmHour = 0x0000; // The weekday and hour (24 hour format) (in BCD) that the alarm will go off
@@ -121,15 +121,15 @@ int queueLength = 7; //don't forget to change angleQueue to this number also
 float angleQueue[7];
 int prevDay;
 //int prevMinute;
-//int prevHour; // just for testing, not a real variable
+int prevHour; // just for testing, not a real variable
 int invalid;
 // ****************************************************************************
 // *** Global Variables *******************************************************
 // ****************************************************************************
 //static char phoneNumber[] = "+233247398396"; // Number for the Black Phone
-//char phoneNumber[] = "+19783840645"; // Number for Jake Sargent
+char phoneNumber[] = "+19783840645"; // Number for Jake Sargent
 //char phoneNumber[] = "+17177784498"; // Number for Upside Wireless
-char phoneNumber[] = "+13018737202"; // Number for Jacqui Young
+//char phoneNumber[] = "+13018737202"; // Number for Jacqui Young
 float longestPrime = 0; // total upstroke fo the longest priming event of the day
 float leakRateLong = 0; // largest leak rate recorded for the day
 float batteryFloat;
@@ -669,7 +669,7 @@ void initialization(void)
         sendTextMessage("(\"t\":\"initialize\")");
 	initAdc();
         prevDay = getDateI2C();
-//         prevHour = getHourI2C();
+        prevHour = getHourI2C();
 //        prevMinute = getMinuteI2C();
 
 }
@@ -2386,25 +2386,26 @@ void midnightMessage(void)
         testValueString1[0] = 0;
         testValueString2[0] = 0;
         testValueString3[0] = 0;
-        //longToString(BcdToDec(prevHour), testValueString1);
-        longToString(BcdToDec(prevDay), testValueString1);
 
-        //prevHour = getHourI2C();
-        prevDay = getHourI2C();
+        longToString(BcdToDec(prevHour), testValueString1);
+        //longToString(BcdToDec(prevDay), testValueString1);
 
-//        longToString(BcdToDec(prevHour), testValueString2);
-//        longToString(BcdToDec(getHourI2C()), testValueString3);
+        prevHour = getHourI2C();
+        //prevDay = getDateI2C();
 
-         longToString(BcdToDec(prevDay), testValueString2);
-         longToString(BcdToDec(getDateI2C()), testValueString3);
+        longToString(BcdToDec(prevHour), testValueString2);
+        longToString(BcdToDec(getHourI2C()), testValueString3);
+
+//         longToString(BcdToDec(prevDay), testValueString2);
+//         longToString(BcdToDec(getDateI2C()), testValueString3);
 
         char testValueMessage[160];
         testValueMessage[0] = 0;
         concat(testValueMessage, "prevHour before: ");
         concat(testValueMessage, testValueString1);
-        concat(testValueMessage, ", prevDay after: ");
+        concat(testValueMessage, ", prevHour after: ");
         concat(testValueMessage, testValueString2);
-        concat(testValueMessage, ", getDateI2C(): ");
+        concat(testValueMessage, ", getHourI2C(): ");
         concat(testValueMessage, testValueString3);
         concat(testValueMessage, "!");
 
