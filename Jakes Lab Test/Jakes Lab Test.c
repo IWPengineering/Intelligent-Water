@@ -8,7 +8,7 @@
 //*****************************************************************************
 
 
-#include "IWPUtilities.h"
+#include "../IWPUtilities/IWPUtilities.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -313,10 +313,32 @@ void main(void)
 		{
 			leakRateLong = leakRate;
 		}
+
+
+
+                if (upStrokeExtract > hUpstrokeExtract)
+                {
+                    hUpstrokeExtract = upStrokeExtract;
+                }
+                if (upStrokeExtract < lUpstrokeExtract)
+                {
+                    lUpstrokeExtract = upStrokeExtract;
+                }
+                if (extractionDuration > hExtractionDuration)
+                {
+                    hExtractionDuration = extractionDuration;
+                }
+                if (extractionDuration > lExtractionDuration)
+                {
+                    lExtractionDuration = extractionDuration;
+                }
+
+
+                
 		volumeEvent = (MKII * upStrokeExtract);
                 volumeEvent = volumeEvent - (leakRate * extractionDuration);
 		hour = getHourI2C();
-		switch (hour / 2)
+		switch (BcdToDec(hour) / 2)
 		{ //organize extaction into 2 hours bins
 			//does this work? what happens if odd hour?
 			//wouldn't it be a float and not enter--is that the purpose then, is that what we want?? 06-17-2014
