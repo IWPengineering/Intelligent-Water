@@ -32,6 +32,7 @@ extern const int xAxis; // analog pin connected to x axis of accelerometer
 extern const int yAxis; // analog pin connected to y axis of accelerometer
 extern const int batteryVoltage;                  // analog pin connected to the battery
 extern const float MKII; // 0.4074 L/Radian; transfer variable for mkII delta handle angle to outflow
+extern const int volumeDelay;
 extern const float leakSensorVolume; // This is in Liters; pipe dia. = 33mm; rod diam 12 mm; gage length 24mm
 extern const int alarmHour; // The weekday and hour (24 hour format) (in BCD) that the alarm will go off
 extern const int alarmStartingMinute; // The minimum minute that the alarm will go off
@@ -42,7 +43,7 @@ extern const int networkPulseWidthThreshold; // The value to check the pulse wid
 extern const int upstrokeInterval; // The number of milliseconds to delay before reading the upstroke
 extern int waterPrimeTimeOut; // Equivalent to 7 seconds (in 50 millisecond intervals); 50 = upstrokeInterval
 extern long leakRateTimeOut; // Equivalent to 18 seconds (in 50 millisecond intervals); 50 = upstrokeInterval
-extern long timeBetweenUpstrokes; // 3 seconds (based on upstrokeInterval)
+//extern long timeBetweenUpstrokes; // 3 seconds (based on upstrokeInterval)
 extern const int decimalAccuracy; // Number of decimal places to use when converting floats to strings
 extern const int angleDeltaThreshold; // The angle delta to check against
 extern const float upstrokeToMeters;
@@ -115,6 +116,7 @@ void digitalPinSet(int pin, int io);
 void specifyAnalogPin(int pin, int analogOrDigital);
 void analogIOandSHinput(int pin, int IO);
 int digitalPinStatus(int pin);
+void pinDirectionIO(int pin, int io);
 void initialization(void);
 int longLength(long num);
 void longToString(long num, char *numString);

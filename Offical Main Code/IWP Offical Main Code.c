@@ -8,7 +8,7 @@
 //*****************************************************************************
 
 
-#include "../Offical Main Code/IWPUtilities.h"
+#include "../IWPUtilities/IWPUtilities.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -65,6 +65,7 @@
 void main(void)
 {
     	initialization();
+    
        
 	waterPrimeTimeOut /= upstrokeInterval;
 	leakRateTimeOut /= upstrokeInterval;
@@ -89,6 +90,7 @@ void main(void)
 	float leakRate = 0; // Rate at which water is leaking from the rising main
 	float leakTime = 0; // The number of milliseconds from when the user stops pumping until there is no water (min: 0, max: 10 minutes)
 	long upStrokeDelayCounter = 0;
+        int currentHour;
 
 	while (1)
 	{ //MAIN LOOP; repeats indefinitely
@@ -109,9 +111,11 @@ void main(void)
 		while (handleMovement == 0)
 		{
                         debugHighLow(Pin4);
-			if (prevHour != getHourI2C()){ //(prevDay != getDateI2C()){// it's a new day so send midNightMessage();
+                        currentHour = getHourI2C();
+			if (prevHour != currentHour){ //(prevDay != getDateI2C()){// it's a new day so send midNightMessage();
 				midnightMessage();
 			}
+
 			delayMs(upstrokeInterval); // Delay for a short time
                         float newAngle = getHandleAngle();
                         float deltaAngle = abs(newAngle-anglePrevious);
@@ -137,7 +141,8 @@ void main(void)
 		upStrokePrime = 0; // gets the variable ready for a new event
                
 		while ((timeOutStatus < waterPrimeTimeOut) && !readWaterSensor())
-		{       
+		{
+                        debugHighLow(Pin5);
 			delayMs(upstrokeInterval);  // delay a short time (10ms)
 			angleCurrent = getHandleAngle(); // Get the current angle of the pump handle
 			angleDelta = angleCurrent - anglePrevious; // Calculate the change in angle of the pump handle

@@ -91,19 +91,21 @@ char DecToBcd(char val);
 
 const int xAxis = 11; // analog pin connected to x axis of accelerometer
 const int yAxis = 12; // analog pin connected to y axis of accelerometer
-const int batteryVoltage = 15;                  // analog pin connected to the battery
-const float MKII = 0.467; // 0.4074 L/Radian; transfer variable for mkII delta handle angle to outflow
+const int batteryVoltage = 15;                  // analog channel connected to the battery
+const float MKII = .169; //0.467/2.0; // 0.4074 L/Radian; transfer variable for mkII delta handle angle to outflow
 const float leakSensorVolume = 0.01781283; // This is in Liters; pipe dia. = 33mm; rod diam 12 mm; gage length 24mm
+                                           // THE FASTEST WE COULD POSSIBLE BE IF IT DOES PRIME IS 42ms FOR THE AVERAGE PERSON but we'll do half that incase you're pumping hard to get it to prime
 const int alarmHour = 0x0000; // The weekday and hour (24 hour format) (in BCD) that the alarm will go off
 const int alarmStartingMinute = 1; // The minimum minute that the alarm will go off
 const int alarmMinuteMax = 5; // The max number of minutes to offset the alarm (the alarmStartingMinute + a random number between 0 and this number)
 const int adjustmentFactor = 511; // Used to ajust the values read from the accelerometer
-const int pulseWidthThreshold = 20; // The value to check the pulse width against (2048)
+const int pulseWidthThreshold = 20; // The value to cFheck the pulse width against (2048)
 const int networkPulseWidthThreshold = 0x4E20; // The value to check the pulse width against (about 20000)
 const int upstrokeInterval = 10; // The number of milliseconds to delay before reading the upstroke
 int waterPrimeTimeOut = 7000; // Equivalent to 7 seconds (in 50 millisecond intervals); 50 = upstrokeInterval
 long leakRateTimeOut = 3000; // Equivalent to 3 seconds (in 50 millisecond intervals); 50 = upstrokeInterval
-long timeBetweenUpstrokes = 3000; // 3 seconds (based on upstrokeInterval)
+const int volumeDelay = 10; // Equivalent to 10ms
+//long timeBetweenUpstrokes = 18000; // 18000 seconds (based on upstrokeInterval)
 const int decimalAccuracy = 3; // Number of decimal places to use when converting floats to strings
 const int angleDeltaThreshold = 1; // The angle delta to check against
 const float upstrokeToMeters = 0.01287;
@@ -127,9 +129,12 @@ int invalid;
 // *** Global Variables *******************************************************
 // ****************************************************************************
 //static char phoneNumber[] = "+233247398396"; // Number for the Black Phone
-char phoneNumber[] = "+233545823475"; // Number for the Black Phone Ghana trip 3
+//char phoneNumber[] = "+233545822291"; // Number for the White Phone Ghana trip 3
+//char phoneNumber[] = "+233545823475"; // Number for the Black? Phone Ghana trip 3
 //char phoneNumber[] = "+19783840645"; // Number for Jake Sargent
-//char phoneNumber[] = "+17177784498"; // Number for Upside Wireless
+//char phoneNumber[] = "+19783840645"; // Number for Jake Sargent
+char phoneNumber[] = "+17177784498"; // Number for Upside Wireless
+//char phoneNumber2[] = "+17173039306"; // Tony's number
 //char phoneNumber[] = "+13018737202"; // Number for Jacqui Young
 float longestPrime = 0; // total upstroke fo the longest priming event of the day
 float leakRateLong = 0; // largest leak rate recorded for the day
@@ -619,33 +624,33 @@ void initialization(void)
 	digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
 
 	// From fona code
-//	pinDirectionIO(pwrKeyPin, 0); //TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
-//	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
+	pinDirectionIO(pwrKeyPin, 0); //TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
+	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
 
 	//         Fona stuff
-//	digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
-//	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
-//		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
-//	}
-//	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
-//	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
+	digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
+	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
+		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
+	}
+	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
+	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
 
 	// Turn on SIM800
-//	 turnOnSIM();
+	 turnOnSIM();
 
-                // PUTTY TEST
-         specifyAnalogPin(txPin, 0);    // make digital
-         specifyAnalogPin(rxPin, 0);    // make digital
-         pinDirectionIO(txPin, 0);       // make output
-         pinDirectionIO(rxPin, 1);       // make input
+//                // PUTTY TEST
+//         specifyAnalogPin(txPin, 0);    // make digital
+//         specifyAnalogPin(rxPin, 0);    // make digital
+//         pinDirectionIO(txPin, 0);       // make output
+//         pinDirectionIO(rxPin, 1);       // make input
 
 	// Moved the RTCCSet function up since we do not rely on network anymore
 	configI2c();
 	char seconds = 10;
-	char minutes = 50;
-	char hours = 23;
+	char minutes = 35;
+	char hours = 15;
 	char weekday = 6;
-	char days = 19;
+	char days = 24;
 	char months = 7;
 	char years = 15;
 	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
@@ -672,12 +677,25 @@ void initialization(void)
 	 *
 	 */
 //        tryToConnectToNetwork();
-        sendMessage("Inital in Ghana");
 //        sendTextMessage("(\"t\":\"initialize\")");
 	initAdc();
-//        prevDay = getDateI2C();
-         prevHour = getHourI2C();
-//        prevMinute = getMinuteI2C();
+
+
+        batteryFloat = batteryLevel();
+        char initBatteryString[20];
+        initBatteryString[0] = 0;
+        floatToString(batteryFloat, initBatteryString);
+        char initialMessage[160];
+        initialMessage[0] = 0;
+        concat(initialMessage, "(\"t\":\"initialize\"");
+        concat(initialMessage, ",\"b\":");
+        concat(initialMessage, initBatteryString);
+        concat(initialMessage, ")");
+
+
+        tryToConnectToNetwork();
+        sendTextMessage(initialMessage);
+        prevHour = getHourI2C();
 
 }
 /////////////////////////////////////////////////////////////////////
@@ -1405,7 +1423,11 @@ float readDepthSensor(void)
 	// V = adcVal / maxAdcVal * VCC
 	realVoltage = adcAvg / 1024 * 3.6;
 
-	depthInMeters = 2.2629 * realVoltage * realVoltage - 5.7605 * realVoltage + 3.4137;
+	//depthInMeters = 2.2629 * realVoltage * realVoltage - 5.7605 * realVoltage + 3.4137;
+        depthInMeters = 2.2629 * realVoltage;
+        depthInMeters *= realVoltage;
+        depthInMeters -= 5.7605 * realVoltage;
+        depthInMeters +=3.4137;
 
 	return depthInMeters;
 
@@ -2389,33 +2411,37 @@ void midnightMessage(void)
 
     	//prevDay = getDateI2C();
             //DEBUG DEBUG DEBUG DEBUG DEBUG
-        char testValueString1[20];
-        char testValueString2[20];
-        char testValueString3[20];
-        testValueString1[0] = 0;
-        testValueString2[0] = 0;
-        testValueString3[0] = 0;
-        longToString(BcdToDec(prevHour), testValueString1);
+//        char testValueString1[20];
+//        char testValueString2[20];
+//        char testValueString3[20];
+//        testValueString1[0] = 0;
+//        testValueString2[0] = 0;
+//        testValueString3[0] = 0;
+//        longToString(BcdToDec(prevHour), testValueString1);
 //        longToString(BcdToDec(prevDay), testValueString1);
 
-        prevHour = getHourI2C();
+//        prevHour = getHourI2C();
 //        prevDay = getDateI2C();
 
-        longToString(BcdToDec(prevHour), testValueString2);
-        longToString(BcdToDec(getHourI2C()), testValueString3);
+//        longToString(BcdToDec(prevHour), testValueString1);
+//        //longToString(BcdToDec(prevDay), testValueString1);
+//
+//
+////        longToString(BcdToDec(prevHour), testValueString2);
+//        longToString(BcdToDec(getHourI2C()), testValueString3);
 
 //         longToString(BcdToDec(prevDay), testValueString2);
 //         longToString(BcdToDec(getDateI2C()), testValueString3);
 
-        char testValueMessage[160];
-        testValueMessage[0] = 0;
-        concat(testValueMessage, "prevHour before: ");
-        concat(testValueMessage, testValueString1);
-        concat(testValueMessage, ", prevHour after: ");
-        concat(testValueMessage, testValueString2);
-        concat(testValueMessage, ", getDateI2C(): ");
-        concat(testValueMessage, testValueString3);
-        concat(testValueMessage, "!");
+//        char testValueMessage[160];
+//        testValueMessage[0] = 0;
+//        concat(testValueMessage, "prevHour before: ");
+//        concat(testValueMessage, testValueString1);
+//        concat(testValueMessage, ", prevHour after: ");
+//        concat(testValueMessage, testValueString2);
+//        concat(testValueMessage, ", getHourI2C(): ");
+//        concat(testValueMessage, testValueString3);
+//        concat(testValueMessage, "!");
 
        // tryToConnectToNetwork();
 	//delayMs(2000);
@@ -2511,9 +2537,9 @@ void midnightMessage(void)
 	tryToConnectToNetwork();
 	delayMs(2000);
 	// Send off the data
-//	sendTextMessage(dataMessage);
-        sendMessage(dataMessage);
-        sendMessage(" \r \n");
+	sendTextMessage(dataMessage);
+//        sendMessage(dataMessage);
+//        sendMessage(" \r \n");
 
 	pressReset();
 	////////////////////////////////////////////////
@@ -2522,3 +2548,5 @@ void midnightMessage(void)
 	RTCCSet(); // updates the internal time from the external RTCC if the internal RTCC got off any through out the day
 
 }
+
+
