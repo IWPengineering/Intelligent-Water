@@ -350,11 +350,12 @@ void main(void)
 		// Set the handle movement to 0 (handle is not moving)
 		handleMovement = 0;
 		// Loop until the handle starts moving
-                float angleAccumulated=0;
+                float angleAccumulated = 0;
 		while (handleMovement == 0)
 		{
                         currentHour = getHourI2C();
 			if ( prevHour != currentHour){ //(prevDay != getDateI2C()){// it's a new day so send midNightMessage();
+                            delayMs(2000);
                             if (prevHour != getHourI2C()){    // Hopes of reducing polling error
                                 batteryFloat = batteryLevel();
 				midnightMessage();
