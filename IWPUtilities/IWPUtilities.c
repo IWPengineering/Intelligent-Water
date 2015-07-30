@@ -133,9 +133,9 @@ int invalid;
 //char phoneNumber[] = "+233545823475"; // Number for the Black? Phone Ghana trip 3
 //char phoneNumber[] = "+19783840645"; // Number for Jake Sargent
 //char phoneNumber[] = "+19783840645"; // Number for Jake Sargent
-char phoneNumber[] = "+17177784498"; // Number for Upside Wireless
+//char phoneNumber[] = "+17177784498"; // Number for Upside Wireless
 //char phoneNumber2[] = "+17173039306"; // Tony's number
-//char phoneNumber[] = "+13018737202"; // Number for Jacqui Young
+char phoneNumber[] = "+13018737202"; // Number for Jacqui Young
 float longestPrime = 0; // total upstroke fo the longest priming event of the day
 float leakRateLong = 0; // largest leak rate recorded for the day
 float batteryFloat;
@@ -647,8 +647,8 @@ void initialization(void)
 	// Moved the RTCCSet function up since we do not rely on network anymore
 	configI2c();
 	char seconds = 10;
-	char minutes = 35;
-	char hours = 15;
+	char minutes = 58;
+	char hours = 23;
 	char weekday = 6;
 	char days = 24;
 	char months = 7;

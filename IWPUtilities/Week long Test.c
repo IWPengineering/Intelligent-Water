@@ -138,7 +138,7 @@ void main(void)
 		// Get the angle of the pump handle to measure against
 		anglePrevious = getHandleAngle();
 		upStrokePrime = 0; // gets the variable ready for a new event
-
+                upStroke = 0; // gets variable ready for new event
 		while ((timeOutStatus < waterPrimeTimeOut) && !readWaterSensor())
 		{
 			delayMs(upstrokeInterval);  // delay a short time (10ms)
