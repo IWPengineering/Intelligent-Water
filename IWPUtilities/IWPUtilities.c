@@ -118,9 +118,22 @@ const int dayI2Cvar = 0x03;
 const int dateI2Cvar = 0x04;
 const int monthI2Cvar = 0x05;
 const int yearI2Cvar = 0x06;
+
+//UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE
+const float timeStep; //This value needs to be determined (are we using a float or an int?) //UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE
+//UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE
+const float angleRadius = .008; // this is 80 millimeters so should it equal 80 or .008?
+int depthSensorInUse;
 int queueCount = 0;
 int queueLength = 7; //don't forget to change angleQueue to this number also
 float angleQueue[7];
+float theta1 = 0;
+float theta2 = 0;
+float theta3 = 0;
+float omega2 = 0;
+float omega3 = 0;
+float alpha = 0;
+
 //int prevDay;
 //int prevMinute;
 int prevHour; // just for testing, not a real variable
@@ -158,7 +171,7 @@ int simVioPin = 3;
 int Pin4 = 4;
 int Pin5 = 5;
 int rxPin = 6;
-int Pin7 = 7;
+int depthSensorOnOffPin = 7;
 int GND2Pin = 8;
 int Pin9 = 9;
 int Pin10 = 10;
@@ -653,6 +666,7 @@ void initialization(void)
 	char days = 24;
 	char months = 7;
 	char years = 15;
+        depthSensorInUse = 1; // If Depth Sensor is in use, make a 1. Else make it zero.
 	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
 
 	/*
@@ -1263,9 +1277,25 @@ the angle is negative.Gets a snapshot of the current sensor values.
  ********************************************************************/
 float getHandleAngle()
 {
+    // theta1, theta2, theta3, omega2, omega3, and alpha are all initialized to 0 before they ever send data.
+    // the value for timeStep still needs to be determined
+        theta3 = theta2;
+        theta2 = theta1;
 	signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
 	signed int yValue = readAdc(yAxis) - adjustmentFactor; //added abs() 06-20-2014
-	float angle = atan2(yValue, xValue) * (180 / 3.141592); //returns angle in degrees 06-20-2014
+	float theta1 = atan2(yValue, xValue);
+
+        omega2 = (theta2 - theta1)/ (float) timeStep;
+        omega3 = (theta3 - theta1) / (float) timeStep;
+        alpha = (omega3 - omega2) / (float) timeStep;
+        float tanAccelerometer = alpha * angleRadius;
+        float radAccelerometer = omega3 * omega3 * angleRadius;
+
+        xValue = xValue - tanAccelerometer;
+        yValue = yValue - radAccelerometer;
+        theta3 = atan2(yValue, xValue) ;
+
+        float angle = theta3 * (180 / 3.141592); //returns angle in degrees 06-20-2014
 	// Calculate and return the angle of the pump handle // TODO: 3.141592=PI, make that a constant
         if (angle > 20){
             angle = 20.0;
@@ -1273,6 +1303,7 @@ float getHandleAngle()
         else if (angle < -30){
             angle = -30.0;
         }
+
 	return angle;
 }
 
@@ -2378,7 +2409,7 @@ char DecToBcd(char val)
 
 void midnightMessage(void)
 {
-	/* message type,
+   	/* message type,
 	 * version # (no version number, we should just be able to check for new values in JSON),
 	 * date? (no date, the sms should have that within it),
 	 * sequence #; incase we didn't get a message (sent and recieved last 30, 60 total),
@@ -2409,43 +2440,6 @@ void midnightMessage(void)
 	 *
 	 */
 
-    	//prevDay = getDateI2C();
-            //DEBUG DEBUG DEBUG DEBUG DEBUG
-//        char testValueString1[20];
-//        char testValueString2[20];
-//        char testValueString3[20];
-//        testValueString1[0] = 0;
-//        testValueString2[0] = 0;
-//        testValueString3[0] = 0;
-//        longToString(BcdToDec(prevHour), testValueString1);
-//        longToString(BcdToDec(prevDay), testValueString1);
-
-//        prevHour = getHourI2C();
-//        prevDay = getDateI2C();
-
-//        longToString(BcdToDec(prevHour), testValueString1);
-//        //longToString(BcdToDec(prevDay), testValueString1);
-//
-//
-////        longToString(BcdToDec(prevHour), testValueString2);
-//        longToString(BcdToDec(getHourI2C()), testValueString3);
-
-//         longToString(BcdToDec(prevDay), testValueString2);
-//         longToString(BcdToDec(getDateI2C()), testValueString3);
-
-//        char testValueMessage[160];
-//        testValueMessage[0] = 0;
-//        concat(testValueMessage, "prevHour before: ");
-//        concat(testValueMessage, testValueString1);
-//        concat(testValueMessage, ", prevHour after: ");
-//        concat(testValueMessage, testValueString2);
-//        concat(testValueMessage, ", getHourI2C(): ");
-//        concat(testValueMessage, testValueString3);
-//        concat(testValueMessage, "!");
-
-       // tryToConnectToNetwork();
-	//delayMs(2000);
-        //sendTextMessage(testValueMessage);
 
 
         prevHour = getHourI2C();
@@ -2507,6 +2501,20 @@ void midnightMessage(void)
 	concat(dataMessage, longestPrimeString);
         concat(dataMessage, ",\"b\":");
         concat(dataMessage, batteryFloatString);
+        if (depthSensorInUse == 1){
+            pinDirectionIO(depthSensorOnOffPin, 0); //makes depth sensor pin an output.
+            digitalPinSet(depthSensorOnOffPin, 1); //turns on the depth sensor.
+
+            delayMs(30000); // Wait 30 seconds for the depth sensor to power up
+
+            char depthLevelString[20];
+            depthLevelString[0] = 0;
+            floatToString(readDepthSensor(), depthLevelString);
+            concat(dataMessage, ",\"d\":");
+            concat(dataMessage, depthLevelString);
+            digitalPinSet(depthSensorOnOffPin, 0); //turns off the depth sensor.
+
+        }
 	concat(dataMessage, ",\"v\":<");
 	concat(dataMessage, volume02String);
 	concat(dataMessage, ",");

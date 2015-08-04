@@ -55,6 +55,7 @@ extern float angleQueue[7];
 //extern int prevDay;
 extern int prevHour;
 extern int invalid;
+extern int depthSensorInUse;
 
 
 // ****************************************************************************
