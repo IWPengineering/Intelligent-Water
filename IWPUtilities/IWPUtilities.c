@@ -2442,7 +2442,6 @@ void midnightMessage(void)
 
 
 
-        prevHour = getHourI2C();
 	//Message assembly and sending; Use *floatToString() to send:
 	char longestPrimeString[20];
 	longestPrimeString[0] = 0;
@@ -2548,6 +2547,8 @@ void midnightMessage(void)
 	sendTextMessage(dataMessage);
 //        sendMessage(dataMessage);
 //        sendMessage(" \r \n");
+
+        prevHour = getHourI2C();
 
 	pressReset();
 	////////////////////////////////////////////////
