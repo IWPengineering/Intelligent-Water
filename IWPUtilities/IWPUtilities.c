@@ -134,9 +134,11 @@ float omega2 = 0;
 float omega3 = 0;
 float alpha = 0;
 
-//int prevDay;
+int prevDay;
+int prevDayDepthSensor;
+float midDayDepth;
 //int prevMinute;
-int prevHour; // just for testing, not a real variable
+//int prevHour; // just for testing, not a real variable
 int invalid;
 // ****************************************************************************
 // *** Global Variables *******************************************************
@@ -709,8 +711,15 @@ void initialization(void)
 
         tryToConnectToNetwork();
         sendTextMessage(initialMessage);
-        prevHour = getHourI2C();
-
+        //prevHour = getHourI2C();
+        prevDay = getDateI2C();
+        if (depthSensorInUse == 1){
+            prevDayDepthSensor = BcdToDec(getDateI2C()) - 1; // The minus 1 is so that if the system is installed before noon we will receive data;
+            delayMs(1000);
+            if (BcdToDec(getHourI2C()) > 11){ // If it's already past noon on the first day, read the depthSensor now
+                midDayDepthRead();
+            }
+        }
 }
 /////////////////////////////////////////////////////////////////////
 ////                                                             ////
@@ -2406,7 +2415,21 @@ char DecToBcd(char val)
 {
 	return ((val / 10 * 16) + (val % 10));
 }
+void midDayDepthRead (void) {
+    if (depthSensorInUse == 1){
+            pinDirectionIO(depthSensorOnOffPin, 0); //makes depth sensor pin an output.
+            digitalPinSet(depthSensorOnOffPin, 1); //turns on the depth sensor.
 
+            delayMs(30000); // Wait 30 seconds for the depth sensor to power up
+
+            midDayDepth = readDepthSensor();
+
+            digitalPinSet(depthSensorOnOffPin, 0); //turns off the depth sensor.
+            delayMs(1000);
+            prevDayDepthSensor = BcdToDec(getDateI2C());
+
+        }
+}
 void midnightMessage(void)
 {
    	/* message type,
@@ -2500,19 +2523,33 @@ void midnightMessage(void)
 	concat(dataMessage, longestPrimeString);
         concat(dataMessage, ",\"b\":");
         concat(dataMessage, batteryFloatString);
-        if (depthSensorInUse == 1){
+        if (depthSensorInUse == 1){ // if you have a depth sensor
             pinDirectionIO(depthSensorOnOffPin, 0); //makes depth sensor pin an output.
             digitalPinSet(depthSensorOnOffPin, 1); //turns on the depth sensor.
 
             delayMs(30000); // Wait 30 seconds for the depth sensor to power up
 
-            char depthLevelString[20];
-            depthLevelString[0] = 0;
-            floatToString(readDepthSensor(), depthLevelString);
-            concat(dataMessage, ",\"d\":");
-            concat(dataMessage, depthLevelString);
-            digitalPinSet(depthSensorOnOffPin, 0); //turns off the depth sensor.
+            char maxDepthLevelString[20];
+            maxDepthLevelString[0] = 0;
+            char minDepthLevelString[20];
+            minDepthLevelString[0] = 0;
+            float currentDepth = readDepthSensor();
+            if (midDayDepth > currentDepth){
+                floatToString(midDayDepth, maxDepthLevelString);
+                floatToString(currentDepth, minDepthLevelString);
+            }
+            else{
+                floatToString(currentDepth, maxDepthLevelString);
+                floatToString(midDayDepth, minDepthLevelString);
+                
+            }
+            concat(dataMessage, ",\"d\":<");
+            concat(dataMessage, maxDepthLevelString);
+            concat(dataMessage, ",");
+            concat(dataMessage, minDepthLevelString);
+            concat(dataMessage, ">");
 
+            digitalPinSet(depthSensorOnOffPin, 0); //turns off the depth sensor.
         }
 	concat(dataMessage, ",\"v\":<");
 	concat(dataMessage, volume02String);
@@ -2548,7 +2585,8 @@ void midnightMessage(void)
 //        sendMessage(dataMessage);
 //        sendMessage(" \r \n");
 
-        prevHour = getHourI2C();
+//        prevHour = getHourI2C();
+        prevDay = getDateI2C();
 
 	pressReset();
 	////////////////////////////////////////////////

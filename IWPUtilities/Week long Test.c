@@ -90,7 +90,9 @@ void main(void)
 	float leakRate = 0; // Rate at which water is leaking from the rising main
 //	float leakTime = 0; // The number of milliseconds from when the user stops pumping until there is no water (min: 0, max: 10 minutes)
 //	long upStrokeDelayCounter = 0;
-        int currentHour;
+//        int currentHour;
+        int currentDay;
+        int currentHourDepthSensor;
 
 	while (1)
 	{ //MAIN LOOP; repeats indefinitely
@@ -110,11 +112,24 @@ void main(void)
                 float angleAccumulated=0;
 		while (handleMovement == 0)
 		{
-                        currentHour = getHourI2C();
-			if ( prevHour != currentHour){ //(prevDay != getDateI2C()){// it's a new day so send midNightMessage();
+//                        currentHour = getHourI2C();
+//			if ( prevHour != currentHour){ //(prevDay != getDateI2C()){// it's a new day so send midNightMessage();
+//                                batteryFloat = batteryLevel();
+//				midnightMessage();
+//			}
+                          currentDay = getDateI2C();
+			if ( prevDay != currentDay){ //(prevDay != getDateI2C()){// it's a new day so send midNightMessage();
                                 batteryFloat = batteryLevel();
 				midnightMessage();
 			}
+                          if (depthSensorInUse == 1){ // if the Depth sensor is present
+                              delayMs(1000);
+                              int currentDayDepthSensor = BcdToDec(getDateI2C());
+                              delayMs(1000);
+                          if ((BcdToDec(getHourI2C() == 12) && (prevDayDepthSensor != currentDayDepthSensor)));
+                          midDayDepthRead();
+                          }
+
 			delayMs(upstrokeInterval); // Delay for a short time
                         float newAngle = getHandleAngle();
                         float deltaAngle = abs(newAngle - anglePrevious);
