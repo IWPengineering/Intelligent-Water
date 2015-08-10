@@ -175,5 +175,6 @@ void midnightMessage(void);
 void SoftwareReset(void);
 void delaySCL(void);
 void midDayDepthRead(void);
+void sendTimeMessage(void);
 #endif	/* IWPUTILITIES_H */
 

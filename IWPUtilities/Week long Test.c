@@ -65,6 +65,11 @@
 void main(void)
 {
     	initialization();
+        while(1){
+            delayMs(3000);
+            sendTimeMessage();
+        }
+
 
 	waterPrimeTimeOut /= upstrokeInterval;
 	leakRateTimeOut /= upstrokeInterval;

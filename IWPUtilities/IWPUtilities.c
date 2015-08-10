@@ -644,37 +644,37 @@ void initialization(void)
 	digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
 
 	// From fona code
-	pinDirectionIO(pwrKeyPin, 0); //TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
-	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
+//	pinDirectionIO(pwrKeyPin, 0); //TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
+//	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
+//
+//	//         Fona stuff
+//	digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
+//	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
+//		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
+//	}
+//	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
+//	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
+//
+//	// Turn on SIM800
+//	 turnOnSIM();
 
-	//         Fona stuff
-	digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
-	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
-		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
-	}
-	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
-	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
-
-	// Turn on SIM800
-	 turnOnSIM();
-
-//                // PUTTY TEST
-//         specifyAnalogPin(txPin, 0);    // make digital
-//         specifyAnalogPin(rxPin, 0);    // make digital
-//         pinDirectionIO(txPin, 0);       // make output
-//         pinDirectionIO(rxPin, 1);       // make input
+                // PUTTY TEST
+         specifyAnalogPin(txPin, 0);    // make digital
+         specifyAnalogPin(rxPin, 0);    // make digital
+         pinDirectionIO(txPin, 0);       // make output
+         pinDirectionIO(rxPin, 1);       // make input
 
 	// Moved the RTCCSet function up since we do not rely on network anymore
 	configI2c();
-	char seconds = 10;
-	char minutes = 58;
-	char hours = 23;
-	char weekday = 6;
-	char days = 24;
-	char months = 7;
+	char seconds = 50;
+	char minutes = 46;
+	char hours = 14;
+	char weekday = 2;
+	char days = 10;
+	char months = 8;
 	char years = 15;
-        depthSensorInUse = 1; // If Depth Sensor is in use, make a 1. Else make it zero.
-	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
+        depthSensorInUse = 0; // If Depth Sensor is in use, make a 1. Else make it zero.
+	//setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
 
 	/*
 	 *
@@ -714,8 +714,9 @@ void initialization(void)
         concat(initialMessage, ")");
 
 
-        tryToConnectToNetwork();
-        sendTextMessage(initialMessage);
+//        tryToConnectToNetwork();
+//        sendTextMessage(initialMessage);
+        sendMessage(initialMessage);
         //prevHour = getHourI2C();
         prevDay = getDateI2C();
         if (depthSensorInUse == 1){
@@ -725,6 +726,53 @@ void initialization(void)
                 midDayDepthRead();
             }
         }
+
+        sendTimeMessage();
+}
+
+void sendTimeMessage(void){
+    char timeHourMessage[20];
+        timeHourMessage[0] = 0;
+        char timeMinuteMessage[20];
+        timeMinuteMessage[0] = 0;
+        char timeSecondMessage[20];
+        timeSecondMessage[0];
+        char timeMessage[160];
+        timeMessage[0] = 0;
+        char timeWeekMessage[20];
+        timeWeekMessage[0] = 0;
+        char timeDayMessage[20];
+        timeDayMessage[0] = 0;
+        char timeMonthMessage[20];
+        timeMonthMessage[0];
+        char timeYearMessage[20];
+        timeYearMessage[0] = 0;
+
+
+        longToString(BcdToDec(getHourI2C()), timeHourMessage);
+        longToString(BcdToDec(getMinuteI2C()), timeMinuteMessage);
+        longToString(BcdToDec(getSecondI2C()), timeSecondMessage);
+        longToString(BcdToDec(getYearI2C()), timeYearMessage);
+        longToString(BcdToDec(getWkdayI2C()), timeWeekMessage);
+        longToString(BcdToDec(getDateI2C()), timeDayMessage);
+        longToString(BcdToDec(getMonthI2C()), timeMonthMessage);
+
+        concat(timeMessage, timeHourMessage);
+        concat(timeMessage, ":");
+        concat(timeMessage, timeMinuteMessage);
+        concat(timeMessage, ":");
+        concat(timeMessage, timeSecondMessage);
+        concat(timeMessage, "   ");
+        concat(timeMessage, "WeekDay: ");
+        concat(timeMessage, timeWeekMessage);
+        concat(timeMessage, "  ");
+        concat(timeMessage, timeMonthMessage);
+        concat(timeMessage, "/");
+        concat(timeMessage, timeDayMessage);
+        concat(timeMessage, "/");
+        concat(timeMessage, timeYearMessage);
+        concat(timeMessage, " \r\n");
+        sendMessage(timeMessage);
 }
 /////////////////////////////////////////////////////////////////////
 ////                                                             ////
@@ -1291,29 +1339,10 @@ the angle is negative.Gets a snapshot of the current sensor values.
  ********************************************************************/
 float getHandleAngle()
 {
-    // theta1, theta2, theta3, omega2, omega3, and alpha are all initialized to 0 before they ever send data.
-    // the value for timeStep still needs to be determined,
-    // could have a switch case for timeStep depending on what loop it is in.
-    // Better yet use timer two.
-
-        int currentIC2Time; // set this equal to the timer.
-        theta3 = theta2;
-        theta2 = theta1;
-	signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
+        //OLD getHandleAngle Code:
+        signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
 	signed int yValue = readAdc(yAxis) - adjustmentFactor; //added abs() 06-20-2014
-	float theta1 = atan2(yValue, xValue);
-
-        omega2 = (theta2 - theta1)/ (float) timeStep;
-        omega3 = (theta3 - theta1) / (float) timeStep;
-        alpha = (omega3 - omega2) / (float) timeStep;
-        float tanAccelerometer = alpha * angleRadius;
-        float radAccelerometer = omega3 * omega3 * angleRadius;
-
-        xValue = xValue - tanAccelerometer;
-        yValue = yValue - radAccelerometer;
-        theta3 = atan2(yValue, xValue) ;
-
-        float angle = theta3 * (180 / 3.141592); //returns angle in degrees 06-20-2014
+	float angle = atan2(yValue, xValue) * (180 / 3.141592); //returns angle in degrees 06-20-2014
 	// Calculate and return the angle of the pump handle // TODO: 3.141592=PI, make that a constant
         if (angle > 20){
             angle = 20.0;
@@ -1321,9 +1350,43 @@ float getHandleAngle()
         else if (angle < -30){
             angle = -30.0;
         }
-
-        int prevIC2Time; // set this equal to the timer.
 	return angle;
+        //end of OLD getHandleAngle Code
+
+
+//    // theta1, theta2, theta3, omega2, omega3, and alpha are all initialized to 0 before they ever send data.
+//    // the value for timeStep still needs to be determined,
+//    // could have a switch case for timeStep depending on what loop it is in.
+//    // Better yet use timer two.
+//
+//        int currentIC2Time; // set this equal to the timer.
+//        theta3 = theta2;
+//        theta2 = theta1;
+//	signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
+//	signed int yValue = readAdc(yAxis) - adjustmentFactor; //added abs() 06-20-2014
+//	float theta1 = atan2(yValue, xValue);
+//
+//        omega2 = (theta2 - theta1)/ (float) timeStep;
+//        omega3 = (theta3 - theta1) / (float) timeStep;
+//        alpha = (omega3 - omega2) / (float) timeStep;
+//        float tanAccelerometer = alpha * angleRadius;
+//        float radAccelerometer = omega3 * omega3 * angleRadius;
+//
+//        xValue = xValue - tanAccelerometer;
+//        yValue = yValue - radAccelerometer;
+//        theta3 = atan2(yValue, xValue) ;
+//
+//        float angle = theta3 * (180 / 3.141592); //returns angle in degrees 06-20-2014
+//	// Calculate and return the angle of the pump handle // TODO: 3.141592=PI, make that a constant
+//        if (angle > 20){
+//            angle = 20.0;
+//        }
+//        else if (angle < -30){
+//            angle = -30.0;
+//        }
+//
+//        int prevIC2Time; // set this equal to the timer.
+//	return angle;
 }
 
 /*********************************************************************
@@ -2588,12 +2651,12 @@ void midnightMessage(void)
 	concat(dataMessage, ">))");
 
         // Try to establish network connection
-	tryToConnectToNetwork();
+//	tryToConnectToNetwork();
 	delayMs(2000);
 	// Send off the data
-	sendTextMessage(dataMessage);
-//        sendMessage(dataMessage);
-//        sendMessage(" \r \n");
+//	sendTextMessage(dataMessage);
+        sendMessage(dataMessage);
+        sendMessage(" \r \n");
 
 //        prevHour = getHourI2C();
         prevDay = getDateI2C();
