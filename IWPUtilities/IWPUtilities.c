@@ -624,10 +624,15 @@ void initialization(void)
 	// pinDirectionIO(sclI2CPin, 0); //TRISBbits.TRISB8 = 0; // RB8 is an output
 
 
-//	// Timer control
+//	// Timer control (for WPS)
 	T1CONbits.TCS = 0; // Source is Internal Clock (8MHz)
 	T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
 	T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
+
+        // Timer control (for getHandleAngle())
+        T2CONbits.TON = 1; // Starts 32-bit timer2
+
+        T2CONbits.T32 = 1; // Ma
 
 	// UART control
 	U1BRG = 51; // Set baud to 9600, FCY = 8MHz (#pragma config FNOSC = FRC)
@@ -1287,7 +1292,11 @@ the angle is negative.Gets a snapshot of the current sensor values.
 float getHandleAngle()
 {
     // theta1, theta2, theta3, omega2, omega3, and alpha are all initialized to 0 before they ever send data.
-    // the value for timeStep still needs to be determined
+    // the value for timeStep still needs to be determined,
+    // could have a switch case for timeStep depending on what loop it is in.
+    // Better yet use timer two.
+
+        int currentIC2Time; // set this equal to the timer.
         theta3 = theta2;
         theta2 = theta1;
 	signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
@@ -1313,6 +1322,7 @@ float getHandleAngle()
             angle = -30.0;
         }
 
+        int prevIC2Time; // set this equal to the timer.
 	return angle;
 }
 
