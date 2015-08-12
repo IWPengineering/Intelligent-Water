@@ -629,10 +629,10 @@ void initialization(void)
 	T1CONbits.TCKPS = 0b11; // Prescalar to 1:256
 	T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
 
-        // Timer control (for getHandleAngle())
-        T2CONbits.TON = 1; // Starts 32-bit timer2
-
-        T2CONbits.T32 = 1; // Ma
+//        // Timer control (for getHandleAngle())
+//        T2CONbits.TON = 1; // Starts 32-bit timer2
+//
+//        T2CONbits.T32 = 1; // Ma
 
 	// UART control
 	U1BRG = 51; // Set baud to 9600, FCY = 8MHz (#pragma config FNOSC = FRC)
@@ -667,14 +667,14 @@ void initialization(void)
 	// Moved the RTCCSet function up since we do not rely on network anymore
 	configI2c();
 	char seconds = 50;
-	char minutes = 46;
+	char minutes = 57;
 	char hours = 14;
-	char weekday = 2;
-	char days = 10;
+	char weekday = 4;
+	char days = 12;
 	char months = 8;
 	char years = 15;
         depthSensorInUse = 0; // If Depth Sensor is in use, make a 1. Else make it zero.
-	//setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
+//	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
 
 	/*
 	 *
@@ -2132,7 +2132,7 @@ void setTime(char sec, char min, char hr, char wkday, char date, char month, cha
 	char BCDyear = DecToBcd(year);
 	BCDsec = BCDsec | 0x80; // add turn on oscilator bit
 	BCDhr = BCDhr & 0b10111111; // makes 24 hr time
-	BCDwkday = BCDwkday & 0b11110111; // the 0 says the external battery backup supply is disabled.
+	BCDwkday = BCDwkday | 0b00001000; // the 0 says the external battery backup supply is enabled.
 	// To enable: Flip bits and OR it to turn on (NOT CURRENTLY ENABLED).
 	if (leapYear == 0)
 	{
