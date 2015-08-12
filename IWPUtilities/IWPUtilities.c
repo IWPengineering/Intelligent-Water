@@ -119,20 +119,20 @@ const int dateI2Cvar = 0x04;
 const int monthI2Cvar = 0x05;
 const int yearI2Cvar = 0x06;
 
-//UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE
-const float timeStep; //This value needs to be determined (are we using a float or an int?) //UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE
-//UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE UPDATE
 const float angleRadius = .008; // this is 80 millimeters so should it equal 80 or .008?
 int depthSensorInUse;
 int queueCount = 0;
 int queueLength = 7; //don't forget to change angleQueue to this number also
 float angleQueue[7];
-float theta1 = 0;
-float theta2 = 0;
-float theta3 = 0;
-float omega2 = 0;
+float theta1 = 0; // angle captured in getHandleAngle
+float theta2 = 0; // angle captured in getHandleAngle
+float theta3 = 0; // angle captured in getHandleAngle
+float omega2 = 0; // angle captured in getHandleAngle
 float omega3 = 0;
 float alpha = 0;
+double timeStep; //Time between getHandleAngle function calls
+
+int prevTimer2 = 0; // Should intially begin at zero
 
 int prevDay;
 int prevDayDepthSensor;
@@ -630,9 +630,10 @@ void initialization(void)
 	T1CONbits.TON = 1; // Enable the timer (timer 1 is used for the water sensor)
 
 //        // Timer control (for getHandleAngle())
-//        T2CONbits.TON = 1; // Starts 32-bit timer2
-//
-//        T2CONbits.T32 = 1; // Ma
+        T2CONbits.T32 = 0; // Using 16-bit timer2
+        T2CONbits.TCKPS = 0b11; // Prescalar to 1:256 (Need prescalar of at least 1:8 for this)
+        T2CONbits.TON = 1; // Starts 16-bit Timer2
+
 
 	// UART control
 	U1BRG = 51; // Set baud to 9600, FCY = 8MHz (#pragma config FNOSC = FRC)
@@ -1339,44 +1340,10 @@ the angle is negative.Gets a snapshot of the current sensor values.
  ********************************************************************/
 float getHandleAngle()
 {
-        //OLD getHandleAngle Code:
-        signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
-	signed int yValue = readAdc(yAxis) - adjustmentFactor; //added abs() 06-20-2014
-	float angle = atan2(yValue, xValue) * (180 / 3.141592); //returns angle in degrees 06-20-2014
-	// Calculate and return the angle of the pump handle // TODO: 3.141592=PI, make that a constant
-        if (angle > 20){
-            angle = 20.0;
-        }
-        else if (angle < -30){
-            angle = -30.0;
-        }
-	return angle;
-        //end of OLD getHandleAngle Code
-
-
-//    // theta1, theta2, theta3, omega2, omega3, and alpha are all initialized to 0 before they ever send data.
-//    // the value for timeStep still needs to be determined,
-//    // could have a switch case for timeStep depending on what loop it is in.
-//    // Better yet use timer two.
-//
-//        int currentIC2Time; // set this equal to the timer.
-//        theta3 = theta2;
-//        theta2 = theta1;
-//	signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
+//        //OLD getHandleAngle Code:
+//        signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
 //	signed int yValue = readAdc(yAxis) - adjustmentFactor; //added abs() 06-20-2014
-//	float theta1 = atan2(yValue, xValue);
-//
-//        omega2 = (theta2 - theta1)/ (float) timeStep;
-//        omega3 = (theta3 - theta1) / (float) timeStep;
-//        alpha = (omega3 - omega2) / (float) timeStep;
-//        float tanAccelerometer = alpha * angleRadius;
-//        float radAccelerometer = omega3 * omega3 * angleRadius;
-//
-//        xValue = xValue - tanAccelerometer;
-//        yValue = yValue - radAccelerometer;
-//        theta3 = atan2(yValue, xValue) ;
-//
-//        float angle = theta3 * (180 / 3.141592); //returns angle in degrees 06-20-2014
+//	float angle = atan2(yValue, xValue) * (180 / 3.141592); //returns angle in degrees 06-20-2014
 //	// Calculate and return the angle of the pump handle // TODO: 3.141592=PI, make that a constant
 //        if (angle > 20){
 //            angle = 20.0;
@@ -1384,9 +1351,53 @@ float getHandleAngle()
 //        else if (angle < -30){
 //            angle = -30.0;
 //        }
-//
-//        int prevIC2Time; // set this equal to the timer.
 //	return angle;
+//        //end of OLD getHandleAngle Code
+
+
+    // theta1, theta2, theta3, omega2, omega3, and alpha are all initialized to 0 before they ever send data.
+    int currentTimer2 = TMR2; // exactly 16 bits
+    if (currentTimer2 >= prevTimer2)
+	{
+		timeStep = (currentTimer2 - prevTimer2); //Number of bits that have past
+                // Note: we should see TMR2 overflow every 2.09712 seconds
+                // This means we should be seeing 31,250 bits/sec with the prescalar at 1:256
+                timeStep = timeStep * (1/31250); // timeStep is now in seconds
+	}
+    else // It must have overflowed
+	{
+		timeStep = (currentTimer2 - prevTimer2 + 0x10000); //add 65,536 since it overflowed
+                // Note: we should see TMR2 overflow every 2.09712 seconds
+                // This means we should be seeing 31,250 bits/sec with the prescalar at 1:256
+                timeStep = timeStep * (1/31250); // timeStep is now in seconds
+	}
+        theta3 = theta2;
+        theta2 = theta1;
+	signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
+	signed int yValue = readAdc(yAxis) - adjustmentFactor; //added abs() 06-20-2014
+	float theta1 = atan2(yValue, xValue);
+
+        omega2 = (theta2 - theta1)/ timeStep;
+        omega3 = (theta3 - theta1) / timeStep;
+        alpha = (omega3 - omega2) /  timeStep;
+        float tanAccelerometer = alpha * angleRadius;
+        float radAccelerometer = omega3 * omega3 * angleRadius;
+
+        xValue = xValue - tanAccelerometer;
+        yValue = yValue - radAccelerometer;
+        theta3 = atan2(yValue, xValue) ;
+
+        float angle = theta3 * (180 / 3.141592); //returns angle in degrees 06-20-2014
+	// Calculate and return the angle of the pump handle // TODO: 3.141592=PI, make that a constant
+        if (angle > 20){
+            angle = 20.0;
+        }
+        else if (angle < -30){
+            angle = -30.0;
+        }
+
+        prevTimer2 = TMR2; // set this equal to the timer.
+	return angle;
 }
 
 /*********************************************************************

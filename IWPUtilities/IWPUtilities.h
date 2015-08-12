@@ -58,6 +58,14 @@ extern int prevDayDepthSensor;
 extern int invalid;
 extern int depthSensorInUse;
 extern float midDayDepth;
+extern float theta1;
+extern float theta2;
+extern float theta3;
+extern float omega2;
+extern float omega3;
+extern float alpha;
+extern double timeStep;
+extern int prevTimer2;
 
 
 // ****************************************************************************
@@ -111,7 +119,6 @@ extern int waterPresenceSensorOnOffPin;
 extern int GNDPin;
 extern int vcc2Pin;
 extern int debugCounter; // DEBUG DEBUG DEBUG DEBUG DEBUG
-
 
 
 void debugHighLow(int pin); // DEBUG DEBUG DEBUG DEBUG DEBUG
