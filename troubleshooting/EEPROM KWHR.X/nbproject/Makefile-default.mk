@@ -41,11 +41,11 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=
-POSSIBLE_DEPFILES=
+OBJECTFILES_QUOTED_IF_SPACED="${OBJECTDIR}/EEPROM KWHR Tom as a c file.o" "${OBJECTDIR}/EEPROM main.o"
+POSSIBLE_DEPFILES="${OBJECTDIR}/EEPROM KWHR Tom as a c file.o.d" "${OBJECTDIR}/EEPROM main.o.d"
 
 # Object Files
-OBJECTFILES=
+OBJECTFILES=${OBJECTDIR}/EEPROM\ KWHR\ Tom\ as\ a\ c\ file.o ${OBJECTDIR}/EEPROM\ main.o
 
 
 CFLAGS=
@@ -69,7 +69,31 @@ MP_LINKER_FILE_OPTION=,--script=p24FV32KA302.gld
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compile
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
+${OBJECTDIR}/EEPROM\ KWHR\ Tom\ as\ a\ c\ file.o: EEPROM\ KWHR\ Tom\ as\ a\ c\ file.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/EEPROM\ KWHR\ Tom\ as\ a\ c\ file.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  "EEPROM KWHR Tom as a c file.c"  -o "${OBJECTDIR}/EEPROM KWHR Tom as a c file.o"  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/EEPROM KWHR Tom as a c file.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/EEPROM KWHR Tom as a c file.o.d" $(SILENT) 
+	
+${OBJECTDIR}/EEPROM\ main.o: EEPROM\ main.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/EEPROM\ main.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  "EEPROM main.c"  -o "${OBJECTDIR}/EEPROM main.o"  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/EEPROM main.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/EEPROM main.o.d" $(SILENT) 
+	
 else
+${OBJECTDIR}/EEPROM\ KWHR\ Tom\ as\ a\ c\ file.o: EEPROM\ KWHR\ Tom\ as\ a\ c\ file.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/EEPROM\ KWHR\ Tom\ as\ a\ c\ file.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  "EEPROM KWHR Tom as a c file.c"  -o "${OBJECTDIR}/EEPROM KWHR Tom as a c file.o"  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/EEPROM KWHR Tom as a c file.o.d"        -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/EEPROM KWHR Tom as a c file.o.d" $(SILENT) 
+	
+${OBJECTDIR}/EEPROM\ main.o: EEPROM\ main.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/EEPROM\ main.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  "EEPROM main.c"  -o "${OBJECTDIR}/EEPROM main.o"  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/EEPROM main.o.d"        -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/EEPROM main.o.d" $(SILENT) 
+	
 endif
 
 # ------------------------------------------------------------------------------------

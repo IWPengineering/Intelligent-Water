@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   EEPROM KWHR from Tom Austin.h
  * Author: Jacqui
  *
@@ -7,7 +7,8 @@
 
 //#include "C:\Program Files\Microchip\xc16\v1.21\support\PIC24F\h\p24FV32KA301.h"
 
-
+#include <p24FV32KA302.h>
+//#include "PIC24F_periph_features.h"
 
 
 /* Function Definitions *******************************************************/
@@ -16,7 +17,6 @@ unsigned long EEPROMreadLong();
 unsigned int EEPROMreadInt(void);
 void EEPROMwriteLong(unsigned long);
 void EEPROMwriteInt(unsigned int);
-
 
 /* Variable Definitions *******************************************************/
 
