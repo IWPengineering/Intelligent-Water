@@ -644,26 +644,26 @@ void initialization(void)
         pinDirectionIO(waterPresenceSensorOnOffPin, 0); //makes water presence sensor pin an output.
 	digitalPinSet(waterPresenceSensorOnOffPin, 1); //turns on the water presnece sensor.
 
-	// From fona code
-//	pinDirectionIO(pwrKeyPin, 0); //TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
-//	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
-//
-//	//         Fona stuff
-//	digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
-//	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
-//		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
-//	}
-//	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
-//	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
-//
-//	// Turn on SIM800
-//	 turnOnSIM();
+	// From fona code (for enabling Texting)
+	pinDirectionIO(pwrKeyPin, 0); //TRISBbits.TRISB6 = 0; //sets power key as an output (Pin 15)
+	pinDirectionIO(simVioPin, 0); //TRISAbits.TRISA1 = 0; //sets Vio as an output (pin 3)
 
-                // PUTTY TEST
-         specifyAnalogPin(txPin, 0);    // make digital
-         specifyAnalogPin(rxPin, 0);    // make digital
-         pinDirectionIO(txPin, 0);       // make output
-         pinDirectionIO(rxPin, 1);       // make input
+	//         Fona stuff
+	digitalPinSet(simVioPin, 1); //PORTAbits.RA1 = 1; //Tells Fona what logic level to use for UART
+	if (digitalPinStatus(statusPin) == 0){ //Checks see if the Fona is off pin
+		digitalPinSet(pwrKeyPin, 0); //PORTBbits.RB6 = 0; //set low pin 15 for 100ms to turn on Fona
+	}
+	while (digitalPinStatus(statusPin) == 0) {} // Wait for Fona to power up
+	digitalPinSet(pwrKeyPin, 1);//PORTBbits.RB6 = 1; // Reset the Power Key so it can be turned off later (pin 15)
+
+	// Turn on SIM800
+	 turnOnSIM();
+
+                // PUTTY TEST (Serial Communication)
+//         specifyAnalogPin(txPin, 0);    // make digital
+//         specifyAnalogPin(rxPin, 0);    // make digital
+//         pinDirectionIO(txPin, 0);       // make output
+//         pinDirectionIO(rxPin, 1);       // make input
 
 	// Moved the RTCCSet function up since we do not rely on network anymore
 	configI2c();
@@ -675,7 +675,7 @@ void initialization(void)
 	char months = 8;
 	char years = 15;
         depthSensorInUse = 0; // If Depth Sensor is in use, make a 1. Else make it zero.
-//	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
+	setTime(seconds, minutes, hours, weekday, days, months, years); // SS MM HH WW DD MM YY
 
 	/*
 	 *
@@ -1341,53 +1341,9 @@ the angle is negative.Gets a snapshot of the current sensor values.
 float getHandleAngle()
 {
 //        //OLD getHandleAngle Code:
-//        signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
-//	signed int yValue = readAdc(yAxis) - adjustmentFactor; //added abs() 06-20-2014
-//	float angle = atan2(yValue, xValue) * (180 / 3.141592); //returns angle in degrees 06-20-2014
-//	// Calculate and return the angle of the pump handle // TODO: 3.141592=PI, make that a constant
-//        if (angle > 20){
-//            angle = 20.0;
-//        }
-//        else if (angle < -30){
-//            angle = -30.0;
-//        }
-//	return angle;
-//        //end of OLD getHandleAngle Code
-
-
-    // theta1, theta2, theta3, omega2, omega3, and alpha are all initialized to 0 before they ever send data.
-    int currentTimer2 = TMR2; // exactly 16 bits
-    if (currentTimer2 >= prevTimer2)
-	{
-		timeStep = (currentTimer2 - prevTimer2); //Number of bits that have past
-                // Note: we should see TMR2 overflow every 2.09712 seconds
-                // This means we should be seeing 31,250 bits/sec with the prescalar at 1:256
-                timeStep = timeStep * (1/31250); // timeStep is now in seconds
-	}
-    else // It must have overflowed
-	{
-		timeStep = (currentTimer2 - prevTimer2 + 0x10000); //add 65,536 since it overflowed
-                // Note: we should see TMR2 overflow every 2.09712 seconds
-                // This means we should be seeing 31,250 bits/sec with the prescalar at 1:256
-                timeStep = timeStep * (1/31250); // timeStep is now in seconds
-	}
-        theta3 = theta2;
-        theta2 = theta1;
-	signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
+        signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
 	signed int yValue = readAdc(yAxis) - adjustmentFactor; //added abs() 06-20-2014
-	float theta1 = atan2(yValue, xValue);
-
-        omega2 = (theta2 - theta1)/ timeStep;
-        omega3 = (theta3 - theta1) / timeStep;
-        alpha = (omega3 - omega2) /  timeStep;
-        float tanAccelerometer = alpha * angleRadius;
-        float radAccelerometer = omega3 * omega3 * angleRadius;
-
-        xValue = xValue - tanAccelerometer;
-        yValue = yValue - radAccelerometer;
-        theta3 = atan2(yValue, xValue) ;
-
-        float angle = theta3 * (180 / 3.141592); //returns angle in degrees 06-20-2014
+	float angle = atan2(yValue, xValue) * (180 / 3.141592); //returns angle in degrees 06-20-2014
 	// Calculate and return the angle of the pump handle // TODO: 3.141592=PI, make that a constant
         if (angle > 20){
             angle = 20.0;
@@ -1395,9 +1351,53 @@ float getHandleAngle()
         else if (angle < -30){
             angle = -30.0;
         }
-
-        prevTimer2 = TMR2; // set this equal to the timer.
 	return angle;
+        //end of OLD getHandleAngle Code
+
+//
+//    // theta1, theta2, theta3, omega2, omega3, and alpha are all initialized to 0 before they ever send data.
+//    int currentTimer2 = TMR2; // exactly 16 bits
+//    if (currentTimer2 >= prevTimer2)
+//	{
+//		timeStep = (currentTimer2 - prevTimer2); //Number of bits that have past
+//                // Note: we should see TMR2 overflow every 2.09712 seconds
+//                // This means we should be seeing 31,250 bits/sec with the prescalar at 1:256
+//                timeStep = timeStep * (1/31250); // timeStep is now in seconds
+//	}
+//    else // It must have overflowed
+//	{
+//		timeStep = (currentTimer2 - prevTimer2 + 0x10000); //add 65,536 since it overflowed
+//                // Note: we should see TMR2 overflow every 2.09712 seconds
+//                // This means we should be seeing 31,250 bits/sec with the prescalar at 1:256
+//                timeStep = timeStep * (1/31250); // timeStep is now in seconds
+//	}
+//        theta3 = theta2;
+//        theta2 = theta1;
+//	signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
+//	signed int yValue = readAdc(yAxis) - adjustmentFactor; //added abs() 06-20-2014
+//	float theta1 = atan2(yValue, xValue);
+//
+//        omega2 = (theta2 - theta1)/ timeStep;
+//        omega3 = (theta3 - theta1) / timeStep;
+//        alpha = (omega3 - omega2) /  timeStep;
+//        float tanAccelerometer = alpha * angleRadius;
+//        float radAccelerometer = omega3 * omega3 * angleRadius;
+//
+//        xValue = xValue - tanAccelerometer;
+//        yValue = yValue - radAccelerometer;
+//        theta3 = atan2(yValue, xValue) ;
+//
+//        float angle = theta3 * (180 / 3.141592); //returns angle in degrees 06-20-2014
+//	// Calculate and return the angle of the pump handle // TODO: 3.141592=PI, make that a constant
+//        if (angle > 20){
+//            angle = 20.0;
+//        }
+//        else if (angle < -30){
+//            angle = -30.0;
+//        }
+//
+//        prevTimer2 = TMR2; // set this equal to the timer.
+//	return angle;
 }
 
 /*********************************************************************

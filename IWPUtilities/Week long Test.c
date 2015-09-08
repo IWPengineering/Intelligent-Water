@@ -65,9 +65,16 @@
 void main(void)
 {
     	initialization();
+
         while(1){
-            delayMs(3000);
-            sendTimeMessage();
+            int angleForMessage = getHandleAngle();
+            char angleMessage[20];
+            angleMessage[0]=0;
+            longToString(angleForMessage, angleMessage);
+            
+            concat(angleMessage, "\r \n");
+            sendMessage("angle: ");
+            sendMessage(angleMessage);
         }
 
 
