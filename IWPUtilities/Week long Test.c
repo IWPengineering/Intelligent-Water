@@ -65,16 +65,18 @@
 void main(void)
 {
     	initialization();
+        sendTextMessage("What Hath God Wrought? Number 11");
 
         while(1){
-            int angleForMessage = getHandleAngle();
-            char angleMessage[20];
-            angleMessage[0]=0;
-            longToString(angleForMessage, angleMessage);
-            
-            concat(angleMessage, "\r \n");
-            sendMessage("angle: ");
-            sendMessage(angleMessage);
+//            sendTextMessage("What Hath God Wrought \r\n");
+//            int angleForMessage = getHandleAngle();
+//            char angleMessage[20];
+//            angleMessage[0]=0;
+//            longToString(angleForMessage, angleMessage);
+//
+//            concat(angleMessage, "\r \n");
+//            sendMessage("angle: ");
+//            sendMessage(angleMessage);
         }
 
 
@@ -106,6 +108,8 @@ void main(void)
         int currentDay;
         int currentHourDepthSensor;
 
+        float deltaAverage;
+
 	while (1)
 	{ //MAIN LOOP; repeats indefinitely
 		////////////////////////////////////////////////////////////
@@ -116,19 +120,12 @@ void main(void)
 		// Get the angle of the pump handle to measure against
 		anglePrevious = getHandleAngle();
 		float previousAverage = 0;
-		initializeQueue(anglePrevious);
-		previousAverage = queueAverage();
 		// Set the handle movement to 0 (handle is not moving)
 		handleMovement = 0;
 		// Loop until the handle starts moving
                 float angleAccumulated=0;
 		while (handleMovement == 0)
 		{
-//                        currentHour = getHourI2C();
-//			if ( prevHour != currentHour){ //(prevDay != getDateI2C()){// it's a new day so send midNightMessage();
-//                                batteryFloat = batteryLevel();
-//				midnightMessage();
-//			}
                           currentDay = getDateI2C();
 			if ( prevDay != currentDay){ //(prevDay != getDateI2C()){// it's a new day so send midNightMessage();
                                 batteryFloat = batteryLevel();
@@ -166,13 +163,30 @@ void main(void)
 		anglePrevious = getHandleAngle();
 		upStrokePrime = 0; // gets the variable ready for a new event
                 upStroke = 0; // gets variable ready for new event
+
+                // averaging angle Code 9/17/2015
+                initializeQueue(anglePrevious);
+		previousAverage = queueAverage();
+                // Averaging angle code
+
 		while ((timeOutStatus < waterPrimeTimeOut) && !readWaterSensor())
 		{
 			delayMs(upstrokeInterval);  // delay a short time (10ms)
-			angleCurrent = getHandleAngle(); // Get the current angle of the pump handle
+
+                        // averaging angle Code 9/17/2015
+                        pushToQueue(getHandleAngle()); //get Current angle of the pump handle
+                        deltaAverage = queueAverage() - previousAverage();
+                        previousAverage = queueAverage();
+                        
+                        
+                        // end averaging angle Code
+
+                        angleCurrent = getHandleAngle(); // Get the current angle of the pump handle
 			angleDelta = angleCurrent - anglePrevious; // Calculate the change in angle of the pump handle
-                        if(angleDelta > 5){
-                            upStroke += angleDelta;
+                        //if(angleDelta > 5){
+                        if (deltaAverage > 5){ // averaging angle code 9/17/2015
+                            upStroke + = deltaAverage; // angle Code 9/17/2015
+                           // upStroke += angleDelta;
                             upStrokePrime += degToRad(upStroke); // Update the upStrokePrime
                             timeOutStatus=0;
                         // upstroke and current angle

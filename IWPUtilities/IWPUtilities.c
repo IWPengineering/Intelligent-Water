@@ -1336,11 +1336,12 @@ present), the angle is positive. When the pump handle
 (the side the user is using) is up (no water present),
 the angle is negative.Gets a snapshot of the current sensor values.
  * Note: Library
- * TestDate: TESTED 06-20-2014
+ * NOTE2: It turns out that averaging the hangle angles would be the most accurate way to report pumping
+ * TestDate: TBD
  ********************************************************************/
 float getHandleAngle()
 {
-//        //OLD getHandleAngle Code:
+        //OLD getHandleAngle Code:
         signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
 	signed int yValue = readAdc(yAxis) - adjustmentFactor; //added abs() 06-20-2014
 	float angle = atan2(yValue, xValue) * (180 / 3.141592); //returns angle in degrees 06-20-2014
@@ -1352,52 +1353,8 @@ float getHandleAngle()
             angle = -30.0;
         }
 	return angle;
-        //end of OLD getHandleAngle Code
 
-//
-//    // theta1, theta2, theta3, omega2, omega3, and alpha are all initialized to 0 before they ever send data.
-//    int currentTimer2 = TMR2; // exactly 16 bits
-//    if (currentTimer2 >= prevTimer2)
-//	{
-//		timeStep = (currentTimer2 - prevTimer2); //Number of bits that have past
-//                // Note: we should see TMR2 overflow every 2.09712 seconds
-//                // This means we should be seeing 31,250 bits/sec with the prescalar at 1:256
-//                timeStep = timeStep * (1/31250); // timeStep is now in seconds
-//	}
-//    else // It must have overflowed
-//	{
-//		timeStep = (currentTimer2 - prevTimer2 + 0x10000); //add 65,536 since it overflowed
-//                // Note: we should see TMR2 overflow every 2.09712 seconds
-//                // This means we should be seeing 31,250 bits/sec with the prescalar at 1:256
-//                timeStep = timeStep * (1/31250); // timeStep is now in seconds
-//	}
-//        theta3 = theta2;
-//        theta2 = theta1;
-//	signed int xValue = readAdc(xAxis) - adjustmentFactor; //added abs() 06-20-2014
-//	signed int yValue = readAdc(yAxis) - adjustmentFactor; //added abs() 06-20-2014
-//	float theta1 = atan2(yValue, xValue);
-//
-//        omega2 = (theta2 - theta1)/ timeStep;
-//        omega3 = (theta3 - theta1) / timeStep;
-//        alpha = (omega3 - omega2) /  timeStep;
-//        float tanAccelerometer = alpha * angleRadius;
-//        float radAccelerometer = omega3 * omega3 * angleRadius;
-//
-//        xValue = xValue - tanAccelerometer;
-//        yValue = yValue - radAccelerometer;
-//        theta3 = atan2(yValue, xValue) ;
-//
-//        float angle = theta3 * (180 / 3.141592); //returns angle in degrees 06-20-2014
-//	// Calculate and return the angle of the pump handle // TODO: 3.141592=PI, make that a constant
-//        if (angle > 20){
-//            angle = 20.0;
-//        }
-//        else if (angle < -30){
-//            angle = -30.0;
-//        }
-//
-//        prevTimer2 = TMR2; // set this equal to the timer.
-//	return angle;
+
 }
 
 /*********************************************************************
