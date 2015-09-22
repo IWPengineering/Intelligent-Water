@@ -150,7 +150,7 @@ int invalid;
 //char phoneNumber[] = "+19783840645"; // Number for Jake Sargent
 //char phoneNumber[] = "+17177784498"; // Number for Upside Wireless
 //char phoneNumber2[] = "+17173039306"; // Tony's number
-char phoneNumber[] = "+13018737202"; // Number for Jacqui Young
+char phoneNumber[] = "+17173447340"; // Number for Sandy
 float longestPrime = 0; // total upstroke fo the longest priming event of the day
 float leakRateLong = 0; // largest leak rate recorded for the day
 float batteryFloat;

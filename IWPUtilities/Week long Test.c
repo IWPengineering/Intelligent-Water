@@ -65,7 +65,7 @@
 void main(void)
 {
     	initialization();
-        sendTextMessage("What Hath God Wrought? Number 11");
+        sendTextMessage("What Hath God Wrought? Number 1");
 
         while(1){
 //            sendTextMessage("What Hath God Wrought \r\n");
